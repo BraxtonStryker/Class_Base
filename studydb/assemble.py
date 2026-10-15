@@ -78,6 +78,7 @@ def render_html(title, data, images, book_tags=(), head=""):
             .replace("<!--__BOOKS__-->", "\n".join(book_tags))
             .replace("/*__PDFJS__*/", _vendor("pdf.min.js"))
             .replace("/*__KATEX__*/", _vendor("katex.min.js"))
+            .replace("/*__ATKINSON__*/", _vendor("atkinson.css"))
             .replace("__PDFWORKER__", _vendor("pdf.worker.min.js"))
             .replace("__PAGE_TITLE__", _esc(title)))
 
@@ -106,10 +107,10 @@ SITE_HEAD = """<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="theme-color" content="#EEF2F0" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14181D" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161C25" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-title" content="Class Base">
-<meta name="description" content="Search your lecture slides and textbooks in seconds, offline. Your PDFs never leave your device.">"""
+<meta name="description" content="Search your lecture slides, textbooks and note sheets in seconds, offline. Your PDFs never leave your device.">"""
 
 
 def write_site(out_dir, log=print):
@@ -121,7 +122,7 @@ def write_site(out_dir, log=print):
     out_dir = Path(out_dir)
     site = WEB / "site"
     (out_dir / "icons").mkdir(parents=True, exist_ok=True)
-    data = {"meta": {"title": "Class Base", "subtitle": "Search your slides and textbooks", "version": 2,
+    data = {"meta": {"title": "Class Base", "subtitle": "", "version": 2,
                      "synonyms": {}, "hosted": True},
             "decks": [], "slides": [], "books": [], "defs": [], "formulas": [], "trivia": [], "numbers": [],
             "tb": [], "qa": []}

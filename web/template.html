@@ -7,59 +7,84 @@
 <!--__HEAD__-->
 <style>
 :root{
-  --paper:#EEF2F0; --panel:#FFFFFF; --ink:#18202A; --muted:#566170; --rule:#D3DAD6; --soft:#F6F8F7;
-  --hl:#FFE45C; --hl-ink:#18202A; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00; --teal:#0F766E;
-  --grid:rgba(29,78,216,.07); --shadow:0 1px 0 rgba(24,32,42,.06);
+  /* the same palette as Quiz Qrusher. The accent comes from Settings (applyLook) and defaults to Class Base green */
+  color-scheme:light;
+  --paper:#EEF1F5; --panel:#FFFFFF; --ink:#131A24; --muted:#616B7A; --rule:#E2E7EE; --soft:#F6F8FB;
+  --accent:#1E7A4C; --accent-hover:#17633D; --accent-soft:#E3F2EA; --on-accent:#FFFFFF;
+  --hl:#FFE45C; --hl-ink:#131A24; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00; --teal:#0F766E;
+  --grid:rgba(19,26,36,.05); --shadow:0 1px 2px rgba(19,26,36,.06),0 8px 24px rgba(19,26,36,.06); --shadow-sm:0 1px 2px rgba(19,26,36,.06);
+  --knob:#FFFFFF; --shadow-knob:0 1px 3px rgba(0,0,0,.3);
+  --radius:12px; --radius-sm:9px; --fs:1; --lh:1;   /* --fs, --lh: text size and line spacing (Settings) */
   --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --serif: Charter,"Bitstream Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#14181D; --panel:#1B2027; --ink:#E5E9EE; --muted:#9BA6B2; --rule:#2D343D; --soft:#20262E;
-    --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
-    --grid:rgba(138,180,255,.06); --shadow:none;
+    color-scheme:dark;
+    --paper:#0E1218; --panel:#161C25; --ink:#E8ECF2; --muted:#96A0AD; --rule:#263140; --soft:#1C2531;
+    --accent:#6FD3A0; --accent-hover:#8FE0B6; --accent-soft:#13281E; --on-accent:#08160F;
+    --hl:#E9C93A; --hl-ink:#0E1218; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
+    --grid:rgba(232,236,242,.04); --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --shadow-sm:none; --knob:#F4F6FA;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#14181D; --panel:#1B2027; --ink:#E5E9EE; --muted:#9BA6B2; --rule:#2D343D; --soft:#20262E;
-  --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
-  --grid:rgba(138,180,255,.06); --shadow:none;
+  color-scheme:dark;
+  --paper:#0E1218; --panel:#161C25; --ink:#E8ECF2; --muted:#96A0AD; --rule:#263140; --soft:#1C2531;
+  --accent:#6FD3A0; --accent-hover:#8FE0B6; --accent-soft:#13281E; --on-accent:#08160F;
+  --hl:#E9C93A; --hl-ink:#0E1218; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
+  --grid:rgba(232,236,242,.04); --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --shadow-sm:none; --knob:#F4F6FA;
 }
+/* Settings > Font (Atkinson Hyperlegible is inlined from web/vendor/atkinson.css) */
+/*__ATKINSON__*/
+:root[data-font="sans"]{--serif:var(--sans)}
+:root[data-font="atkinson"]{--sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--serif:var(--sans)}
+:root[data-motion="reduce"] *,:root[data-motion="reduce"] *::before,:root[data-motion="reduce"] *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+body{background:var(--paper);color:var(--ink);font:calc(15px * var(--fs))/calc(1.5 * var(--lh)) var(--sans);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 mark{background:var(--hl);color:var(--hl-ink);border-radius:2px;padding:0 1px}
-a{color:var(--blue)}
+a{color:var(--accent)}
 [hidden]{display:none!important}
 
 /* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
-.top-in{max-width:1500px;margin:0 auto;padding:12px 16px 0}
-.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.brand h1{font:700 19px/1.2 var(--sans);margin:0;letter-spacing:-.01em}
-.brand p{margin:0;color:var(--muted);font-size:13px}
+.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--rule)}
+.top-in{max-width:1500px;margin:0 auto;padding:8px 16px 0}
+.brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;min-height:40px}
+.brand h1{font:750 calc(18px * var(--fs))/calc(1.2 * var(--lh)) var(--sans);margin:0;letter-spacing:-.02em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:0;color:var(--muted);font-size:calc(13px * var(--fs))}
 .brand .sp{flex:1}
-.iconbtn{border:1px solid var(--rule);background:var(--panel);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:var(--muted)}
+.homeback{display:inline-grid;place-items:center;width:24px;height:32px;margin:0 -8px 0 -8px;color:var(--muted);border-radius:6px;text-decoration:none}
+.homeback:hover{color:var(--ink);background:var(--soft)}
+.homeback svg{width:18px;height:18px}
+.iconbtn{border:1px solid var(--rule);background:var(--panel);border-radius:var(--radius-sm);padding:6px 12px;cursor:pointer;font-size:calc(13.5px * var(--fs));font-weight:600;color:var(--ink)}
+.iconbtn:hover{background:var(--soft)}
+.cog{display:inline-grid;place-items:center;width:36px;height:36px;border:0;background:none;border-radius:var(--radius-sm);color:var(--muted);cursor:pointer;padding:0}
+.cog:hover,.cog[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+.cog svg{width:20px;height:20px}
 .searchrow{display:flex;gap:8px;align-items:stretch}
-.q{flex:1;display:flex;align-items:center;background:var(--panel);border:2px solid var(--ink);border-radius:10px;padding:0 12px;min-width:0}
-.q:focus-within{border-color:var(--blue)}
+.q{flex:1;display:flex;align-items:center;background:var(--soft);border:1.5px solid var(--rule);border-radius:var(--radius);padding:0 12px;min-width:0;transition:border-color .15s ease,box-shadow .15s ease}
+.q:focus-within{border-color:var(--accent);background:var(--panel);box-shadow:0 0 0 3px var(--accent-soft)}
+.q:focus-within svg{color:var(--accent);opacity:1}
 .q svg{flex:none;opacity:.6}
-#q{flex:1;border:0;outline:0;background:transparent;color:var(--ink);font:500 18px/1 var(--sans);padding:12px 10px;min-width:0}
+#q{flex:1;border:0;outline:0;background:transparent;color:var(--ink);font:500 calc(18px * var(--fs))/calc(1 * var(--lh)) var(--sans);padding:12px 10px;min-width:0}
 input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
-#clear{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;padding:4px 6px;display:none}
-select{font:inherit;font-size:14px;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:0 10px;max-width:280px}
+#clear{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:calc(20px * var(--fs));line-height:1;padding:4px 6px;display:none}
+select{font:inherit;font-size:calc(14px * var(--fs));background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:0 10px;max-width:280px}
 .tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{border:0;background:transparent;padding:8px 12px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;font-weight:500}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tab{border:0;background:transparent;padding:10px 11px 9px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;font-weight:600;font-size:calc(14px * var(--fs))}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0}
-.chip{border:1px solid var(--rule);background:var(--panel);border-radius:999px;padding:3px 11px;font-size:13px;cursor:pointer;color:var(--muted)}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip{border:1px solid var(--rule);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:calc(13px * var(--fs));font-weight:600;cursor:pointer;color:var(--muted)}
+.chip:hover{border-color:var(--accent);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .chip .n{opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
-.hint{color:var(--muted);font-size:12.5px;padding:0 0 10px}
-kbd{font:600 11px/1 var(--sans);border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;padding:2px 5px;background:var(--panel)}
+.hint{color:var(--muted);font-size:calc(12.5px * var(--fs));padding:0 0 10px}
+kbd{font:600 calc(11px * var(--fs))/calc(1 * var(--lh)) var(--sans);border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;padding:2px 5px;background:var(--panel)}
 
 /* ---------- layout ---------- */
 main{max-width:1500px;margin:0 auto;padding:14px 16px 60px}
@@ -69,179 +94,259 @@ main{max-width:1500px;margin:0 auto;padding:14px 16px 60px}
 @media (max-width:1100px){.split{grid-template-columns:1fr}.projector{display:none}}
 
 /* ---------- results ---------- */
-.meta{color:var(--muted);font-size:13px;margin:0 0 8px}
+.meta{color:var(--muted);font-size:calc(13px * var(--fs));margin:0 0 8px}
 .res{list-style:none;margin:0;padding:0}
-.r{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
-.r[aria-selected="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue) inset}
-.r .k{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.r{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
+.r:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--rule))}
+.r[aria-selected="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,var(--shadow-sm)}
+.r .k{font-size:calc(12px * var(--fs));color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .badge{font-weight:600}
 .b-def{color:var(--blue)} .b-slide{color:var(--ink)} .b-formula{color:var(--green)} .b-trivia{color:var(--red)} .b-number{color:var(--violet)} .b-tb{color:var(--muted)} .b-qa{color:var(--muted)} .b-page{color:var(--amber)}
-.r h3{font:600 15.5px/1.3 var(--sans);margin:3px 0 4px}
-.r .s{font:14.5px/1.55 var(--serif);margin:0;color:var(--ink)}
-.r .s.sans{font-family:var(--sans);font-size:14px}
+.r h3{font:600 calc(15.5px * var(--fs))/calc(1.3 * var(--lh)) var(--sans);margin:3px 0 4px}
+.r .s{font:calc(14.5px * var(--fs))/calc(1.55 * var(--lh)) var(--serif);margin:0;color:var(--ink)}
+.r .s.sans{font-family:var(--sans);font-size:calc(14px * var(--fs))}
 .thumb{width:150px;aspect-ratio:4/3;border:1px solid var(--rule);border-radius:6px;background:var(--soft);object-fit:contain;display:block}
 .thumb.portrait{width:96px;aspect-ratio:3/4}
 .refs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
-.ref{border:1px solid var(--rule);background:var(--soft);border-radius:6px;padding:1px 7px;font-size:12px;cursor:pointer;color:var(--ink);text-align:left}
-.ref:hover{border-color:var(--blue)}
+.ref{border:1px solid var(--rule);background:var(--soft);border-radius:6px;padding:1px 7px;font-size:calc(12px * var(--fs));cursor:pointer;color:var(--ink);text-align:left}
+.ref:hover{border-color:var(--accent)}
 .ref.book{border-color:color-mix(in srgb,var(--amber) 45%,var(--rule));}
 .ref.static{cursor:default;color:var(--muted)}
 .em{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.e{font-size:12px;padding:0 6px;border-radius:4px;border:1px solid var(--rule);background:var(--soft)}
+.e{font-size:calc(12px * var(--fs));padding:0 6px;border-radius:4px;border:1px solid var(--rule);background:var(--soft)}
 .e.red{color:var(--red);font-weight:600}.e.blue{color:var(--blue);font-weight:600}.e.green{color:var(--green);font-weight:600}
 .e.highlight{background:var(--hl);color:var(--hl-ink);border-color:transparent}
 .e.bold{font-weight:700}
-.empty{background:var(--panel);border:1px dashed var(--rule);border-radius:10px;padding:18px;color:var(--muted)}
-.mml{overflow-x:auto;padding:4px 0;font-size:17px}
+.empty{background:var(--panel);border:1px dashed var(--rule);border-radius:var(--radius);padding:18px;color:var(--muted)}
+.mml{overflow-x:auto;padding:4px 0;font-size:calc(17px * var(--fs))}
 
 /* ---------- projector ---------- */
-.projector{position:sticky;top:178px;max-height:calc(100vh - 190px);overflow:auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow)}
+.projector{position:sticky;top:178px;max-height:calc(100vh - 190px);overflow:auto;background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow)}
 .screen{background-color:var(--soft);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:18px 18px;padding:14px;border-bottom:1px solid var(--rule);border-radius:12px 12px 0 0}
 .screen img{width:100%;display:block;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.18);background:#fff;cursor:zoom-in;min-height:120px}
 .screen.portrait img{max-width:520px;margin:0 auto}
 .pbody{padding:12px 16px 16px}
 .pnav{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.pnav .t{flex:1;font-size:13px;color:var(--muted)}
-.pnav button,.btn{border:1px solid var(--rule);background:var(--panel);border-radius:8px;padding:3px 10px;cursor:pointer}
-.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.pbody h2{font:650 17px/1.3 var(--sans);margin:0 0 6px}
-.pbody h4{font:600 13px/1.3 var(--sans);margin:12px 0 4px;color:var(--muted)}
-.pbody .cap{font:14px/1.55 var(--serif);margin:0}
-.pbody pre,.txt{white-space:pre-wrap;font:13.5px/1.5 var(--serif);margin:0;background:var(--soft);border-radius:8px;padding:8px 10px}
-.pdef{font:15px/1.6 var(--serif);margin:0 0 6px}
+.pnav .t{flex:1;font-size:calc(13px * var(--fs));color:var(--muted)}
+.pnav button,.btn{border:1px solid var(--rule);background:var(--panel);border-radius:var(--radius-sm);padding:4px 11px;cursor:pointer;font-weight:600}
+.pnav button:hover,.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.pbody h2{font:650 calc(17px * var(--fs))/calc(1.3 * var(--lh)) var(--sans);margin:0 0 6px}
+.pbody h4{font:600 calc(13px * var(--fs))/calc(1.3 * var(--lh)) var(--sans);margin:12px 0 4px;color:var(--muted)}
+.pbody .cap,.ov-side .cap{font:calc(14px * var(--fs))/calc(1.55 * var(--lh)) var(--serif);margin:0}
+.pbody pre,.txt{white-space:pre-wrap;font:calc(13.5px * var(--fs))/calc(1.5 * var(--lh)) var(--serif);margin:0;background:var(--soft);border-radius:8px;padding:8px 10px}
+.pdef{font:calc(15px * var(--fs))/calc(1.6 * var(--lh)) var(--serif);margin:0 0 6px}
 .reftabs{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 4px}
-.reftabs .ref[aria-current="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-details summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:10px}
+.reftabs .ref[aria-current="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+details summary{cursor:pointer;color:var(--muted);font-size:calc(13px * var(--fs));margin-top:10px}
 .noimg{padding:30px;text-align:center;color:var(--muted)}
 
 /* ---------- overlays (slide viewer + book viewer) ---------- */
 .ov{position:fixed;inset:0;z-index:50;background:rgba(10,14,20,.95);display:none;flex-direction:column}
 .ov.on{display:flex}
 .ov-bar{display:flex;gap:8px;align-items:center;padding:10px 14px;color:#fff;flex-wrap:wrap}
-.ov-bar .t{flex:1;font-size:14px;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-bar .t{flex:1;font-size:calc(14px * var(--fs));min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ov-bar button{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer}
 .ov-bar button[aria-pressed="true"]{background:#fff;color:#111}
 .ov-bar input{width:64px;font:inherit;padding:4px 6px;border-radius:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;text-align:center}
-.ov-bar label{display:flex;gap:6px;align-items:center;font-size:14px}
+.ov-bar label{display:flex;gap:6px;align-items:center;font-size:calc(14px * var(--fs))}
 .ov-main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0;min-height:0}
 .ov-img{display:flex;align-items:center;justify-content:center;padding:8px 14px 14px;min-height:0}
 .ov-img img{max-width:100%;max-height:100%;background:#fff;border-radius:4px}
 .ov-side{background:var(--panel);color:var(--ink);overflow:auto;padding:14px 16px}
-.ov-side h2{font:650 17px/1.3 var(--sans);margin:0 0 6px}
-.ov-side h4{margin:12px 0 4px;color:var(--muted);font-size:13px}
+.ov-side h2{font:650 calc(17px * var(--fs))/calc(1.3 * var(--lh)) var(--sans);margin:0 0 6px}
+.ov-side h4{margin:12px 0 4px;color:var(--muted);font-size:calc(13px * var(--fs))}
 @media (max-width:900px){.ov-main{grid-template-columns:1fr;grid-template-rows:auto 1fr}.ov-side{max-height:45vh}.bv-main .ov-side{display:none}}
 .bv-scroll{overflow:auto;min-height:0;padding:10px 14px 40px;outline:none;position:relative}
 .bv-page{margin:0 auto 14px;background:#fff;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.35);position:relative;overflow:hidden}
 .bv-page canvas{display:block;width:100%;height:100%}
-.bv-page .pn{position:absolute;right:8px;bottom:6px;font:12px var(--sans);color:#8a8f96}
+.bv-page .pn{position:absolute;right:8px;bottom:6px;font:calc(12px * var(--fs)) var(--sans);color:#8a8f96}
 .bv-page.text{background:var(--panel);color:var(--ink);padding:16px 20px;height:auto!important;aspect-ratio:auto!important}
 .bv-page.text .pn{position:static;display:block;margin-bottom:8px;color:var(--muted)}
-.bv-page.text pre{white-space:pre-wrap;font:14.5px/1.6 var(--serif);margin:0}
+.bv-page.text pre{white-space:pre-wrap;font:calc(14.5px * var(--fs))/calc(1.6 * var(--lh)) var(--serif);margin:0}
 .bv-note{color:#fff;background:rgba(255,255,255,.08);border-radius:8px;padding:12px 14px;max-width:760px;margin:10px auto}
 .bv-note .btn{color:var(--ink)}
 
 /* ---------- pages ---------- */
 .page{max-width:1100px}
-.page h2{font:700 20px/1.25 var(--sans);margin:4px 0 4px}
+.page h2{font:700 calc(20px * var(--fs))/calc(1.25 * var(--lh)) var(--sans);margin:4px 0 4px}
 .page .lead{color:var(--muted);margin:0 0 14px;max-width:82ch}
-.grp{margin:18px 0 6px;font:650 15px/1.3 var(--sans);border-bottom:2px solid var(--ink);padding-bottom:4px}
-.fx{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:8px 0;display:grid;grid-template-columns:230px minmax(0,1fr);gap:14px;align-items:center}
+.grp{margin:20px 0 6px;font:650 calc(15px * var(--fs))/calc(1.3 * var(--lh)) var(--sans);border-bottom:1px solid var(--rule);padding-bottom:6px}
+.fx{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;margin:8px 0;display:grid;grid-template-columns:230px minmax(0,1fr);gap:14px;align-items:center}
 .fx .nm{font-weight:600}
-.fx .nt{color:var(--muted);font-size:13px;margin-top:2px}
+.fx .nt{color:var(--muted);font-size:calc(13px * var(--fs));margin-top:2px}
 @media (max-width:760px){.fx{grid-template-columns:1fr}}
-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
-th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule);font-size:14px}
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule);font-size:calc(14px * var(--fs))}
 th{background:var(--soft);font-weight:650}
 td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
 .decks{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-.cell{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden;cursor:pointer;text-align:left;padding:0}
+.cell{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;cursor:pointer;text-align:left;padding:0;color:var(--ink)}
+.cell:hover{border-color:var(--accent)}
 .cell img{width:100%;aspect-ratio:4/3;object-fit:contain;display:block;background:var(--soft);border-bottom:1px solid var(--rule)}
-.cell div{padding:6px 9px;font-size:12.5px;line-height:1.35}
+.cell div{padding:6px 9px;font-size:calc(12.5px * var(--fs));line-height:1.35}
 .cell b{font-variant-numeric:tabular-nums;margin-right:4px}
-.tbsec{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:8px 0}
+.tbsec{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;margin:8px 0}
 .tbsec .h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.tbsec p{margin:4px 0 0;font:14.5px/1.55 var(--serif);max-width:82ch}
-.toc{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:6px 14px;margin:8px 0}
+.tbsec p{margin:4px 0 0;font:calc(14.5px * var(--fs))/calc(1.55 * var(--lh)) var(--serif);max-width:82ch}
+.toc{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:6px 14px;margin:8px 0}
 .toc details{border-top:1px solid var(--rule);padding:4px 0}
 .toc details:first-child{border-top:0}
-.toc summary{font-weight:600;color:var(--ink);font-size:14px;margin:0;padding:4px 0}
+.toc summary{font-weight:600;color:var(--ink);font-size:calc(14px * var(--fs));margin:0;padding:4px 0}
 .toc ul{list-style:none;margin:2px 0 6px;padding:0 0 0 14px}
 .toc li{margin:2px 0}
 .toc .lv3{padding-left:14px}.toc .lv4{padding-left:28px}
-.toc button{background:none;border:0;padding:0;color:var(--blue);cursor:pointer;text-align:left;font-size:13.5px}
-.toc .pg{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12.5px;margin-left:6px}
+.toc button{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-align:left;font-size:calc(13.5px * var(--fs))}
+.toc .pg{color:var(--muted);font-variant-numeric:tabular-nums;font-size:calc(12.5px * var(--fs));margin-left:6px}
 .qa dt{font-weight:650;margin-top:10px}
-.qa dd{margin:2px 0 0;font:14.5px/1.55 var(--serif);max-width:82ch}
-.emdeck{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:8px 14px;margin:10px 0}
+.qa dd{margin:2px 0 0;font:calc(14.5px * var(--fs))/calc(1.55 * var(--lh)) var(--serif);max-width:82ch}
+.emdeck{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:8px 14px;margin:10px 0}
 .emrow{display:grid;grid-template-columns:200px minmax(0,1fr);gap:10px;padding:6px 0;border-top:1px solid var(--rule)}
 .emrow:first-of-type{border-top:0}
-.emrow .st{font-size:13px;cursor:pointer;color:var(--blue);background:none;border:0;text-align:left;padding:0}
+.emrow .st{font-size:calc(13px * var(--fs));cursor:pointer;color:var(--accent);background:none;border:0;text-align:left;padding:0}
 @media (max-width:700px){.emrow{grid-template-columns:1fr}.thumb{width:96px}}
-.filterbox{width:100%;max-width:420px;font:inherit;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);margin-bottom:8px}
+.filterbox{width:100%;max-width:420px;font:inherit;padding:8px 12px;border:1px solid var(--rule);border-radius:var(--radius-sm);background:var(--panel);color:var(--ink);margin-bottom:8px}
 
 /* ---------- add files ---------- */
-.drop{border:2px dashed var(--rule);border-radius:14px;background:var(--panel);padding:28px;text-align:center;cursor:pointer}
-.drop:hover,.drop.over{border-color:var(--blue)}
+.drop{border:1.5px dashed var(--rule);border-radius:var(--radius);background:var(--soft);padding:32px 24px;text-align:center;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
 .drop p{margin:6px 0;color:var(--muted)}
-.drop strong{font-size:16px}
+.drop strong{font-size:calc(16px * var(--fs))}
 .flist{margin-top:14px}
-.frow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:8px 0}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;margin:8px 0}
 .frow .nm{font-weight:600;overflow-wrap:anywhere}
-.frow .st{color:var(--muted);font-size:13px}
+.frow .st{color:var(--muted);font-size:calc(13px * var(--fs))}
 .prog{height:4px;background:var(--soft);border-radius:2px;overflow:hidden;margin-top:6px}
-.prog i{display:block;height:100%;background:var(--blue);width:0}
-.dropcover{position:fixed;inset:0;z-index:60;background:rgba(29,78,216,.12);border:4px dashed var(--blue);display:none;align-items:center;justify-content:center;font:700 22px var(--sans);color:var(--blue);pointer-events:none}
+.prog i{display:block;height:100%;background:var(--accent);width:0}
+.dropcover{position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--accent) 12%,transparent);border:4px dashed var(--accent);display:none;align-items:center;justify-content:center;font:700 calc(22px * var(--fs)) var(--sans);color:var(--accent);pointer-events:none}
 .dropcover.on{display:flex}
 @media (max-width:700px){.searchrow{flex-wrap:wrap}.q{flex:1 1 100%}.searchrow select{flex:1 1 100%;height:40px;max-width:none}.brand p{display:none}}
 /* ---------- hosted site: welcome card, update toast ---------- */
 .projector:empty{visibility:hidden}
 .classbar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 10px;align-items:center}
 .classbar::-webkit-scrollbar{display:none}
-.ctab{border:1px solid var(--rule);background:var(--panel);color:var(--muted);border-radius:8px;padding:4px 12px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap}
-.ctab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.ctab .n{font-weight:400;opacity:.7;margin-left:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.ctab{border:1px solid var(--rule);background:var(--panel);color:var(--muted);border-radius:var(--radius-sm);padding:4px 12px;font-size:calc(13.5px * var(--fs));font-weight:600;cursor:pointer;white-space:nowrap}
+.ctab:hover{color:var(--ink);border-color:var(--accent)}
+.ctab[aria-selected="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.ctab .n{font-weight:400;opacity:.7;margin-left:6px;font-size:calc(12px * var(--fs));font-variant-numeric:tabular-nums}
 .ctab.add{border-style:dashed;font-weight:500}
 .iconbtn:disabled{opacity:.6;cursor:progress}
-@media (max-width:520px){.iconbtn .wide{display:none}.brand{gap:8px}}
+@media (max-width:520px){.iconbtn .wide{display:none}.brand{gap:6px;flex-wrap:nowrap}.brand h1{white-space:nowrap}.iconbtn{font-size:13px;padding:5px 9px;white-space:nowrap}.cog{flex:none}}
 .clsedit{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:0 0 14px}
-.clsedit label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);font-weight:600}
-.clsedit input{font:inherit;font-size:15px;padding:6px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:min(320px,80vw)}
+.clsedit label{display:flex;flex-direction:column;gap:4px;font-size:calc(13px * var(--fs));color:var(--muted);font-weight:600}
+.clsedit input{font:inherit;font-size:calc(15px * var(--fs));padding:6px 10px;border:1px solid var(--rule);border-radius:var(--radius-sm);background:var(--panel);color:var(--ink);width:min(320px,80vw)}
 .clsedit .btn{padding:6px 12px}
 .b-q{color:var(--teal)}
-.opts{margin:6px 0 0;padding-left:26px;font:14px/1.5 var(--sans)}
+.opts{margin:6px 0 0;padding-left:26px;font:calc(14px * var(--fs))/calc(1.5 * var(--lh)) var(--sans)}
 .opts li{margin:2px 0}
 .opts li.ok{color:var(--green);font-weight:650}
 .opts li.ok::after{content:" \2713"}
-.qcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin:8px 0}
-.qcard .stem{font:15px/1.55 var(--serif);margin:0}
-.qcard .qn{font:700 14px var(--sans);margin-right:8px;font-variant-numeric:tabular-nums}
+.qcard{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:12px 14px;margin:8px 0}
+.qcard .stem{font:calc(15px * var(--fs))/calc(1.55 * var(--lh)) var(--serif);margin:0}
+.qcard .qn{font:700 calc(14px * var(--fs)) var(--sans);margin-right:8px;font-variant-numeric:tabular-nums}
 .qbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .qbtns .ref{margin:0}
-.ans{margin-top:8px;padding:8px 10px;background:var(--soft);border-radius:8px;font-size:14px}
-.rel{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:8px;font-size:12.5px}
+.ans{margin-top:8px;padding:8px 10px;background:var(--accent-soft);border-radius:var(--radius-sm);font-size:calc(14px * var(--fs))}
+.rel{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:8px;font-size:calc(12.5px * var(--fs))}
 .rel .refs-in{display:contents}
 .welcome{padding:22px 24px;color:var(--ink)}
-.welcome h2{font:700 20px/1.25 var(--sans);margin:0 0 6px}
+.welcome h2{font:700 calc(20px * var(--fs))/calc(1.25 * var(--lh)) var(--sans);margin:0 0 6px}
 .welcome p{margin:0 0 12px;max-width:68ch;color:var(--muted)}
 .welcome ol{margin:0 0 14px;padding-left:20px;max-width:68ch}
 .welcome li{margin:3px 0}
 .welcome .btn{padding:7px 14px}
-.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--paper);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:14px;max-width:calc(100vw - 32px)}
-.toast button{border:1px solid var(--paper);background:transparent;color:var(--paper);border-radius:8px;padding:3px 10px;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:70;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:var(--radius-sm);padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);font-size:calc(14px * var(--fs));max-width:calc(100vw - 32px)}
+.toast button{border:0;background:var(--accent);color:var(--on-accent);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;font-weight:600}
+/* ---------- settings (same layout as Quiz Qrusher's) ---------- */
+.setwrap{max-width:760px}
+.set-section{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:16px;padding:6px 0}
+.set-section h3{font-size:calc(13px * var(--fs));padding:12px 20px 6px;margin:0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.set-row{display:flex;align-items:center;gap:16px;padding:12px 20px;border-top:1px solid var(--rule)}
+.set-section h3+.set-row{border-top:none}
+.set-text{flex:1;min-width:0}
+.set-label{font-weight:600;font-size:calc(15px * var(--fs))}
+.set-desc{font-size:calc(13px * var(--fs));color:var(--muted);margin-top:2px}
+.set-row select{height:36px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:var(--radius-sm);overflow:hidden;flex-wrap:wrap}
+.seg button{background:var(--panel);color:var(--ink);border:0;border-left:1px solid var(--rule);padding:7px 12px;font-size:calc(13.5px * var(--fs));font-weight:600;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:30px;height:30px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--rule);cursor:pointer;padding:0}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.set-switch{background:none;border:0;padding:4px;cursor:pointer}
+.switch{position:relative;display:block;width:34px;height:20px;border-radius:999px;background:var(--rule);transition:background .18s ease}
+.switch .knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--knob);box-shadow:var(--shadow-knob);transition:transform .18s ease}
+.set-switch[aria-checked="true"] .switch{background:var(--accent)}
+.set-switch[aria-checked="true"] .switch .knob{transform:translateX(14px)}
+.versions{margin:0;padding:4px 20px 14px}
+.versions dt{font-weight:700;margin-top:10px;font-size:calc(14px * var(--fs))}
+.versions dd{margin:2px 0 0;color:var(--muted);font-size:calc(14px * var(--fs))}
+@media (max-width:560px){.set-row{flex-direction:column;align-items:flex-start;gap:10px}}
+:root[data-hints="off"] #v-search .hint{display:none!important}
+:root[data-thumbs="off"] .r .thumb{display:none}
+/* ---------- note sheets ---------- */
+.b-note{color:var(--accent)}
+.note{white-space:pre-line}
+.notep{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);padding:10px 14px;margin:8px 0}
+.notep b{display:block;font-size:calc(14px * var(--fs))}
+.notep p{margin:2px 0 6px;white-space:pre-line;font:calc(14.5px * var(--fs))/calc(1.55 * var(--lh)) var(--serif);max-width:90ch}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
+<script>
+/* Settings, applied before the first paint. Kept in localStorage 'classbase-settings' (Quiz Qrusher shares this
+   origin, so every key here starts with classbase-). Older versions kept only the theme, in 'studydb-theme'. */
+window.CBSET=(function(){
+  "use strict";
+  /* accent presets: [accent, hover, soft, text on accent] for light and dark; the same as Quiz Qrusher's, plus Class Base green */
+  const ACCENTS={
+    green:{name:'Green',light:['#1E7A4C','#17633D','#E3F2EA','#FFFFFF'],dark:['#6FD3A0','#8FE0B6','#13281E','#08160F']},
+    indigo:{name:'Indigo',light:['#4338CA','#372FB0','#ECEBFB','#FFFFFF'],dark:['#8B87FF','#A6A2FF','#23233A','#FFFFFF']},
+    blue:{name:'Blue',light:['#1D4ED8','#1E40AF','#E6EEFD','#FFFFFF'],dark:['#6EA8FE','#8DBBFF','#16243A','#0B1220']},
+    teal:{name:'Teal',light:['#0F766E','#0B5F59','#E1F3F1','#FFFFFF'],dark:['#2DD4BF','#5EEAD4','#0F2A28','#062221']},
+    purple:{name:'Purple',light:['#7E22CE','#6B21A8','#F3E8FD','#FFFFFF'],dark:['#C084FC','#D8B4FE','#2A1A3A','#1A0B2A']},
+    rose:{name:'Rose',light:['#BE123C','#9F1239','#FDE8EC','#FFFFFF'],dark:['#FB7185','#FDA4AF','#3A161D','#2A0A10']},
+    orange:{name:'Orange',light:['#C2410C','#9A3412','#FDEDE3','#FFFFFF'],dark:['#FB923C','#FDBA74','#3A2210','#2A1405']}
+  };
+  const DEF={theme:'system',accent:'green',reduceMotion:false,textScale:1,lineSpacing:1,font:'default',hints:true,thumbs:true,showAnswers:false};
+  const KEY='classbase-settings', mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  function read(){ let s={}; try{ s=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){}
+    if(!('theme' in s)){ try{ const t=localStorage.getItem('studydb-theme'); if(t==='light'||t==='dark') s.theme=t; }catch(e){} }
+    const o={}; for(const k in DEF) o[k]=(k in s)?s[k]:DEF[k]; return o; }
+  const S=read();
+  function apply(){
+    const r=document.documentElement, st=r.style;
+    if(S.theme==='light'||S.theme==='dark') r.dataset.theme=S.theme; else delete r.dataset.theme;
+    const dark=S.theme==='dark'||(S.theme!=='light'&&!!(mq&&mq.matches));
+    const a=(ACCENTS[S.accent]||ACCENTS.green)[dark?'dark':'light'];
+    st.setProperty('--accent',a[0]); st.setProperty('--accent-hover',a[1]); st.setProperty('--accent-soft',a[2]); st.setProperty('--on-accent',a[3]);
+    st.setProperty('--fs',String(+S.textScale||1)); st.setProperty('--lh',String(+S.lineSpacing||1));
+    if(S.font==='sans'||S.font==='atkinson') r.dataset.font=S.font; else delete r.dataset.font;
+    if(S.reduceMotion) r.dataset.motion='reduce'; else delete r.dataset.motion;
+    if(S.hints) delete r.dataset.hints; else r.dataset.hints='off';
+    if(S.thumbs) delete r.dataset.thumbs; else r.dataset.thumbs='off';
+  }
+  function set(k,v){ S[k]=v; try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.removeItem('studydb-theme'); }catch(e){} apply(); }
+  if(mq){ if(mq.addEventListener) mq.addEventListener('change',apply); else if(mq.addListener) mq.addListener(apply); }
+  apply();
+  return {S,set,ACCENTS};
+})();
+</script>
 </head>
 <body>
 <header class="top">
  <div class="top-in">
   <div class="brand">
+   <a class="homeback" id="homeback" href="../" hidden aria-label="All study apps" title="All study apps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
    <h1 id="ttl"></h1>
    <p id="sub"></p>
    <span class="sp"></span>
    <button class="iconbtn" id="dlbtn" type="button" hidden title="Save the app and this class's PDFs as one HTML file that opens without internet">Download<span class="wide"> for offline</span></button>
    <button class="iconbtn" id="addbtn" type="button">Add files</button>
-   <button class="iconbtn" id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button>
+   <!-- gear icon after Feather Icons (MIT) -->
+   <button class="cog" id="setbtn" type="button" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
   <div class="classbar" id="classbar" role="tablist" aria-label="Classes" hidden></div>
   <div class="searchrow">
@@ -256,6 +361,7 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
    <button class="tab" role="tab" data-v="search" aria-selected="true">Search</button>
    <button class="tab" role="tab" data-v="browse" aria-selected="false">Browse slides</button>
    <button class="tab" role="tab" data-v="tb" aria-selected="false">Textbook</button>
+   <button class="tab" role="tab" data-v="notes" aria-selected="false">Note sheets</button>
    <button class="tab" role="tab" data-v="formulas" aria-selected="false">Formula sheet</button>
    <button class="tab" role="tab" data-v="trivia" aria-selected="false">Names, dates &amp; quotes</button>
    <button class="tab" role="tab" data-v="numbers" aria-selected="false">Key numbers</button>
@@ -285,9 +391,11 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
  <section class="view page" id="v-numbers"></section>
  <section class="view page" id="v-emph"></section>
  <section class="view page" id="v-qs"></section>
+ <section class="view page" id="v-notes"></section>
+ <section class="view page setwrap" id="v-settings"></section>
  <section class="view page" id="v-add">
   <h2>Add files</h2>
-  <p class="lead" id="addlead">Drop slide decks or a textbook (PDF) here. They're indexed in your browser: searchable and viewable right away, no rebuild needed. Landscape PDFs are treated as slides and portrait PDFs as books; you can switch that below. Added files are remembered in this browser when it allows storage, but for an exam, build them into the file instead.</p>
+  <p class="lead" id="addlead">Drop slide decks, a textbook, note sheets or practice questions (PDF) here. They're indexed in your browser: searchable and viewable right away, no rebuild needed. Landscape PDFs are treated as slides and portrait PDFs as books; short ones and files named like notes or cheat sheets as note sheets. You can switch that below. Added files are remembered in this browser when it allows storage, but for an exam, build them into the file instead.</p>
   <div class="clsedit" id="clsedit" hidden><label>Class name<input id="clsname" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label><button class="btn" type="button" id="clsdel">Delete this class</button></div>
   <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose PDF files to add">
    <strong>Drop PDFs here, or click to choose</strong>
@@ -347,15 +455,18 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
-$('#ttl').textContent=D.meta.title; $('#sub').textContent=D.meta.subtitle||'';
 const HOSTED=!!D.meta.hosted;   /* the GitHub Pages app (build.py --site): classes, offline download, service worker */
+const APP_VERSION='1.0.2';      /* shown in Settings; log each release in VERSIONS there */
+if(HOSTED&&D.meta.title==='Class Base') $('#ttl').innerHTML='Class <span>Base</span>'; else $('#ttl').textContent=D.meta.title;
+$('#sub').textContent=D.meta.subtitle||''; $('#sub').hidden=!D.meta.subtitle;
+$('#homeback').hidden=!(HOSTED&&/^https?:$/.test(location.protocol));   /* the study apps homepage is the site root, one level up */
 
 /* formulas: LaTeX -> MathML in the browser (KaTeX, bundled) */
 const hasKatex=typeof katex!=='undefined';
 D.formulas.forEach(f=>{ try{ f.mml=hasKatex?katex.renderToString(f.tex,{output:'mathml',displayMode:true,throwOnError:false,strict:false}):'<code>'+esc(f.tex)+'</code>'; }catch(e){ f.mml='<code>'+esc(f.tex)+'</code>'; } });
 
 /* ================= registries ================= */
-const DECK={}, SL={}, BOOK={}, deckCount={};
+const DECK={}, SL={}, BOOK={}, NOTES={}, deckCount={};
 function registerDeck(d){ DECK[d.id]=d; }
 function registerSlide(s){ SL[s.id]=s; deckCount[s.deck]=(deckCount[s.deck]||0)+1; }
 D.decks.forEach(registerDeck); D.slides.forEach(registerSlide);
@@ -440,7 +551,7 @@ function tokens(s,keepStop){
 
 /* ================= search index ================= */
 let docs=[], df=new Map(), avgdl=1, VOCAB=[], N=0;
-const TYPEBOOST={def:1.35,slide:1.0,formula:0.95,trivia:1.15,number:1.1,tb:0.8,qa:0.85,page:0.62,question:0.9};
+const TYPEBOOST={def:1.35,note:1.3,slide:1.0,formula:0.95,trivia:1.15,number:1.1,tb:0.8,qa:0.85,page:0.62,question:0.9};
 function refDecks(refs,tb){ const s=new Set((refs||[]).map(r=>SL[r]&&SL[r].deck).filter(Boolean)); if(tb&&tb.book) s.add(tb.book); return s; }
 function buildIndex(){
   docs=[];
@@ -453,7 +564,8 @@ function buildIndex(){
   D.tb.forEach(t=>add({type:'tb',obj:t,decks:refDecks([],t.ref),fields:[[t.sec,2.5],[t.tags,1.5],[t.notes,1]]}));
   D.qa.forEach(q=>add({type:'qa',obj:q,decks:refDecks([],q.ref),fields:[[q.q,2.5],[q.a,1]]}));
   Object.values(QS).forEach(S=>S.list.forEach((q,i)=>add({type:'question',obj:{f:S.id,i},decks:new Set([S.id]),fields:[[q.stem,1.4],[q.opts.join(' ; '),1],[q.ansText,0.6]]})));
-  Object.values(BOOK).forEach(b=>{ if(b.qs) return; const hasCh=b.pages.some(p=>p.ch); b.pages.forEach(p=>{ if(p.text) add({type:'page',front:hasCh&&!p.ch,obj:{book:b.id,n:p.n},decks:new Set([b.id]),fields:[[(p.ch||'')+' '+(p.sec||''),0.8],[p.text,1]]}); }); });
+  Object.values(NOTES).forEach(N=>N.chunks.forEach((c,i)=>add({type:'note',obj:{f:N.id,i},decks:new Set([N.id]),fields:[[c.h,1.6],[c.t,1.2]]})));
+  Object.values(BOOK).forEach(b=>{ if(b.qs||b.notes) return; const hasCh=b.pages.some(p=>p.ch); b.pages.forEach(p=>{ if(p.text) add({type:'page',front:hasCh&&!p.ch,obj:{book:b.id,n:p.n},decks:new Set([b.id]),fields:[[(p.ch||'')+' '+(p.sec||''),0.8],[p.text,1]]}); }); });
   df=new Map(); let tot=0;
   for(const d of docs){
     const tf=new Map(); let len=0; let plain='';
@@ -533,14 +645,15 @@ function snippet(text,terms,len){
 }
 
 /* ================= UI state ================= */
-const TYPES=[['','All'],['def','Definitions'],['slide','Slides'],['page','Book pages'],['formula','Formulas'],['trivia','Names & dates'],['number','Key numbers'],['tb','Book index'],['qa','Q&A'],['question','Practice Qs']];
+const TYPES=[['','All'],['def','Definitions'],['note','Notes'],['slide','Slides'],['page','Book pages'],['formula','Formulas'],['trivia','Names & dates'],['number','Key numbers'],['tb','Book index'],['qa','Q&A'],['question','Practice Qs']];
 let typeF='', deckF='', results=[], sel=0, lastTerms=[];
 const qEl=$('#q'), resEl=$('#res'), projEl=$('#proj'), metaEl=$('#meta');
 function fillDeckSelect(){
   const s=$('#deck'); const cur=s.value;
   let h='<option value="">All lectures &amp; books</option>';
   const decks=Object.values(DECK); if(decks.length) h+='<optgroup label="Lectures">'+decks.map(d=>`<option value="${esc(d.id)}">${esc(d.short)} — ${esc(d.title)}</option>`).join('')+'</optgroup>';
-  const qsets=Object.values(BOOK).filter(b=>b.qs), books=Object.values(BOOK).filter(b=>!b.qs);
+  const qsets=Object.values(BOOK).filter(b=>b.qs), nsets=Object.values(BOOK).filter(b=>b.notes), books=Object.values(BOOK).filter(b=>!b.qs&&!b.notes);
+  if(nsets.length) h+='<optgroup label="Note sheets">'+nsets.map(b=>`<option value="${esc(b.id)}">${esc(b.title)}</option>`).join('')+'</optgroup>';
   if(qsets.length) h+='<optgroup label="Question sets">'+qsets.map(b=>`<option value="${esc(b.id)}">${esc(b.title)}</option>`).join('')+'</optgroup>';
   if(books.length) h+='<optgroup label="Books">'+books.map(b=>`<option value="${esc(b.id)}">${esc(b.short)} — ${esc(b.title)}</option>`).join('')+'</optgroup>';
   s.innerHTML=h; s.value=(DECK[cur]||BOOK[cur])?cur:''; deckF=s.value;
@@ -575,14 +688,15 @@ function card(d,terms){
   else if(d.type==='number'){ k=`<span class="badge b-number">Key number</span>`; h=highlight(o.item,terms); s=`<p class="s">${highlight(o.val,terms)}</p>`; extra=refChips(o.refs,o.tb); }
   else if(d.type==='tb'){ k=`<span class="badge b-tb">Book index</span><span>${esc(o.ch)}</span>`; h=highlight(o.sec,terms); s=`<p class="s">${highlight(o.notes,terms)}</p>`; extra=refChips([],o.ref); }
   else if(d.type==='question'){ const S=QS[o.f], q=S&&S.list[o.i]; if(!q) return ''; k=`<span class="badge b-q">Practice question</span><span>${esc(S.short)} #${q.n}</span>`; h=highlight(q.stem.length>240?q.stem.slice(0,238)+'…':q.stem,terms); s=optsHTML(q,terms,false); extra=`<div class="refs">${bookChip({book:o.f,pdf:q.pg,label:''})}</div>`; }
+  else if(d.type==='note'){ const N=NOTES[o.f], c=N&&N.chunks[o.i]; if(!c) return ''; k=`<span class="badge b-note">Note sheet</span><span>${esc(N.short)}, page ${c.pg}</span>`; h=highlight(c.h||N.title,terms); s=`<p class="s sans note">${highlight(c.t,terms)}</p>`; extra=`<div class="refs">${bookChip({book:o.f,pdf:c.pg,label:''})}</div>`; }
   else if(d.type==='qa'){ k=`<span class="badge b-qa">Q&amp;A</span><span>${esc(o.src)}</span>`; h=highlight(o.q,terms); s=`<p class="s">${highlight(o.a,terms)}</p>`; extra=refChips([],o.ref); }
   return `<div><div class="k">${k}</div><h3>${h}</h3>${s}${extra}</div>${side?`<div>${side}</div>`:''}`;
 }
 
 function welcomeHTML(){
   return `<li class="empty welcome"><h2>Find the slide behind the question</h2>
-   <p>Add your lecture slides and textbook as PDFs. Every page becomes searchable, so during an open-book exam you can paste the key words of a question and jump straight to the slide or book page that answers it.</p>
-   <ol><li>Click <b>Add PDFs</b> (or drop files anywhere on this page).</li><li>Wide PDFs become slide decks, tall ones books, and practice exams or question lists become question sets. You can switch any of them.</li><li>Type keywords. Typos and plurals are fine; <b>"quotes"</b> match an exact phrase.</li></ol>
+   <p>Add your lecture slides, textbook and note sheets as PDFs. Every page becomes searchable, so during an open-book exam you can paste the key words of a question and jump straight to the slide or book page that answers it.</p>
+   <ol><li>Click <b>Add PDFs</b> (or drop files anywhere on this page).</li><li>Wide PDFs become slide decks and tall ones books. Note sheets and cheat sheets become notes you can search line by line, and practice exams or question lists become question sets. You can switch any of them.</li><li>Type keywords. Typos and plurals are fine; <b>"quotes"</b> match an exact phrase.</li></ol>
    ${HOSTED?'<p>Taking more than one class? <b>+ New class</b> at the top keeps each one\'s files separate.</p>':''}
    <button class="btn primary" type="button" data-goadd>Add PDFs</button>
    <p class="meta" style="margin:12px 0 0">Your files stay on this device. They're read in your browser and never uploaded.</p></li>`;
@@ -594,8 +708,8 @@ function run(){
   $('#types').hidden=$('#v-search .hint').hidden=!docs.length;
   if(!q&&!docs.length&&HOSTED&&!filesReady){ resEl.innerHTML=''; projEl.innerHTML=''; return; }
   if(!q&&!docs.length){ results=[]; metaEl.textContent=''; projEl.innerHTML=''; resEl.innerHTML=welcomeHTML(); return; }
-  if(!q){ results=[]; renderTypes(null); metaEl.textContent=''; const nb=Object.values(BOOK).filter(b=>!b.qs).reduce((a,b)=>a+b.pages.length,0), nq=Object.values(QS).reduce((a,S)=>a+S.list.length,0);
-    resEl.innerHTML=`<li class="empty">Start typing to search ${Object.keys(SL).length} slides${nb?`, ${nb} book pages`:''}${D.defs.length?`, ${D.defs.length} definitions`:''}${D.formulas.length?`, ${D.formulas.length} formulas`:''}${nq?`, ${nq} practice questions`:''} and more. Paste the key words of an exam question; extra words don't hurt.</li>`; projEl.innerHTML=''; return; }
+  if(!q){ results=[]; renderTypes(null); metaEl.textContent=''; const nb=Object.values(BOOK).filter(b=>!b.qs&&!b.notes).reduce((a,b)=>a+b.pages.length,0), nq=Object.values(QS).reduce((a,S)=>a+S.list.length,0), nn=Object.keys(NOTES).length;
+    resEl.innerHTML=`<li class="empty">Start typing to search ${Object.keys(SL).length} slides${nb?`, ${nb} book pages`:''}${D.defs.length?`, ${D.defs.length} definitions`:''}${D.formulas.length?`, ${D.formulas.length} formulas`:''}${nn?`, ${nn} note sheet${nn===1?'':'s'}`:''}${nq?`, ${nq} practice questions`:''} and more. Paste the key words of an exam question; extra words don't hurt.</li>`; projEl.innerHTML=''; return; }
   const t0=performance.now();
   const all=search(q,deckF,hideQ?{skip:'question'}:null);
   const counts={'':all.res.length}; all.res.forEach(([s,d])=>counts[d.type]=(counts[d.type]||0)+1);
@@ -613,6 +727,7 @@ $('#clear').addEventListener('click',()=>{qEl.value=''; run(); qEl.focus();});
 
 function primaryTarget(d){ const o=d.obj;
   if(d.type==='question'){ const q=QS[o.f]&&QS[o.f].list[o.i]; return q?{book:o.f,page:q.pg}:null; }
+  if(d.type==='note'){ const c=NOTES[o.f]&&NOTES[o.f].chunks[o.i]; return c?{book:o.f,page:c.pg}:null; }
   if(d.type==='slide') return {slide:o.id};
   if(d.type==='page') return {book:o.book,page:o.n};
   const r=(o.refs||[]).find(x=>SL[x]); if(r) return {slide:r};
@@ -668,6 +783,9 @@ function showProj(){
      <div class="qbtns">${has?`<button class="btn" type="button" data-preveal>${projReveal?'Hide answer':'Show answer'}</button>`:''}${bookChip({book:o.f,pdf:q.pg,label:''})}</div>
      <h4>Best matches in your notes</h4><div class="refs">${relatedHTML(q)}</div></div>`; return; }
   if(d.type==='page'){ projEl.innerHTML=bookPanel(o.book,o.n,lastTerms); fillPanelImages(projEl); return; }
+  if(d.type==='note'){ const N=NOTES[o.f], c=N.chunks[o.i];
+    projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)"><p class="meta" style="margin:0 0 6px">${esc(N.title)}, page ${c.pg}</p>${c.h?`<h2>${highlight(c.h,lastTerms)}</h2>`:''}<p class="pdef note">${highlight(c.t,lastTerms)}</p></div>`+bookPanel(o.f,c.pg,lastTerms);
+    fillPanelImages(projEl); return; }
   const refs=(o.refs||[]).filter(r=>SL[r]); const tb=o.tb||o.ref;
   let head='';
   if(d.type==='def') head=`<h2>${highlight(o.t,lastTerms)}</h2><p class="pdef">${highlight(o.d,lastTerms)}</p>`;
@@ -681,7 +799,7 @@ function showProj(){
   projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)">${head}${tabs.length?`<div class="reftabs">${tabs.join('')}</div>`:''}</div><div id="projslide">${refs.length?slidePanel(refs[0],lastTerms):(tb&&BOOK[tb.book]?bookPanel(tb.book,tb.pdf,lastTerms):'<div class="noimg">No slide or book page linked to this item.</div>')}</div>`;
   fillPanelImages(projEl);
 }
-let projReveal=false;
+let projReveal=!!CBSET.S.showAnswers;
 projEl.addEventListener('click',e=>{
   if(e.target.closest('[data-preveal]')){ projReveal=!projReveal; showProj(); return; }
   const pr=e.target.closest('[data-pr]'); if(pr){ projEl.querySelectorAll('[data-pr]').forEach(b=>b.setAttribute('aria-current',String(b===pr))); const v=pr.dataset.pr; const host=$('#projslide');
@@ -702,7 +820,7 @@ function openSlide(sid){ if(!SL[sid]) return; if(!ov.classList.contains('on')&&!
   const terms=lastTerms;
   $('#ov-side').innerHTML=`<h2>${highlight(s.title,terms)}</h2>
    ${s.emph&&s.emph.length?`<h4>Emphasized on this slide</h4>${emChips(s.emph,terms)}`:''}
-   ${s.cap?`<h4>What the figure shows</h4><p style="font:14px/1.55 var(--serif);margin:0">${highlight(s.cap,terms)}</p>`:''}
+   ${s.cap?`<h4>What the figure shows</h4><p class="cap" style="margin:0">${highlight(s.cap,terms)}</p>`:''}
    <h4>Slide text</h4><pre class="txt">${highlight(s.text,terms)}</pre>
    ${s.ocr?`<details><summary>Text read from images on this slide</summary><pre class="txt">${highlight(s.ocr,terms)}</pre></details>`:''}
    ${s.cited&&s.cited.length?`<h4>Definitions citing this slide</h4><div class="refs">${s.cited.map(t=>`<span class="ref static">${esc(t)}</span>`).join('')}</div>`:''}`;
@@ -838,11 +956,12 @@ document.addEventListener('keydown',e=>{
 let view='search'; const built={};
 function showView(v){ view=v; document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.v===v)));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(v==='qs') renderQs(); else if(!built[v]){ ({formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph}[v]||(()=>{}))(); built[v]=1; }
+  if(v==='settings') $('#setbtn').setAttribute('aria-current','page'); else $('#setbtn').removeAttribute('aria-current');
+  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(v==='qs') renderQs(); else if(v==='notes') renderNotes(); else if(v==='settings') renderSettings(); else if(!built[v]){ ({formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph}[v]||(()=>{}))(); built[v]=1; }
   window.scrollTo(0,0); }
 document.querySelector('.tabs').addEventListener('click',e=>{const t=e.target.closest('.tab'); if(t) showView(t.dataset.v);});
 function updateTabs(){
-  const has={browse:Object.keys(SL).length>0,tb:Object.values(BOOK).some(b=>!b.qs)||D.tb.length>0||D.qa.length>0,formulas:D.formulas.length>0,trivia:D.trivia.length>0,numbers:D.numbers.length>0,emph:Object.values(SL).some(s=>s.emph&&s.emph.length),qs:Object.keys(QS).length>0};
+  const has={browse:Object.keys(SL).length>0,tb:Object.values(BOOK).some(b=>!b.qs&&!b.notes)||D.tb.length>0||D.qa.length>0,notes:Object.keys(NOTES).length>0,formulas:D.formulas.length>0,trivia:D.trivia.length>0,numbers:D.numbers.length>0,emph:Object.values(SL).some(s=>s.emph&&s.emph.length),qs:Object.keys(QS).length>0};
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.v in has) t.hidden=!has[t.dataset.v]; });
 }
 
@@ -893,7 +1012,7 @@ function tocHTML(b){
   return `<div class="toc">${chapters.map(c=>`<details><summary><span>${esc(c.t.title)}</span> <span class="pg">${esc(bookLabel(b,c.t.page))}</span></summary><ul><li><button type="button" data-book="${esc(b.id)}" data-page="${c.t.page}">Open at the start</button></li>${c.kids.map(item).join('')}</ul></details>`).join('')}</div>`;
 }
 function renderTB(){
-  const books=Object.values(BOOK).filter(b=>!b.qs);
+  const books=Object.values(BOOK).filter(b=>!b.qs&&!b.notes);
   const chs=[...new Set(D.tb.map(t=>t.ch))];
   let h=`<h2>Textbook</h2>`;
   books.forEach(b=>{ h+=`<h3 class="grp">${esc(b.title)}</h3><p class="lead">${b.pages.length} pages, all searchable. Open it at any chapter or section below${hasBytes('book:'+b.id)?'':' (the PDF isn\'t in this file; you\'ll see the page text, or locate the PDF to see real pages)'}.</p>
@@ -939,22 +1058,23 @@ function registerFile(f){
     registerDeck({id:f.id,short,title,user:true});
     f.pages.forEach((p,i)=>registerSlide({id:f.id+'-'+(i+1),deck:f.id,n:i+1,title:p.title||('Slide '+(i+1)),text:p.text||'',ocr:'',emph:p.emph||[],fig:false,cap:'',cited:[]}));
   } else {
-    BOOK[f.id]={id:f.id,short,title,file:f.name,embedded:false,user:true,qs:f.kind==='questions',toc:f.toc||[],pages:f.pages.map((p,i)=>({n:i+1,label:'',ch:'',sec:'',text:p.text||''}))};
+    BOOK[f.id]={id:f.id,short,title,file:f.name,embedded:false,user:true,qs:f.kind==='questions',notes:f.kind==='notes',toc:f.toc||[],pages:f.pages.map((p,i)=>({n:i+1,label:'',ch:'',sec:'',text:p.text||''}))};
     SRC['book:'+f.id]=()=>memBytes['book:'+f.id]?new Uint8Array(memBytes['book:'+f.id].slice(0)):null;
     if(f.kind==='questions') QS[f.id]={id:f.id,short,title,list:parseQuestions(f.pages)};
+    if(f.kind==='notes') NOTES[f.id]={id:f.id,short,title,pages:f.pages.length,chunks:noteChunks(f.pages)};
   }
   SRC['deck:'+f.id]=()=>memBytes['deck:'+f.id]?new Uint8Array(memBytes['deck:'+f.id].slice(0)):null;
 }
 function unregisterFile(f){
   if(DECK[f.id]){ Object.keys(SL).filter(k=>SL[k].deck===f.id).forEach(k=>delete SL[k]); delete DECK[f.id]; delete deckCount[f.id]; }
-  delete BOOK[f.id]; delete QS[f.id];
+  delete BOOK[f.id]; delete QS[f.id]; delete NOTES[f.id];
   ['deck:','book:'].forEach(p=>{ if(pdfDocs[p+f.id]) pdfDocs[p+f.id].then(d=>d.destroy()).catch(()=>{}); delete pdfDocs[p+f.id]; });
 }
 function afterFilesChanged(){
   buildIndex(); fillDeckSelect(); updateTabs(); delete built.emph;
   const tab=document.querySelector(`.tab[data-v="${view}"]`);
   if(tab&&tab.hidden) showView('search');
-  else if(view==='add') renderFiles(); else if(view==='qs') renderQs(); else if(view==='browse') renderBrowse(); else if(view==='tb') renderTB(); else if(view==='emph'){ renderEmph(); built.emph=1; }
+  else if(view==='add') renderFiles(); else if(view==='qs') renderQs(); else if(view==='notes') renderNotes(); else if(view==='browse') renderBrowse(); else if(view==='tb') renderTB(); else if(view==='emph'){ renderEmph(); built.emph=1; }
   renderClassBar(); run();
 }
 function setBytes(f,buf){ memBytes['deck:'+f.id]=buf; memBytes['book:'+f.id]=buf; }
@@ -963,6 +1083,7 @@ function statusFor(f){
   let s;
   if(f.kind==='questions'){ const L=QS[f.id]?QS[f.id].list:[];
     s=L.length?`${L.length} question${L.length===1?'':'s'} found: ${L.filter(q=>q.opts.length).length} multiple choice, ${L.filter(q=>q.ans!=null||q.ansText).length} with answers`:'No questions recognized. Try treating it as a book.'; }
+  else if(f.kind==='notes'){ const c=NOTES[f.id]?NOTES[f.id].chunks.length:0; s=`${n} page${n===1?'':'s'}, ${c} passage${c===1?'':'s'} indexed`; }
   else { s=`${n} ${f.kind==='slides'?'slide':'page'}${n===1?'':'s'} indexed`;
     if(f.kind==='slides'&&f.emphV){ const e=f.pages.reduce((a,p)=>a+(p.emph?p.emph.length:0),0); if(e) s+=`, ${e} emphasized phrase${e===1?'':'s'}`; }
     const words=f.pages.reduce((a,p)=>a+(p.text?p.text.split(/\s+/).length:0),0); if(words<n*3) s+=' (little or no text found; scanned PDF?)'; }
@@ -993,12 +1114,19 @@ async function extractPdf(f,buf){
   pdf.destroy();
   if(!f.kind) f.kind=guessKind(f,wide);
 }
-/* A file is a question set when it reads as mostly questions: several of them, most with options or answers,
-   and about one or more per page (a textbook's exercise sections don't reach that density). */
+/* A file is a note sheet when its name says so (notes, cheat sheet, formula sheet, study guide, ...).
+   It is a question set when it reads as mostly questions: several of them, most with options or answers, most
+   phrased as questions or tasks (a note sheet's numbered and lettered lists aren't), and about one or more per page
+   (a textbook's exercise sections don't reach that density). Other short portrait PDFs are note sheets too. */
+const NOTESNAME=/notes?\b|cheat|crib|formula\s*sheet|equation\s*sheet|reference\s*sheet|study\s*guide|summary|review\s*sheet/i;
+const ASKS=/^(?:which|what|who|whom|whose|when|where|why|how|is|are|does|do|can|calculate|compute|find|determine|explain|describe|define|list|state|show|derive|prove|evaluate|estimate|identify|compare|sketch|draw|solve|write|give|select|choose|true\s+or\s+false)\b/i;
 function guessKind(f,wide){
+  if(NOTESNAME.test(f.name.replace(/[_-]+/g,' '))&&(!wide||f.pages.length<=3)) return 'notes';   /* "Lecture 3 notes" slides stay slides */
   const L=parseQuestions(f.pages), marked=L.filter(q=>q.opts.length||q.ans!=null||q.ansText).length;
+  const asks=L.filter(q=>q.ans!=null||q.ansText||/\?\s*$/.test(q.stem)||/_{3,}/.test(q.stem)||ASKS.test(q.stem)).length;
   const named=/quiz|exam|practice|question|problem|review|sample|midterm|final|homework|\bhw\b|worksheet/i.test(f.name);
-  if(L.length>=3&&(marked>=L.length*0.5||named)&&L.length>=f.pages.length*(named?0.3:0.8)) return 'questions';
+  if(L.length>=3&&(marked>=L.length*0.5||named)&&asks>=L.length*(named?0.3:0.6)&&L.length>=f.pages.length*(named?0.3:0.8)) return 'questions';
+  if(!wide&&f.pages.length<=3) return 'notes';
   return wide?'slides':'book';
 }
 
@@ -1073,6 +1201,44 @@ async function ensureEmphasis(f){
     pdf.destroy(); f.emphV=EMPHV; saveRec(f).catch(()=>{});
     if(FILES.includes(f)&&f.kind==='slides'){ unregisterFile(f); registerFile(f); f.status=statusFor(f); afterFilesChanged(); }
   }catch(e){}
+}
+
+/* ---------- note sheets: the student's own notes, searched passage by passage ---------- */
+/* A crowded page as one search result isn't much help, so each page is split into short passages. A passage
+   starts at a heading-like line (short and ending in ":" or in capitals), at a bulleted or numbered line once the
+   current passage has some length, or when it passes about 280 characters. Each passage remembers its heading.
+   A page's short first line (its title) becomes the heading of what follows instead of a passage of its own. */
+function noteChunks(pages){
+  const out=[];
+  pages.forEach((p,pi)=>{
+    const ls=String(p.text||'').split('\n').map(s=>s.replace(/\s+/g,' ').trim()).filter(Boolean);
+    let cur=null, head='';
+    const flush=last=>{ if(!cur) return;
+      if(!last&&!out.some(c=>c.pg===pi+1)&&!cur.h&&cur.t.length<=60&&!cur.t.includes('\n')) head=cur.t;   /* the page title */
+      else if(/[A-Za-z0-9]/.test(cur.t)) out.push(cur);
+      cur=null; };
+    for(const s of ls){
+      const isHead=s.length<=60&&(/:$/.test(s)||(/[A-Z]{3}/.test(s)&&s===s.toUpperCase()));
+      const isItem=/^(?:[•▪◦‣·\-–*]|\(?\d{1,2}[.)]|\(?[a-hA-H][.)])\s/.test(s);
+      if(isHead){ flush(); head=s.replace(/:$/,''); cur={pg:pi+1,h:head,t:''}; continue; }
+      if(!cur||cur.t.length>=280||(isItem&&cur.t.length>=120)){ flush(); cur={pg:pi+1,h:head,t:s}; continue; }
+      cur.t+=(cur.t?'\n':'')+s;
+    }
+    flush(true);
+  });
+  return out;
+}
+function renderNotes(){
+  const el=$('#v-notes'), sets=Object.values(NOTES);
+  if(!sets.length){ el.innerHTML='<h2>Note sheets</h2><div class="empty">No note sheets here yet. Add your notes or a cheat sheet (PDF) on the Add files tab.</div>'; return; }
+  el.innerHTML=`<h2>Note sheets</h2><p class="lead">Your own notes and cheat sheets, split into short passages so a search lands on the lines that match. Type below to filter, or open a sheet to see the page.</p>
+   <input class="filterbox" id="nf" type="search" placeholder="Filter, e.g. Ohm's law" aria-label="Filter note sheets"><div id="nlist"></div>`;
+  const draw=()=>{ const raw=$('#nf').value.trim(), f=norm(raw), terms=raw?tokens(raw,true):[];
+    $('#nlist').innerHTML=sets.map(N=>{ const rows=N.chunks.filter(c=>!f||norm(c.h+' '+c.t).includes(f));
+      return `<h3 class="grp">${esc(N.title)} <span class="meta" style="font-weight:400">${N.pages} page${N.pages===1?'':'s'}, ${N.chunks.length} passage${N.chunks.length===1?'':'s'}</span></h3>
+       <div class="refs" style="margin-bottom:8px"><button class="btn primary" type="button" data-book="${esc(N.id)}" data-page="1">Open the sheet</button></div>`+
+       (rows.length?rows.map(c=>`<div class="notep">${c.h?`<b>${highlight(c.h,terms)}</b>`:''}<p>${highlight(c.t,terms)}</p>${bookChip({book:N.id,pdf:c.pg,label:''})}</div>`).join(''):'<div class="empty">Nothing on this sheet matches.</div>'); }).join(''); };
+  $('#nf').addEventListener('input',draw); draw();
 }
 
 /* ---------- question sets: practice questions from typed PDFs ---------- */
@@ -1174,12 +1340,13 @@ function relatedHTML(q){
   if(!r.length) return '<span class="meta">Nothing in this class matches yet.</span>';
   return r.map(([sc,d])=>{ const o=d.obj, t=primaryTarget(d); let label;
     if(d.type==='slide') label=slideLabel(o.id)+': '+o.title; else if(d.type==='page') label=BOOK[o.book].short+' '+bookLabel(BOOK[o.book],o.n);
+    else if(d.type==='note'){ const c=NOTES[o.f].chunks[o.i]; label=NOTES[o.f].short+': '+(c.h||c.t).replace(/\s+/g,' '); }
     else label=o.t||o.name||o.who||o.item||o.sec||o.q||'';
     if(label.length>72) label=label.slice(0,70)+'…';
     if(!t) return `<span class="ref static">${esc(label)}</span>`;
     return t.slide?`<button class="ref" type="button" data-slide="${esc(t.slide)}">${esc(label)}</button>`:`<button class="ref book" type="button" data-book="${esc(t.book)}" data-page="${t.page}">${esc(label)}</button>`; }).join('');
 }
-let revealAll=false; const revealed=new Set();
+let revealAll=!!CBSET.S.showAnswers; const revealed=new Set();
 function qCard(sid,i){ const S=QS[sid], q=S.list[i], show=revealAll||revealed.has(sid+':'+i), has=q.ans!=null||!!q.ansText;
   return `<div class="qcard" data-qs="${esc(sid)}" data-qi="${i}"><p class="stem"><span class="qn">${q.n}.</span>${esc(q.stem)}</p>${optsHTML(q,[],show)}${show?ansHTML(q):''}
    <div class="qbtns">${has?`<button class="btn" type="button" data-reveal>${show?'Hide answer':'Show answer'}</button>`:'<span class="meta">No answer given in the file</span>'}<button class="btn" type="button" data-find>Search with this question</button>${bookChip({book:sid,pdf:q.pg,label:''})}</div>
@@ -1226,7 +1393,7 @@ async function addFiles(list){
   }
 }
 function drawProgress(f){ const row=document.querySelector(`.frow[data-f="${f.id}"] .prog i`); if(row) row.style.width=Math.round(f.progress*100)+'%'; }
-const KINDS=[['slides','Slides'],['book','Book'],['questions','Question set']];
+const KINDS=[['slides','Slides'],['book','Book'],['notes','Note sheet'],['questions','Question set']];
 function renderFiles(){
   const el=$('#flist'); if(!el) return;
   renderClassEdit();
@@ -1338,9 +1505,58 @@ async function downloadOffline(){
   finally{ btn.disabled=false; btn.innerHTML=label; }
 }
 
-/* ================= theme ================= */
-$('#theme').addEventListener('click',()=>{ const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme=dark?'light':'dark'; try{localStorage.setItem('studydb-theme',r.dataset.theme);}catch(e){} });
-try{ const t=localStorage.getItem('studydb-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
+/* ================= settings (the cog; the values live in CBSET, set up in <head>) ================= */
+const SETTINGS_UI=[
+  {title:'Appearance',rows:[
+    {key:'theme',label:'Theme',type:'seg',options:[['system','Match system'],['light','Light'],['dark','Dark']]},
+    {key:'accent',label:'Accent color',type:'swatches'},
+    {key:'reduceMotion',label:'Reduce motion',desc:'Turns off animations. Your device\'s reduce-motion setting always applies.',type:'switch'}]},
+  {title:'Text',rows:[
+    {key:'textScale',label:'Text size',type:'select',num:true,options:[[0.9,'Small'],[1,'Default'],[1.125,'Large'],[1.25,'Larger'],[1.4,'Largest']]},
+    {key:'lineSpacing',label:'Line spacing',type:'select',num:true,options:[[0.92,'Compact'],[1,'Default'],[1.15,'Relaxed'],[1.3,'Loose']]},
+    {key:'font',label:'Font',desc:'Default sets definitions and book text in a serif. Atkinson Hyperlegible is designed to be easy to read for people with low vision.',type:'seg',options:[['default','Default'],['sans','Sans-serif'],['atkinson','Atkinson Hyperlegible']]}]},
+  {title:'Search',rows:[
+    {key:'hints',label:'Search tips',desc:'The line of keyboard shortcuts under the result filters.',type:'switch'},
+    {key:'thumbs',label:'Slide thumbnails in results',desc:'Off gives a more compact list. The selected slide still shows on the right.',type:'switch'}]},
+  {title:'Practice questions',rows:[
+    {key:'showAnswers',label:'Show answers right away',desc:'Off hides each answer until you click Show answer.',type:'switch'}]}
+];
+const VERSIONS=[
+  ['1.0.2','The Quiz Qrusher look, with Settings behind the cog: theme, accent color, text size, line spacing and font. Note sheets: notes and cheat sheets are searched passage by passage instead of being read as question sets. A \u2039 next to the name goes back to the study apps homepage.'],
+  ['1.0.1','Classes, Download for offline, emphasis detection on added slides, and question sets with practice questions.'],
+  ['1.0','The web app: add your own slides and textbooks and search them in your browser, offline.']];
+function setRow(label,desc,ctl){ const row=document.createElement('div'); row.className='set-row';
+  row.innerHTML=`<div class="set-text"><div class="set-label">${esc(label)}</div>${desc?`<div class="set-desc">${esc(desc)}</div>`:''}</div>`; row.appendChild(ctl); return row; }
+function settingCtl(r){
+  const S=CBSET.S, change=v=>{ CBSET.set(r.key,v); settingChanged(r.key); };
+  let c;
+  if(r.type==='switch'){ c=document.createElement('button'); c.type='button'; c.className='set-switch'; c.setAttribute('role','switch'); c.setAttribute('aria-label',r.label);
+    c.setAttribute('aria-checked',String(!!S[r.key])); c.innerHTML='<span class="switch" aria-hidden="true"><span class="knob"></span></span>';
+    c.addEventListener('click',()=>{ const v=c.getAttribute('aria-checked')!=='true'; c.setAttribute('aria-checked',String(v)); change(v); }); }
+  else if(r.type==='seg'||r.type==='swatches'){ c=document.createElement('div'); c.className=r.type==='seg'?'seg':'swatches'; c.setAttribute('role','group'); c.setAttribute('aria-label',r.label);
+    const opts=r.type==='seg'?r.options:Object.keys(CBSET.ACCENTS).map(k=>[k,CBSET.ACCENTS[k].name]);
+    opts.forEach(([v,l])=>{ const b=document.createElement('button'); b.type='button'; b.setAttribute('aria-pressed',String(S[r.key]===v));
+      if(r.type==='seg') b.textContent=l; else { b.className='swatch'; b.title=l; b.setAttribute('aria-label',l); b.style.background=CBSET.ACCENTS[v].light[0]; }
+      b.addEventListener('click',()=>{ [...c.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b))); change(v); }); c.appendChild(b); }); }
+  else { c=document.createElement('select'); c.setAttribute('aria-label',r.label);
+    c.innerHTML=r.options.map(([v,l])=>`<option value="${v}">${esc(l)}</option>`).join(''); c.value=String(S[r.key]);
+    c.addEventListener('change',()=>change(r.num?parseFloat(c.value):c.value)); }
+  c.id='set-'+r.key; return c;
+}
+function renderSettings(){
+  const el=$('#v-settings');
+  el.innerHTML=`<h2>Settings</h2><p class="lead">Class Base v${APP_VERSION}. Settings are saved in this browser${HOSTED?' and shared by all your classes':''}.</p>`;
+  SETTINGS_UI.forEach(sec=>{ const card=document.createElement('div'); card.className='set-section'; card.innerHTML=`<h3>${esc(sec.title)}</h3>`;
+    sec.rows.forEach(r=>card.appendChild(setRow(r.label,r.desc,settingCtl(r)))); el.appendChild(card); });
+  const about=document.createElement('div'); about.className='set-section';
+  about.innerHTML=`<h3>What's new</h3><dl class="versions">${VERSIONS.map(([v,t])=>`<dt>v${v}</dt><dd>${esc(t)}</dd>`).join('')}</dl>`;
+  el.appendChild(about);
+}
+function settingChanged(k){
+  if(k==='textScale'||k==='lineSpacing'||k==='font') requestAnimationFrame(fitProj);   /* the header's height changes */
+  if(k==='showAnswers'){ revealAll=projReveal=!!CBSET.S.showAnswers; revealed.clear(); }
+}
+$('#setbtn').addEventListener('click',()=>showView(view==='settings'?'search':'settings'));
 
 function fitProj(){ const h=document.querySelector('.top').offsetHeight; projEl.style.top=(h+12)+'px'; projEl.style.maxHeight='calc(100vh - '+(h+24)+'px)'; }
 window.addEventListener('resize',fitProj);
