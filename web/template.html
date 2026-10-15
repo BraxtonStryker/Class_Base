@@ -8,7 +8,7 @@
 <style>
 :root{
   --paper:#EEF2F0; --panel:#FFFFFF; --ink:#18202A; --muted:#566170; --rule:#D3DAD6; --soft:#F6F8F7;
-  --hl:#FFE45C; --hl-ink:#18202A; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00;
+  --hl:#FFE45C; --hl-ink:#18202A; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00; --teal:#0F766E;
   --grid:rgba(29,78,216,.07); --shadow:0 1px 0 rgba(24,32,42,.06);
   --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --serif: Charter,"Bitstream Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
@@ -16,13 +16,13 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#14181D; --panel:#1B2027; --ink:#E5E9EE; --muted:#9BA6B2; --rule:#2D343D; --soft:#20262E;
-    --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D;
+    --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
     --grid:rgba(138,180,255,.06); --shadow:none;
   }
 }
 :root[data-theme="dark"]{
   --paper:#14181D; --panel:#1B2027; --ink:#E5E9EE; --muted:#9BA6B2; --rule:#2D343D; --soft:#20262E;
-  --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D;
+  --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
   --grid:rgba(138,180,255,.06); --shadow:none;
 }
 *{box-sizing:border-box}
@@ -196,6 +196,31 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
 @media (max-width:700px){.searchrow{flex-wrap:wrap}.q{flex:1 1 100%}.searchrow select{flex:1 1 100%;height:40px;max-width:none}.brand p{display:none}}
 /* ---------- hosted site: welcome card, update toast ---------- */
 .projector:empty{visibility:hidden}
+.classbar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 10px;align-items:center}
+.classbar::-webkit-scrollbar{display:none}
+.ctab{border:1px solid var(--rule);background:var(--panel);color:var(--muted);border-radius:8px;padding:4px 12px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.ctab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ctab .n{font-weight:400;opacity:.7;margin-left:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.ctab.add{border-style:dashed;font-weight:500}
+.iconbtn:disabled{opacity:.6;cursor:progress}
+@media (max-width:520px){.iconbtn .wide{display:none}.brand{gap:8px}}
+.clsedit{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:0 0 14px}
+.clsedit label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);font-weight:600}
+.clsedit input{font:inherit;font-size:15px;padding:6px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);width:min(320px,80vw)}
+.clsedit .btn{padding:6px 12px}
+.b-q{color:var(--teal)}
+.opts{margin:6px 0 0;padding-left:26px;font:14px/1.5 var(--sans)}
+.opts li{margin:2px 0}
+.opts li.ok{color:var(--green);font-weight:650}
+.opts li.ok::after{content:" \2713"}
+.qcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin:8px 0}
+.qcard .stem{font:15px/1.55 var(--serif);margin:0}
+.qcard .qn{font:700 14px var(--sans);margin-right:8px;font-variant-numeric:tabular-nums}
+.qbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.qbtns .ref{margin:0}
+.ans{margin-top:8px;padding:8px 10px;background:var(--soft);border-radius:8px;font-size:14px}
+.rel{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:8px;font-size:12.5px}
+.rel .refs-in{display:contents}
 .welcome{padding:22px 24px;color:var(--ink)}
 .welcome h2{font:700 20px/1.25 var(--sans);margin:0 0 6px}
 .welcome p{margin:0 0 12px;max-width:68ch;color:var(--muted)}
@@ -214,9 +239,11 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
    <h1 id="ttl"></h1>
    <p id="sub"></p>
    <span class="sp"></span>
+   <button class="iconbtn" id="dlbtn" type="button" hidden title="Save the app and this class's PDFs as one HTML file that opens without internet">Download<span class="wide"> for offline</span></button>
    <button class="iconbtn" id="addbtn" type="button">Add files</button>
    <button class="iconbtn" id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button>
   </div>
+  <div class="classbar" id="classbar" role="tablist" aria-label="Classes" hidden></div>
   <div class="searchrow">
    <label class="q" for="q">
     <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
@@ -233,6 +260,7 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
    <button class="tab" role="tab" data-v="trivia" aria-selected="false">Names, dates &amp; quotes</button>
    <button class="tab" role="tab" data-v="numbers" aria-selected="false">Key numbers</button>
    <button class="tab" role="tab" data-v="emph" aria-selected="false">Emphasized on slides</button>
+   <button class="tab" role="tab" data-v="qs" aria-selected="false">Practice questions</button>
    <button class="tab" role="tab" data-v="add" aria-selected="false">Add files</button>
   </nav>
  </div>
@@ -256,16 +284,18 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
  <section class="view page" id="v-trivia"></section>
  <section class="view page" id="v-numbers"></section>
  <section class="view page" id="v-emph"></section>
+ <section class="view page" id="v-qs"></section>
  <section class="view page" id="v-add">
   <h2>Add files</h2>
   <p class="lead" id="addlead">Drop slide decks or a textbook (PDF) here. They're indexed in your browser: searchable and viewable right away, no rebuild needed. Landscape PDFs are treated as slides and portrait PDFs as books; you can switch that below. Added files are remembered in this browser when it allows storage, but for an exam, build them into the file instead.</p>
+  <div class="clsedit" id="clsedit" hidden><label>Class name<input id="clsname" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label><button class="btn" type="button" id="clsdel">Delete this class</button></div>
   <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose PDF files to add">
    <strong>Drop PDFs here, or click to choose</strong>
    <p>Text is extracted page by page; scanned PDFs without a text layer will be viewable but not searchable.</p>
    <input type="file" id="fileinp" accept="application/pdf,.pdf" multiple hidden>
   </div>
   <div class="flist" id="flist"></div>
-  <p class="meta" id="dlrow" hidden><a href="index.html" download="Class_Base.html">Download Class Base as one HTML file</a> to keep a copy that opens without this site. Files you added here don't carry over; add them to the copy once.</p>
+  <p class="meta" id="dlrow" hidden><b>Download for offline</b> (top right) saves the app and this class's PDFs as one HTML file that opens on any computer with no internet, for example on an exam laptop.</p>
  </section>
 </main>
 
@@ -318,6 +348,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
 $('#ttl').textContent=D.meta.title; $('#sub').textContent=D.meta.subtitle||'';
+const HOSTED=!!D.meta.hosted;   /* the GitHub Pages app (build.py --site): classes, offline download, service worker */
 
 /* formulas: LaTeX -> MathML in the browser (KaTeX, bundled) */
 const hasKatex=typeof katex!=='undefined';
@@ -409,7 +440,7 @@ function tokens(s,keepStop){
 
 /* ================= search index ================= */
 let docs=[], df=new Map(), avgdl=1, VOCAB=[], N=0;
-const TYPEBOOST={def:1.35,slide:1.0,formula:0.95,trivia:1.15,number:1.1,tb:0.8,qa:0.85,page:0.62};
+const TYPEBOOST={def:1.35,slide:1.0,formula:0.95,trivia:1.15,number:1.1,tb:0.8,qa:0.85,page:0.62,question:0.9};
 function refDecks(refs,tb){ const s=new Set((refs||[]).map(r=>SL[r]&&SL[r].deck).filter(Boolean)); if(tb&&tb.book) s.add(tb.book); return s; }
 function buildIndex(){
   docs=[];
@@ -421,7 +452,8 @@ function buildIndex(){
   D.numbers.forEach(n=>add({type:'number',obj:n,decks:refDecks(n.refs,n.tb),fields:[[n.item,3],[n.val,1.5]]}));
   D.tb.forEach(t=>add({type:'tb',obj:t,decks:refDecks([],t.ref),fields:[[t.sec,2.5],[t.tags,1.5],[t.notes,1]]}));
   D.qa.forEach(q=>add({type:'qa',obj:q,decks:refDecks([],q.ref),fields:[[q.q,2.5],[q.a,1]]}));
-  Object.values(BOOK).forEach(b=>{ const hasCh=b.pages.some(p=>p.ch); b.pages.forEach(p=>{ if(p.text) add({type:'page',front:hasCh&&!p.ch,obj:{book:b.id,n:p.n},decks:new Set([b.id]),fields:[[(p.ch||'')+' '+(p.sec||''),0.8],[p.text,1]]}); }); });
+  Object.values(QS).forEach(S=>S.list.forEach((q,i)=>add({type:'question',obj:{f:S.id,i},decks:new Set([S.id]),fields:[[q.stem,1.4],[q.opts.join(' ; '),1],[q.ansText,0.6]]})));
+  Object.values(BOOK).forEach(b=>{ if(b.qs) return; const hasCh=b.pages.some(p=>p.ch); b.pages.forEach(p=>{ if(p.text) add({type:'page',front:hasCh&&!p.ch,obj:{book:b.id,n:p.n},decks:new Set([b.id]),fields:[[(p.ch||'')+' '+(p.sec||''),0.8],[p.text,1]]}); }); });
   df=new Map(); let tot=0;
   for(const d of docs){
     const tf=new Map(); let len=0; let plain='';
@@ -454,7 +486,7 @@ function expand(qtoks){
   });
   return {m,groups};
 }
-function search(q,deckFilter){
+function search(q,deckFilter,opt){
   const phrases=[]; q=q.replace(/"([^"]+)"/g,(_,p)=>{phrases.push(norm(p).replace(/\s+/g,' ').trim()); return ' '+p+' ';});
   let qt=tokens(q); if(!qt.length) qt=tokens(q,true);
   const uniq=[...new Set(qt)];
@@ -463,6 +495,7 @@ function search(q,deckFilter){
   const ph=uniq.length>=2?norm(q).replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim():'';
   for(const d of docs){
     if(deckFilter && !d.decks.has(deckFilter)) continue;
+    if(opt && opt.skip===d.type) continue;
     if(phrases.length && !phrases.every(p=>d.plain.includes(p))) continue;
     let s=0; const hit=new Set();
     for(const [term,{w,g}] of m){ const f=d.tf.get(term); if(!f) continue; s+=idf(term)*(f*(k1+1))/(f+k1*(1-b+b*d.len/avgdl))*w; hit.add(g); }
@@ -500,14 +533,16 @@ function snippet(text,terms,len){
 }
 
 /* ================= UI state ================= */
-const TYPES=[['','All'],['def','Definitions'],['slide','Slides'],['page','Book pages'],['formula','Formulas'],['trivia','Names & dates'],['number','Key numbers'],['tb','Book index'],['qa','Q&A']];
+const TYPES=[['','All'],['def','Definitions'],['slide','Slides'],['page','Book pages'],['formula','Formulas'],['trivia','Names & dates'],['number','Key numbers'],['tb','Book index'],['qa','Q&A'],['question','Practice Qs']];
 let typeF='', deckF='', results=[], sel=0, lastTerms=[];
 const qEl=$('#q'), resEl=$('#res'), projEl=$('#proj'), metaEl=$('#meta');
 function fillDeckSelect(){
   const s=$('#deck'); const cur=s.value;
   let h='<option value="">All lectures &amp; books</option>';
   const decks=Object.values(DECK); if(decks.length) h+='<optgroup label="Lectures">'+decks.map(d=>`<option value="${esc(d.id)}">${esc(d.short)} — ${esc(d.title)}</option>`).join('')+'</optgroup>';
-  const books=Object.values(BOOK); if(books.length) h+='<optgroup label="Books">'+books.map(b=>`<option value="${esc(b.id)}">${esc(b.short)} — ${esc(b.title)}</option>`).join('')+'</optgroup>';
+  const qsets=Object.values(BOOK).filter(b=>b.qs), books=Object.values(BOOK).filter(b=>!b.qs);
+  if(qsets.length) h+='<optgroup label="Question sets">'+qsets.map(b=>`<option value="${esc(b.id)}">${esc(b.title)}</option>`).join('')+'</optgroup>';
+  if(books.length) h+='<optgroup label="Books">'+books.map(b=>`<option value="${esc(b.id)}">${esc(b.short)} — ${esc(b.title)}</option>`).join('')+'</optgroup>';
   s.innerHTML=h; s.value=(DECK[cur]||BOOK[cur])?cur:''; deckF=s.value;
 }
 function renderTypes(counts){
@@ -539,6 +574,7 @@ function card(d,terms){
   else if(d.type==='trivia'){ k=`<span class="badge b-trivia">Name / date</span><span>${esc(o.when)}</span>`; h=highlight(o.who,terms); s=`<p class="s">${highlight(o.fact,terms)}</p>`; extra=refChips(o.refs,o.tb); }
   else if(d.type==='number'){ k=`<span class="badge b-number">Key number</span>`; h=highlight(o.item,terms); s=`<p class="s">${highlight(o.val,terms)}</p>`; extra=refChips(o.refs,o.tb); }
   else if(d.type==='tb'){ k=`<span class="badge b-tb">Book index</span><span>${esc(o.ch)}</span>`; h=highlight(o.sec,terms); s=`<p class="s">${highlight(o.notes,terms)}</p>`; extra=refChips([],o.ref); }
+  else if(d.type==='question'){ const S=QS[o.f], q=S&&S.list[o.i]; if(!q) return ''; k=`<span class="badge b-q">Practice question</span><span>${esc(S.short)} #${q.n}</span>`; h=highlight(q.stem.length>240?q.stem.slice(0,238)+'…':q.stem,terms); s=optsHTML(q,terms,false); extra=`<div class="refs">${bookChip({book:o.f,pdf:q.pg,label:''})}</div>`; }
   else if(d.type==='qa'){ k=`<span class="badge b-qa">Q&amp;A</span><span>${esc(o.src)}</span>`; h=highlight(o.q,terms); s=`<p class="s">${highlight(o.a,terms)}</p>`; extra=refChips([],o.ref); }
   return `<div><div class="k">${k}</div><h3>${h}</h3>${s}${extra}</div>${side?`<div>${side}</div>`:''}`;
 }
@@ -546,20 +582,22 @@ function card(d,terms){
 function welcomeHTML(){
   return `<li class="empty welcome"><h2>Find the slide behind the question</h2>
    <p>Add your lecture slides and textbook as PDFs. Every page becomes searchable, so during an open-book exam you can paste the key words of a question and jump straight to the slide or book page that answers it.</p>
-   <ol><li>Click <b>Add PDFs</b> (or drop files anywhere on this page).</li><li>Wide PDFs are treated as slide decks and tall ones as books; you can switch either.</li><li>Type keywords. Typos and plurals are fine; <b>"quotes"</b> match an exact phrase.</li></ol>
+   <ol><li>Click <b>Add PDFs</b> (or drop files anywhere on this page).</li><li>Wide PDFs become slide decks, tall ones books, and practice exams or question lists become question sets. You can switch any of them.</li><li>Type keywords. Typos and plurals are fine; <b>"quotes"</b> match an exact phrase.</li></ol>
+   ${HOSTED?'<p>Taking more than one class? <b>+ New class</b> at the top keeps each one\'s files separate.</p>':''}
    <button class="btn primary" type="button" data-goadd>Add PDFs</button>
    <p class="meta" style="margin:12px 0 0">Your files stay on this device. They're read in your browser and never uploaded.</p></li>`;
 }
 resEl.addEventListener('click',e=>{ if(e.target.closest('[data-goadd]')){ showView('add'); finp.click(); } });
-let runT=null;
+let runT=null, hideQ=false;   /* hideQ: searching with a practice question, so leave the questions out */
 function run(){
   const q=qEl.value.trim(); $('#clear').style.display=q?'block':'none';
   $('#types').hidden=$('#v-search .hint').hidden=!docs.length;
+  if(!q&&!docs.length&&HOSTED&&!filesReady){ resEl.innerHTML=''; projEl.innerHTML=''; return; }
   if(!q&&!docs.length){ results=[]; metaEl.textContent=''; projEl.innerHTML=''; resEl.innerHTML=welcomeHTML(); return; }
-  if(!q){ results=[]; renderTypes(null); metaEl.textContent=''; const nb=Object.values(BOOK).reduce((a,b)=>a+b.pages.length,0);
-    resEl.innerHTML=`<li class="empty">Start typing to search ${Object.keys(SL).length} slides${nb?`, ${nb} book pages`:''}${D.defs.length?`, ${D.defs.length} definitions`:''}${D.formulas.length?`, ${D.formulas.length} formulas`:''} and more. Paste the key words of an exam question; extra words don't hurt.</li>`; projEl.innerHTML=''; return; }
+  if(!q){ results=[]; renderTypes(null); metaEl.textContent=''; const nb=Object.values(BOOK).filter(b=>!b.qs).reduce((a,b)=>a+b.pages.length,0), nq=Object.values(QS).reduce((a,S)=>a+S.list.length,0);
+    resEl.innerHTML=`<li class="empty">Start typing to search ${Object.keys(SL).length} slides${nb?`, ${nb} book pages`:''}${D.defs.length?`, ${D.defs.length} definitions`:''}${D.formulas.length?`, ${D.formulas.length} formulas`:''}${nq?`, ${nq} practice questions`:''} and more. Paste the key words of an exam question; extra words don't hurt.</li>`; projEl.innerHTML=''; return; }
   const t0=performance.now();
-  const all=search(q,deckF);
+  const all=search(q,deckF,hideQ?{skip:'question'}:null);
   const counts={'':all.res.length}; all.res.forEach(([s,d])=>counts[d.type]=(counts[d.type]||0)+1);
   renderTypes(counts);
   results=(typeF?all.res.filter(r=>r[1].type===typeF):all.res).slice(0,80);
@@ -570,10 +608,11 @@ function run(){
   resEl.innerHTML=results.map(([s,d],i)=>`<li class="r" role="option" tabindex="-1" data-i="${i}" aria-selected="${i===0}">${card(d,lastTerms)}</li>`).join('');
   lazy(resEl); sel=0; showProj();
 }
-qEl.addEventListener('input',()=>{clearTimeout(runT); runT=setTimeout(run,110);});
+qEl.addEventListener('input',()=>{hideQ=false; clearTimeout(runT); runT=setTimeout(run,110);});
 $('#clear').addEventListener('click',()=>{qEl.value=''; run(); qEl.focus();});
 
 function primaryTarget(d){ const o=d.obj;
+  if(d.type==='question'){ const q=QS[o.f]&&QS[o.f].list[o.i]; return q?{book:o.f,page:q.pg}:null; }
   if(d.type==='slide') return {slide:o.id};
   if(d.type==='page') return {book:o.book,page:o.n};
   const r=(o.refs||[]).find(x=>SL[x]); if(r) return {slide:r};
@@ -624,6 +663,10 @@ function showProj(){
   if(!results.length){projEl.innerHTML='';return;}
   const d=results[sel][1], o=d.obj;
   if(d.type==='slide'){ projEl.innerHTML=slidePanel(o.id,lastTerms); fillPanelImages(projEl); return; }
+  if(d.type==='question'){ const S=QS[o.f], q=S.list[o.i], has=q.ans!=null||!!q.ansText;
+    projEl.innerHTML=`<div class="pbody"><p class="meta" style="margin:0 0 6px">${esc(S.title)}, question ${q.n}</p><p class="pdef">${highlight(q.stem,lastTerms)}</p>${optsHTML(q,lastTerms,projReveal)}${projReveal?ansHTML(q):''}
+     <div class="qbtns">${has?`<button class="btn" type="button" data-preveal>${projReveal?'Hide answer':'Show answer'}</button>`:''}${bookChip({book:o.f,pdf:q.pg,label:''})}</div>
+     <h4>Best matches in your notes</h4><div class="refs">${relatedHTML(q)}</div></div>`; return; }
   if(d.type==='page'){ projEl.innerHTML=bookPanel(o.book,o.n,lastTerms); fillPanelImages(projEl); return; }
   const refs=(o.refs||[]).filter(r=>SL[r]); const tb=o.tb||o.ref;
   let head='';
@@ -638,7 +681,9 @@ function showProj(){
   projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)">${head}${tabs.length?`<div class="reftabs">${tabs.join('')}</div>`:''}</div><div id="projslide">${refs.length?slidePanel(refs[0],lastTerms):(tb&&BOOK[tb.book]?bookPanel(tb.book,tb.pdf,lastTerms):'<div class="noimg">No slide or book page linked to this item.</div>')}</div>`;
   fillPanelImages(projEl);
 }
+let projReveal=false;
 projEl.addEventListener('click',e=>{
+  if(e.target.closest('[data-preveal]')){ projReveal=!projReveal; showProj(); return; }
   const pr=e.target.closest('[data-pr]'); if(pr){ projEl.querySelectorAll('[data-pr]').forEach(b=>b.setAttribute('aria-current',String(b===pr))); const v=pr.dataset.pr; const host=$('#projslide');
     if(v.startsWith('s:')) host.innerHTML=slidePanel(v.slice(2),lastTerms); else { const [_,bk,pg]=v.split(':'); host.innerHTML=bookPanel(bk,+pg,lastTerms); } fillPanelImages(host); return; }
   const st=e.target.closest('[data-step]'); if(st){ const nid=stepId(st.dataset.sid,+st.dataset.step); if(nid){ const host=st.closest('#projslide')||projEl; host.innerHTML=slidePanel(nid,lastTerms); fillPanelImages(host);} return; }
@@ -755,7 +800,7 @@ window.addEventListener('resize',()=>{ if(bv.classList.contains('on')){ const k=
 const locInp=document.createElement('input'); locInp.type='file'; locInp.accept='application/pdf,.pdf'; locInp.hidden=true; document.body.appendChild(locInp);
 let locFor=null;
 locInp.addEventListener('change',async()=>{ const f=locInp.files[0]; locInp.value=''; if(!f||!locFor) return; const buf=await f.arrayBuffer(); memBytes['book:'+locFor]=buf; delete pdfDocs['book:'+locFor];
-  try{ await idbPut({id:'book:'+locFor,kind:'located',name:f.name,bytes:buf}); }catch(e){}
+  try{ await idbPut({id:'book:'+locFor,kind:'located',name:f.name}); await bytesPut('book:'+locFor,buf); }catch(e){}
   if(bv.classList.contains('on')&&BVS.book===locFor){ BVS.failed=false; $('#bv-locate').hidden=true; $('#bv-mode').hidden=false; bvSetMode('pdf'); } $('#bv-native').hidden=false; if(view==='search') showProj(); });
 
 /* ================= global clicks: slide / book chips ================= */
@@ -793,11 +838,11 @@ document.addEventListener('keydown',e=>{
 let view='search'; const built={};
 function showView(v){ view=v; document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.v===v)));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(!built[v]){ ({formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph}[v]||(()=>{}))(); built[v]=1; }
+  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(v==='qs') renderQs(); else if(!built[v]){ ({formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph}[v]||(()=>{}))(); built[v]=1; }
   window.scrollTo(0,0); }
 document.querySelector('.tabs').addEventListener('click',e=>{const t=e.target.closest('.tab'); if(t) showView(t.dataset.v);});
 function updateTabs(){
-  const has={browse:Object.keys(SL).length>0,tb:Object.keys(BOOK).length>0||D.tb.length>0||D.qa.length>0,formulas:D.formulas.length>0,trivia:D.trivia.length>0,numbers:D.numbers.length>0,emph:Object.values(SL).some(s=>s.emph&&s.emph.length)};
+  const has={browse:Object.keys(SL).length>0,tb:Object.values(BOOK).some(b=>!b.qs)||D.tb.length>0||D.qa.length>0,formulas:D.formulas.length>0,trivia:D.trivia.length>0,numbers:D.numbers.length>0,emph:Object.values(SL).some(s=>s.emph&&s.emph.length),qs:Object.keys(QS).length>0};
   document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.v in has) t.hidden=!has[t.dataset.v]; });
 }
 
@@ -848,7 +893,7 @@ function tocHTML(b){
   return `<div class="toc">${chapters.map(c=>`<details><summary><span>${esc(c.t.title)}</span> <span class="pg">${esc(bookLabel(b,c.t.page))}</span></summary><ul><li><button type="button" data-book="${esc(b.id)}" data-page="${c.t.page}">Open at the start</button></li>${c.kids.map(item).join('')}</ul></details>`).join('')}</div>`;
 }
 function renderTB(){
-  const books=Object.values(BOOK);
+  const books=Object.values(BOOK).filter(b=>!b.qs);
   const chs=[...new Set(D.tb.map(t=>t.ch))];
   let h=`<h2>Textbook</h2>`;
   books.forEach(b=>{ h+=`<h3 class="grp">${esc(b.title)}</h3><p class="lead">${b.pages.length} pages, all searchable. Open it at any chapter or section below${hasBytes('book:'+b.id)?'':' (the PDF isn\'t in this file; you\'ll see the page text, or locate the PDF to see real pages)'}.</p>
@@ -858,37 +903,77 @@ function renderTB(){
   $('#v-tb').innerHTML=h;
 }
 
-/* ================= added files (live indexing) ================= */
+/* ================= added files: classes, storage, live indexing ================= */
+/* IndexedDB 'studydb-<course>', version 2:
+     files    {id,name,kind,cls,pages,toc,added,emphV}  text and metadata for every class (small)
+     bytes    the PDFs, keyed by file id ('book:<id>' for a located built-in book); loaded one class at a time
+     classes  {id,name,created}
+   Version 1 kept the bytes inside each files record; the upgrade moves them to 'bytes'. */
 let idb=null;
-function idbOpen(){ if(idb) return idb; idb=new Promise((res,rej)=>{ try{ const r=indexedDB.open('studydb-'+COURSE_KEY,1); r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id'}); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); idb.catch(()=>{}); return idb; }
-async function idbTx(mode,fn){ const db=await idbOpen(); return new Promise((res,rej)=>{ const tx=db.transaction('files',mode); const st=tx.objectStore('files'); const r=fn(st); tx.oncomplete=()=>res(r&&r.result); tx.onerror=()=>rej(tx.error); }); }
-const idbPut=o=>idbTx('readwrite',st=>st.put(o));
-const idbDel=id=>idbTx('readwrite',st=>st.delete(id));
-const idbAll=()=>idbTx('readonly',st=>st.getAll());
-let storageOK=true;
-const FILES=[]; // {id,name,kind,pages:[{text,title}],status,progress}
+function idbOpen(){ if(idb) return idb; idb=new Promise((res,rej)=>{ try{ const r=indexedDB.open('studydb-'+COURSE_KEY,2);
+  r.onupgradeneeded=e=>{ const db=r.result, tx=r.transaction;
+    const fs=db.objectStoreNames.contains('files')?tx.objectStore('files'):db.createObjectStore('files',{keyPath:'id'});
+    const bs=db.objectStoreNames.contains('bytes')?tx.objectStore('bytes'):db.createObjectStore('bytes');
+    if(!db.objectStoreNames.contains('classes')) db.createObjectStore('classes',{keyPath:'id'});
+    if(e.oldVersion===1) fs.openCursor().onsuccess=ev=>{ const c=ev.target.result; if(!c) return; const v=c.value; if(v.bytes){ bs.put(v.bytes,v.id); delete v.bytes; c.update(v); } c.continue(); }; };
+  r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); idb.catch(()=>{}); return idb; }
+async function idbTx(store,mode,fn){ const db=await idbOpen(); return new Promise((res,rej)=>{ const tx=db.transaction(store,mode); const r=fn(tx.objectStore(store)); tx.oncomplete=()=>res(r&&r.result); tx.onerror=()=>rej(tx.error); tx.onabort=()=>rej(tx.error); }); }
+const idbPut=(o,store)=>idbTx(store||'files','readwrite',st=>st.put(o));
+const idbDel=(id,store)=>idbTx(store||'files','readwrite',st=>st.delete(id));
+const idbAll=store=>idbTx(store||'files','readonly',st=>st.getAll());
+const bytesPut=(id,buf)=>idbTx('bytes','readwrite',st=>st.put(buf,id));
+const bytesGet=id=>idbTx('bytes','readonly',st=>st.get(id));
+let storageOK=true, filesReady=false;
+const FILES=[];        // files of the active class: the stored record plus {status,progress,failed,seed}
+const REC=new Map();   // every stored file record, all classes (no bytes)
+const QS={};           // question-set file id -> {id,short,title,list:[question]}
+let CLASSES=[], activeCls=null, SEED=null;
+const fileTitle=f=>f.name.replace(/\.pdf$/i,'');
+function newClass(name){ return {id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name,created:Date.now()}; }
+const curClass=()=>CLASSES.find(c=>c.id===activeCls)||CLASSES[0];
+function saveRec(f){ const r={id:f.id,name:f.name,kind:f.kind,cls:f.cls,pages:f.pages,toc:f.toc||[],added:f.added||Date.now(),emphV:f.emphV}; REC.set(f.id,r); return idbPut(r); }
 
 function registerFile(f){
+  const title=fileTitle(f), short=title.slice(0,16);
   if(f.kind==='slides'){
-    registerDeck({id:f.id,short:f.name.replace(/\.pdf$/i,'').slice(0,16),title:f.name.replace(/\.pdf$/i,''),user:true});
-    f.pages.forEach((p,i)=>registerSlide({id:f.id+'-'+(i+1),deck:f.id,n:i+1,title:p.title||('Slide '+(i+1)),text:p.text||'',ocr:'',emph:[],fig:false,cap:'',cited:[]}));
+    registerDeck({id:f.id,short,title,user:true});
+    f.pages.forEach((p,i)=>registerSlide({id:f.id+'-'+(i+1),deck:f.id,n:i+1,title:p.title||('Slide '+(i+1)),text:p.text||'',ocr:'',emph:p.emph||[],fig:false,cap:'',cited:[]}));
   } else {
-    BOOK[f.id]={id:f.id,short:f.name.replace(/\.pdf$/i,'').slice(0,16),title:f.name.replace(/\.pdf$/i,''),file:f.name,embedded:false,user:true,toc:f.toc||[],pages:f.pages.map((p,i)=>({n:i+1,label:'',ch:'',sec:'',text:p.text||''}))};
+    BOOK[f.id]={id:f.id,short,title,file:f.name,embedded:false,user:true,qs:f.kind==='questions',toc:f.toc||[],pages:f.pages.map((p,i)=>({n:i+1,label:'',ch:'',sec:'',text:p.text||''}))};
     SRC['book:'+f.id]=()=>memBytes['book:'+f.id]?new Uint8Array(memBytes['book:'+f.id].slice(0)):null;
+    if(f.kind==='questions') QS[f.id]={id:f.id,short,title,list:parseQuestions(f.pages)};
   }
   SRC['deck:'+f.id]=()=>memBytes['deck:'+f.id]?new Uint8Array(memBytes['deck:'+f.id].slice(0)):null;
 }
 function unregisterFile(f){
   if(DECK[f.id]){ Object.keys(SL).filter(k=>SL[k].deck===f.id).forEach(k=>delete SL[k]); delete DECK[f.id]; delete deckCount[f.id]; }
-  if(BOOK[f.id]) delete BOOK[f.id];
-  ['deck:','book:'].forEach(p=>{ delete pdfDocs[p+f.id]; });
+  delete BOOK[f.id]; delete QS[f.id];
+  ['deck:','book:'].forEach(p=>{ if(pdfDocs[p+f.id]) pdfDocs[p+f.id].then(d=>d.destroy()).catch(()=>{}); delete pdfDocs[p+f.id]; });
 }
-function afterFilesChanged(){ buildIndex(); fillDeckSelect(); updateTabs(); if(view==='add') renderFiles(); run(); }
+function afterFilesChanged(){
+  buildIndex(); fillDeckSelect(); updateTabs(); delete built.emph;
+  const tab=document.querySelector(`.tab[data-v="${view}"]`);
+  if(tab&&tab.hidden) showView('search');
+  else if(view==='add') renderFiles(); else if(view==='qs') renderQs(); else if(view==='browse') renderBrowse(); else if(view==='tb') renderTB(); else if(view==='emph'){ renderEmph(); built.emph=1; }
+  renderClassBar(); run();
+}
 function setBytes(f,buf){ memBytes['deck:'+f.id]=buf; memBytes['book:'+f.id]=buf; }
+function statusFor(f){
+  const n=f.pages.length;
+  let s;
+  if(f.kind==='questions'){ const L=QS[f.id]?QS[f.id].list:[];
+    s=L.length?`${L.length} question${L.length===1?'':'s'} found: ${L.filter(q=>q.opts.length).length} multiple choice, ${L.filter(q=>q.ans!=null||q.ansText).length} with answers`:'No questions recognized. Try treating it as a book.'; }
+  else { s=`${n} ${f.kind==='slides'?'slide':'page'}${n===1?'':'s'} indexed`;
+    if(f.kind==='slides'&&f.emphV){ const e=f.pages.reduce((a,p)=>a+(p.emph?p.emph.length:0),0); if(e) s+=`, ${e} emphasized phrase${e===1?'':'s'}`; }
+    const words=f.pages.reduce((a,p)=>a+(p.text?p.text.split(/\s+/).length:0),0); if(words<n*3) s+=' (little or no text found; scanned PDF?)'; }
+  return s+(f.seed?' · built into this file':'');
+}
 
+/* ---------- reading a PDF ---------- */
+const openPdf=buf=>pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0)),isEvalSupported:false,useSystemFonts:true,verbosity:0}).promise;
 async function extractPdf(f,buf){
-  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0)),isEvalSupported:false,useSystemFonts:true,verbosity:0}).promise;
-  const p1=await pdf.getPage(1); const v=p1.getViewport({scale:1}); if(!f.kind) f.kind=v.width>v.height?'slides':'book';
+  const pdf=await openPdf(buf);
+  const p1=await pdf.getPage(1); const v=p1.getViewport({scale:1}); const wide=v.width>v.height;
   let toc=[]; try{ const ol=await pdf.getOutline(); if(ol){ const walk=async(items,lvl)=>{ for(const it of items){ let pg=null; try{ let dest=it.dest; if(typeof dest==='string') dest=await pdf.getDestination(dest); if(dest&&dest[0]) pg=(await pdf.getPageIndex(dest[0]))+1; }catch(e){} if(pg) toc.push({lvl,title:it.title,page:pg}); if(it.items&&it.items.length&&lvl<3) await walk(it.items,lvl+1); } }; await walk(ol,1); } }catch(e){}
   f.toc=toc; f.pages=[];
   for(let i=1;i<=pdf.numPages;i++){
@@ -899,43 +984,263 @@ async function extractPdf(f,buf){
     const top=items.filter(o=>o.s.trim()&&o.y>vp.height*0.62);
     if(top.length){ const mx=Math.max(...top.map(o=>o.h)); title=top.filter(o=>o.h>=mx-0.6).sort((a,b)=>b.y-a.y||a.x-b.x).map(o=>o.s).join(' ').replace(/\s+/g,' ').trim(); }
     if(!title){ title=(text.split('\n').find(l=>l.trim())||'').trim(); }
-    f.pages.push({text:text.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim(),title:title.slice(0,120)});
+    const pg={text:text.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim(),title:title.slice(0,120)};
+    if(wide) pg.emph=await pageEmphasis(page,tc,vp);   // landscape = probably slides
+    f.pages.push(pg);
     f.progress=i/pdf.numPages; if(i%5===0||i===pdf.numPages) drawProgress(f);
   }
+  if(wide) f.emphV=EMPHV;
   pdf.destroy();
+  if(!f.kind) f.kind=guessKind(f,wide);
 }
+/* A file is a question set when it reads as mostly questions: several of them, most with options or answers,
+   and about one or more per page (a textbook's exercise sections don't reach that density). */
+function guessKind(f,wide){
+  const L=parseQuestions(f.pages), marked=L.filter(q=>q.opts.length||q.ans!=null||q.ansText).length;
+  const named=/quiz|exam|practice|question|problem|review|sample|midterm|final|homework|\bhw\b|worksheet/i.test(f.name);
+  if(L.length>=3&&(marked>=L.length*0.5||named)&&L.length>=f.pages.length*(named?0.3:0.8)) return 'questions';
+  return wide?'slides':'book';
+}
+
+/* ---------- emphasis on added slides: bold and colored text ---------- */
+/* Bold comes from each text item's font (PDF.js loads the fonts while it builds the page's operator list).
+   Color comes from the fill color in effect when each glyph is drawn; glyphs are matched to the text items
+   character by character, in drawing order. A style used for most of a slide is its normal text, not emphasis.
+   Highlighter boxes aren't detected here; the Python builder does that. */
+const EMPHV=1;
+function fontIsBold(page,name){ try{ if(!name||!page.commonObjs.has(name)) return false; const f=page.commonObjs.get(name); return !!f&&(!!f.bold||!!f.black||/bold|black|heavy|semibold|demibold/i.test(f.name||'')); }catch(e){ return false; } }
+function colorName(c){ if(!c) return ''; const [r,g,b]=c, mx=Math.max(r,g,b), d=mx-Math.min(r,g,b);
+  if(mx<70||d<70||d/mx<0.45) return '';   /* black, gray, white or washed out */
+  const h=60*(mx===r?((g-b)/d+6)%6:mx===g?(b-r)/d+2:(r-g)/d+4);
+  return (h<45||h>=290)?'red':h<170?'green':'blue'; }
+function fillRGB(a){ if(!a) return null;
+  if(typeof a[0]==='string'){ const m=/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(a[0]); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:null; }
+  return a.length>=3&&typeof a[0]==='number'?[a[0],a[1],a[2]]:null; }
+async function glyphColors(page){
+  const O=pdfjsLib.OPS, ops=await page.getOperatorList(), out=[], stack=[]; let col=null;
+  const show=new Set([O.showText,O.showSpacedText,O.nextLineShowText,O.nextLineSetSpacingShowText]);
+  for(let i=0;i<ops.fnArray.length;i++){ const fn=ops.fnArray[i], a=ops.argsArray[i];
+    if(fn===O.save) stack.push(col); else if(fn===O.restore) col=stack.length?stack.pop():null;
+    else if(fn===O.setFillRGBColor){ const c=fillRGB(a); if(c) col=c; }
+    else if(show.has(fn)&&a){ let gl=null; for(let k=a.length-1;k>=0;k--) if(Array.isArray(a[k])){ gl=a[k]; break; }
+      if(gl) for(const g of gl) if(g&&typeof g==='object'&&g.unicode) for(const ch of g.unicode.normalize('NFKC')) if(!/\s/.test(ch)) out.push({c:ch,col}); }
+  }
+  return out;
+}
+async function pageEmphasis(page,tc,vp){
+  const items=tc.items.filter(it=>'str' in it&&it.str);
+  const hOf=it=>Math.hypot(it.transform[2],it.transform[3]);
+  const top=items.filter(it=>it.str.trim()&&it.transform[5]>vp.height*0.62);
+  const titleH=top.length?Math.max(...top.map(hOf)):Infinity;
+  let gc=[]; try{ gc=await glyphColors(page); }catch(e){}
+  let p=0, total=0, cur=null; const cnt={}, runs=[];
+  const end=()=>{ if(cur){ runs.push(cur); cur=null; } };
+  for(const it of items){
+    const title=hOf(it)>=titleH-0.6, bold=!title&&fontIsBold(page,it.fontName);
+    for(const ch of it.str){
+      if(/\s/.test(ch)){ if(cur) cur.t+=ch; continue; }
+      let col=''; const lim=Math.min(gc.length,p+16); let j=p;
+      while(j<lim&&gc[j].c!==ch) j++;
+      if(j<lim){ col=colorName(gc[j].col); p=j+1; }
+      if(title){ end(); continue; }
+      total++; if(bold) cnt.bold=(cnt.bold||0)+1; if(col) cnt[col]=(cnt[col]||0)+1;
+      const key=((bold?'bold ':'')+col).trim();
+      if(!key){ end(); continue; }
+      if(cur&&cur.key!==key) end();
+      if(!cur) cur={key,t:''};
+      cur.t+=ch;
+    }
+    if(it.hasEOL) end();
+  }
+  end();
+  const common=k=>(cnt[k]||0)>Math.max(12,total*0.6);
+  const seen=new Set(), out=[];
+  for(const r of runs){
+    const k=r.key.split(' ').filter(x=>!common(x));
+    const t=r.t.replace(/\s+/g,' ').trim().replace(/^(?:[•▪◦‣·–—:;,.]+|-\s)\s*/,'').replace(/[\s:;,]+$/,'');   /* bullets, but keep a minus sign */
+    if(!k.length||t.length<2||t.length>160||!/[A-Za-z0-9]/.test(t)) continue;
+    const lk=t.toLowerCase(); if(seen.has(lk)) continue; seen.add(lk);
+    out.push({t,k}); if(out.length>=15) break;
+  }
+  return out;
+}
+/* files added before emphasis detection existed get it in the background */
+async function ensureEmphasis(f){
+  if(f.kind!=='slides'||f.emphV===EMPHV||f.seed||!hasPdf||!memBytes['deck:'+f.id]) return;
+  try{
+    const pdf=await openPdf(memBytes['deck:'+f.id]);
+    for(let i=1;i<=Math.min(pdf.numPages,f.pages.length);i++){ const page=await pdf.getPage(i); f.pages[i-1].emph=await pageEmphasis(page,await page.getTextContent(),page.getViewport({scale:1})); }
+    pdf.destroy(); f.emphV=EMPHV; saveRec(f).catch(()=>{});
+    if(FILES.includes(f)&&f.kind==='slides'){ unregisterFile(f); registerFile(f); f.status=statusFor(f); afterFilesChanged(); }
+  }catch(e){}
+}
+
+/* ---------- question sets: practice questions from typed PDFs ---------- */
+/* Recognizes numbered questions ("1." "1)" "(1)" "Q1" "Question 1:"), Q:/A: pairs, or lines ending in "?" when
+   nothing is numbered; lettered options ("A." "a)" "(a)" "A:"), inline options ("A) 3  B) 4"), numbered
+   options in a different style from the questions, and checkbox bullets; answers ("Answer: B", "Ans - c",
+   "Correct answer is (d)", "Solution: ...", a starred option), and answer keys ("1. B  2. D", one or many
+   per line, after a heading such as "Answer key" or in a run of three or more lines). */
+const QN=/^(?:(question|problem|prob\.?|q)\s*[#.]?\s*(\d{1,3})\s*[.):\-–]?|\((\d{1,3})\)|(\d{1,3})\s*([.):\]]))(?:\s+|$)(.*)$/i;
+const qStyleOf=m=>m[1]?'q':m[3]?'p':m[5];
+const qNumOf=m=>+(m[2]||m[3]||m[4]);
+const OPT=/^(\*\s*)?(?:\(([A-Ha-h])\)|([A-Ha-h])\s*([.)\]:]))(?:\s+|$)(.*)$/;
+const ANS=/^(?:correct\s+(?:answer|option|choice)|answer|ans\.?|solution|sol\.?)\s*(?:is\b|[:\-–=])\s*(.*)$/i;
+const ANS2=/^(?:correct\s+(?:answer|option|choice)|answer|ans)\s+(?:is\s+)?(\(?[A-Ha-h]\)?)(?=$|[\s.):,])(.*)$/i;
+const QAQ=/^(?:Q|Question)\s*(\d{1,3})?\s*[:\-–]\s*(.*)$/i, QAA=/^(?:A|Ans)\s*(\d{1,3})?\s*[:\-–]\s*(.*)$/i;
+const KEYHEAD=/^(answer\s*key|answer\s*sheet|answers|key|solutions?)\s*[:\-–]?\s*(.*)$/i;
+const KEYLINE=/^(?:\s*\(?\d{1,3}\)?\s*[.):\-–=]?\s*\(?[A-Ha-h]\)?(?:\s*[,;.]|\s+|$))+$/;
+const KEYPAIR=/\(?(\d{1,3})\)?\s*[.):\-–=]?\s*\(?([A-Ha-h])\)?(?![A-Za-z])/g;
+const optMarker=L=>new RegExp('\\s(?:\\('+L+'\\)|'+L+'[.)\\]])\\s');
+function splitInline(t,code){ const out=[]; let rest=t;
+  for(;;){ const m=optMarker(String.fromCharCode(++code)).exec(' '+rest); if(!m) break; out.push(rest.slice(0,Math.max(0,m.index-1))); rest=rest.slice(m.index-1+m[0].length); }
+  out.push(rest); return out; }
+function stemInline(t){ const m=/(^|\s)(?:\(([Aa])\)|([Aa])[.)\]])\s/.exec(t); if(!m) return null; const L=m[2]||m[3], after=t.slice(m.index+m[0].length);
+  if(!optMarker(String.fromCharCode(L.charCodeAt(0)+1)).test(' '+after)) return null;
+  return {stem:t.slice(0,m.index).trim(),L,opts:splitInline(after,L.charCodeAt(0))}; }
+function parseQuestions(pages){
+  const lines=[], isPn=s=>/^(page\s*)?\d{1,3}(\s*(of|\/)\s*\d{1,3})?$/i.test(s);
+  pages.forEach((p,pi)=>{ const ls=String(p.text||'').split('\n').map(s=>s.replace(/\s+/g,' ').trim()).filter(Boolean);
+    if(ls.length&&isPn(ls[ls.length-1])) ls.pop(); if(ls.length&&isPn(ls[0])) ls.shift();   /* page numbers */
+    ls.forEach(s=>lines.push({s,pg:pi+1})); });
+  /* answer keys */
+  const isKey=lines.map(()=>false), key=[];
+  const takePairs=s=>{ for(const m of s.matchAll(KEYPAIR)) key.push([+m[1],m[2]]); };
+  for(let i=0;i<lines.length;i++){ const s=lines[i].s;
+    const h=KEYHEAD.exec(s);
+    if(h&&(!h[2]||KEYLINE.test(h[2]))){ isKey[i]=true; if(h[2]) takePairs(h[2]); let j=i+1; while(j<lines.length&&KEYLINE.test(lines[j].s)){ isKey[j]=true; takePairs(lines[j].s); j++; } i=j-1; continue; }
+    if(KEYLINE.test(s)){ let j=i; while(j<lines.length&&KEYLINE.test(lines[j].s)) j++;
+      if(j-i>=3||[...s.matchAll(KEYPAIR)].length>=3){ for(let k=i;k<j;k++){ isKey[k]=true; takePairs(lines[k].s); } i=j-1; } }
+  }
+  /* which numbering style marks questions: the one with the longest 1, 2, 3, ... run (options restart at 1 every question) */
+  const nums={}; lines.forEach((l,i)=>{ if(isKey[i]) return; const m=QN.exec(l.s); if(m) (nums[qStyleOf(m)]=nums[qStyleOf(m)]||[]).push(qNumOf(m)); });
+  let qStyle=null, best=0;
+  for(const st in nums){ let last=0, run=0, longest=0; for(const n of nums[st]){ if(n===last+1) run++; else if(n===1) run=1; else continue; last=n; if(run>longest) longest=run; }
+    if(longest>best||(longest===best&&st==='q')){ best=longest; qStyle=st; } }
+  if(best<2) qStyle=null;   /* a lone "1." is a heading, not a question list */
+  const qaMode=lines.filter(l=>QAQ.test(l.s)).length>=2&&lines.some(l=>/^(A|Ans)\s*\d{0,3}\s*[:\-–]/i.test(l.s));
+  const qs=[]; let cur=null;
+  const start=(n,text,pg)=>{ cur={n:n||(qs.length?qs[qs.length-1].n+1:1),stem:'',opts:[],optCase:null,optNum:false,ansL:null,ansText:'',inAns:false,pg}; qs.push(cur); addStem(text||''); };
+  const addOpt=t=>{ cur.opts.push(String(t).trim()); };   /* correct-answer marks (*, ✓) are read at the end, after wrapped lines are joined */
+  const addStem=t=>{ if(!t) return; const si=!cur.opts.length&&stemInline(t);
+    if(si){ cur.stem=(cur.stem+' '+si.stem).trim(); cur.optCase=si.L; si.opts.forEach(addOpt); } else cur.stem=(cur.stem+' '+t).trim(); };
+  const setAns=t=>{ cur.ansText=String(t||'').trim(); cur.inAns=true; const m=/^\(?([A-Ha-h])\)?(?=$|[\s.):,;])/.exec(cur.ansText); if(m) cur.ansL=m[1]; };
+  for(let i=0;i<lines.length;i++){
+    if(isKey[i]) continue; const {s,pg}=lines[i];
+    if(qaMode){ const m=QAQ.exec(s); if(m){ start(m[1]?+m[1]:0,m[2],pg); continue; } }
+    const qm=QN.exec(s);
+    if(qm&&qStyleOf(qm)===qStyle){ const n=qNumOf(qm);
+      if(!cur||(n>cur.n&&n<=cur.n+3)||(n===1&&cur.n>1)){ start(n,qm[6],pg); continue; } }
+    if(!qStyle&&!qaMode&&/\?\s*$/.test(s)&&(!cur||cur.opts.length||cur.inAns)){ start(0,s,pg); continue; }
+    if(!cur) continue;   /* title, instructions */
+    if(qaMode){ const m=QAA.exec(s); if(m){ setAns(m[2]); continue; } }
+    const am=ANS.exec(s), am2=!am&&ANS2.exec(s);
+    if(am||am2){ setAns(am?am[1]:am2[1].replace(/[()]/g,'')+(am2[2]||'')); continue; }
+    if(cur.inAns){ cur.ansText=(cur.ansText+' '+s).trim(); continue; }
+    const om=OPT.exec(s);
+    if(om&&!cur.optNum){ const L=om[2]||om[3];
+      const want=cur.optCase===null?(/[Aa]/.test(L)?L:null):String.fromCharCode(cur.optCase.charCodeAt(0)+cur.opts.length);
+      if(L===want){ if(cur.optCase===null) cur.optCase=L; splitInline(om[5],L.charCodeAt(0)).forEach((t,k)=>addOpt(k===0&&om[1]?'*'+t:t)); continue; } }
+    if(qm&&qStyleOf(qm)!==qStyle&&(cur.optNum||!cur.opts.length)&&qNumOf(qm)===cur.opts.length+1){ cur.optNum=true; addOpt(qm[6]); continue; }
+    const bm=/^[○◯□☐●◦❍⬜]\s*(.+)$/.exec(s); if(bm){ addOpt(bm[1]); continue; }
+    if(!cur.opts.length){ addStem(s); continue; }
+    /* a wrapped line continues the last option, and may hold the next ones ("pole* D) empty") */
+    const last=cur.opts.length-1, parts=cur.optCase?splitInline(s,cur.optCase.charCodeAt(0)+last):[s];
+    cur.opts[last]+=' '+parts[0]; parts.slice(1).forEach(addOpt);
+  }
+  key.forEach(([n,L])=>{ const q=qs.find(x=>x.n===n&&x.ansL==null&&!x.keyed); if(q){ q.ansL=L; q.keyed=true; } });
+  return qs.filter(q=>q.stem||q.opts.length).map(q=>{
+    const letters=q.optNum?'1':(q.optCase&&q.optCase===q.optCase.toLowerCase()?'a':'A');
+    let ans=null, mark=-1;
+    const opts=q.opts.map((o,i)=>{ o=o.trim(); const m=/^\*\s*/.test(o)||/\s*(\*|\(correct\)|✓|✔)$/i.test(o);
+      if(m){ if(mark<0) mark=i; o=o.replace(/^\*\s*/,'').replace(/\s*(\*|\(correct\)|✓|✔)$/i,''); } return o; });
+    q.opts=opts;
+    if(mark>=0) ans=mark;
+    else if(q.ansL&&q.opts.length&&!q.optNum){ const i=q.ansL.toUpperCase().charCodeAt(0)-65; if(i<q.opts.length) ans=i; }
+    else if(q.optNum&&q.ansText){ const m=/^\(?(\d)\)?(?=$|[\s.):,])/.exec(q.ansText); if(m&&+m[1]>=1&&+m[1]<=q.opts.length) ans=+m[1]-1; }
+    let ansText=q.ansText; if(ans!=null) ansText=ansText.replace(/^\(?[A-Ha-h1-9]\)?[.):,]?\s*/,'');   /* the letter is shown with the option */
+    if(ans!=null&&q.opts[ans]&&ansText.toLowerCase()===q.opts[ans].toLowerCase()) ansText='';
+    return {n:q.n,stem:q.stem,opts:q.opts,letters,ans,ansText:ansText.trim(),pg:q.pg};
+  });
+}
+const optLabel=(q,i)=>q.letters==='1'?String(i+1):String.fromCharCode((q.letters==='a'?97:65)+i);
+const qText=q=>(q.stem+' '+q.opts.join(' ')).trim();
+function optsHTML(q,terms,reveal){ if(!q.opts.length) return ''; return `<ol class="opts" type="${q.letters}">${q.opts.map((o,i)=>`<li${reveal&&q.ans===i?' class="ok"':''}>${highlight(o,terms)}</li>`).join('')}</ol>`; }
+function ansHTML(q){ if(q.ans==null&&!q.ansText) return '';
+  return `<div class="ans"><b>Answer:</b> ${q.ans!=null?`${esc(optLabel(q,q.ans))}. ${esc(q.opts[q.ans])}`:''}${q.ansText?`${q.ans!=null?'<br>':''}${esc(q.ansText)}`:''}</div>`; }
+/* the slides, pages and notes that best match a question (the questions themselves left out) */
+function relatedHTML(q){
+  const r=search(qText(q),'',{skip:'question'}).res.slice(0,3);
+  if(!r.length) return '<span class="meta">Nothing in this class matches yet.</span>';
+  return r.map(([sc,d])=>{ const o=d.obj, t=primaryTarget(d); let label;
+    if(d.type==='slide') label=slideLabel(o.id)+': '+o.title; else if(d.type==='page') label=BOOK[o.book].short+' '+bookLabel(BOOK[o.book],o.n);
+    else label=o.t||o.name||o.who||o.item||o.sec||o.q||'';
+    if(label.length>72) label=label.slice(0,70)+'…';
+    if(!t) return `<span class="ref static">${esc(label)}</span>`;
+    return t.slide?`<button class="ref" type="button" data-slide="${esc(t.slide)}">${esc(label)}</button>`:`<button class="ref book" type="button" data-book="${esc(t.book)}" data-page="${t.page}">${esc(label)}</button>`; }).join('');
+}
+let revealAll=false; const revealed=new Set();
+function qCard(sid,i){ const S=QS[sid], q=S.list[i], show=revealAll||revealed.has(sid+':'+i), has=q.ans!=null||!!q.ansText;
+  return `<div class="qcard" data-qs="${esc(sid)}" data-qi="${i}"><p class="stem"><span class="qn">${q.n}.</span>${esc(q.stem)}</p>${optsHTML(q,[],show)}${show?ansHTML(q):''}
+   <div class="qbtns">${has?`<button class="btn" type="button" data-reveal>${show?'Hide answer':'Show answer'}</button>`:'<span class="meta">No answer given in the file</span>'}<button class="btn" type="button" data-find>Search with this question</button>${bookChip({book:sid,pdf:q.pg,label:''})}</div>
+   <div class="rel" data-rel><span class="meta">Best matches:</span> <span class="refs-in">…</span></div></div>`; }
+const relObs=('IntersectionObserver' in window)?new IntersectionObserver(es=>{es.forEach(en=>{ if(en.isIntersecting){ relObs.unobserve(en.target); fillRel(en.target); } });},{rootMargin:'400px'}):null;
+function fillRel(n){ const c=n.closest('.qcard'); const S=QS[c.dataset.qs]; if(!S) return; n.querySelector('.refs-in').innerHTML=relatedHTML(S.list[+c.dataset.qi]); }
+function watchRel(root){ root.querySelectorAll('[data-rel]').forEach(n=>{ if(relObs) relObs.observe(n); else fillRel(n); }); }
+function renderQs(){
+  const el=$('#v-qs'), sets=Object.values(QS);
+  if(!sets.length){ el.innerHTML='<h2>Practice questions</h2><div class="empty">No question sets here yet. Add a practice exam or a list of questions (PDF) on the Add files tab.</div>'; return; }
+  el.innerHTML=`<h2>Practice questions</h2><p class="lead">Questions from your question sets. Under each one are the slides and book pages that match it best, so you can see where its answer lives.</p>
+   <div class="decks"><button class="chip" type="button" id="qreveal" aria-pressed="${revealAll}">Show all answers</button></div>`+
+   sets.map(S=>`<h3 class="grp">${esc(S.title)} <span class="meta" style="font-weight:400">${S.list.length} question${S.list.length===1?'':'s'}</span></h3>`+(S.list.length?S.list.map((q,i)=>qCard(S.id,i)).join(''):'<div class="empty">No questions recognized in this file. Try treating it as a book on the Add files tab.</div>')).join('');
+  watchRel(el);
+}
+$('#v-qs').addEventListener('click',e=>{
+  if(e.target.closest('#qreveal')){ revealAll=!revealAll; revealed.clear(); renderQs(); return; }
+  const c=e.target.closest('.qcard'); if(!c) return; const S=QS[c.dataset.qs], i=+c.dataset.qi; if(!S) return;
+  if(e.target.closest('[data-reveal]')){ const k=S.id+':'+i;
+    if(revealAll){ revealAll=false; Object.values(QS).forEach(T=>T.list.forEach((_,j)=>revealed.add(T.id+':'+j))); const rb=$('#qreveal'); if(rb) rb.setAttribute('aria-pressed','false'); }
+    revealed.has(k)?revealed.delete(k):revealed.add(k);
+    const tmp=document.createElement('div'); tmp.innerHTML=qCard(S.id,i); const nc=tmp.firstElementChild; c.replaceWith(nc); watchRel(nc); return; }
+  if(e.target.closest('[data-find]')){ qEl.value=qText(S.list[i]); hideQ=true; typeF=''; showView('search'); run(); }
+});
+
+/* ---------- adding, switching kind, removing ---------- */
 async function addFiles(list){
   if(!hasPdf){ alert('The PDF library is missing from this file, so PDFs can\'t be added.'); return; }
   const pdfs=[...list].filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
   if(!pdfs.length) return;
-  showView('add');
+  showView('add'); const cls=activeCls;
   for(const file of pdfs){
-    const f={id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name,kind:null,pages:[],status:'Reading…',progress:0};
+    const f={id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name,kind:null,cls,pages:[],added:Date.now(),status:'Reading…',progress:0};
     FILES.push(f); renderFiles();
     try{
       const buf=await file.arrayBuffer(); f.status='Extracting text…'; renderFiles();
-      await extractPdf(f,buf); setBytes(f,buf); registerFile(f);
-      const words=f.pages.reduce((a,p)=>a+(p.text?p.text.split(/\s+/).length:0),0);
-      f.status=`${f.pages.length} ${f.kind==='slides'?'slides':'pages'} indexed${words<f.pages.length*3?' (little or no text found; scanned PDF?)':''}`;
-      try{ await idbPut({id:f.id,name:f.name,kind:f.kind,pages:f.pages,toc:f.toc,bytes:buf,added:Date.now()}); }catch(e){ storageOK=false; }
+      await extractPdf(f,buf);
+      if(activeCls===cls){ setBytes(f,buf); registerFile(f); }
+      f.status=statusFor(f);
+      try{ await saveRec(f); await bytesPut(f.id,buf); }catch(e){ storageOK=false; }
       if(HOSTED&&navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{});
     }catch(err){ f.status='Could not read this PDF: '+(err&&err.message||err); f.failed=true; }
-    afterFilesChanged();
+    if(activeCls===cls) afterFilesChanged(); else renderClassBar();
   }
 }
 function drawProgress(f){ const row=document.querySelector(`.frow[data-f="${f.id}"] .prog i`); if(row) row.style.width=Math.round(f.progress*100)+'%'; }
+const KINDS=[['slides','Slides'],['book','Book'],['questions','Question set']];
 function renderFiles(){
   const el=$('#flist'); if(!el) return;
-  el.innerHTML=(FILES.length?'':'<p class="meta">No files added yet.</p>')+FILES.map(f=>`<div class="frow" data-f="${f.id}">
+  renderClassEdit();
+  el.innerHTML=(FILES.length?'':'<p class="meta">No files here yet.</p>')+FILES.map(f=>`<div class="frow" data-f="${f.id}">
     <div><div class="nm">${esc(f.name)}</div><div class="st">${esc(f.status||'')}</div>${f.progress<1&&!f.failed?'<div class="prog"><i></i></div>':''}</div>
-    ${f.pages.length&&!f.failed?`<select data-kind="${f.id}" aria-label="Treat as"><option value="slides"${f.kind==='slides'?' selected':''}>Slides</option><option value="book"${f.kind==='book'?' selected':''}>Book</option></select>`:'<span></span>'}
-    <button class="btn" type="button" data-rm="${f.id}">Remove</button></div>`).join('')+(FILES.length&&!storageOK?'<p class="meta">This browser won\'t let the page store files, so added files last until you close it.</p>':'');
+    ${f.pages.length&&!f.failed?`<select data-kind="${f.id}" aria-label="Treat as">${KINDS.map(([v,l])=>`<option value="${v}"${f.kind===v?' selected':''}>${l}</option>`).join('')}</select>`:'<span></span>'}
+    ${f.seed?'<span></span>':`<button class="btn" type="button" data-rm="${f.id}">Remove</button>`}</div>`).join('')+(FILES.length&&!storageOK?'<p class="meta">This browser won\'t let the page store files, so added files last until you close it.</p>':'');
   FILES.forEach(drawProgress);
 }
-$('#flist').addEventListener('change',async e=>{ const s=e.target.closest('[data-kind]'); if(!s) return; const f=FILES.find(x=>x.id===s.dataset.kind); if(!f) return;
-  unregisterFile(f); f.kind=s.value; registerFile(f); try{ const all=await idbAll(); const rec=all.find(r=>r.id===f.id); if(rec){ rec.kind=f.kind; await idbPut(rec);} }catch(e){} afterFilesChanged(); });
+$('#flist').addEventListener('change',e=>{ const s=e.target.closest('[data-kind]'); if(!s) return; const f=FILES.find(x=>x.id===s.dataset.kind); if(!f) return;
+  unregisterFile(f); f.kind=s.value; registerFile(f); f.status=statusFor(f); if(!f.seed) saveRec(f).catch(()=>{}); afterFilesChanged(); ensureEmphasis(f); });
 $('#flist').addEventListener('click',async e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const i=FILES.findIndex(x=>x.id===b.dataset.rm); if(i<0) return; const f=FILES[i];
-  unregisterFile(f); FILES.splice(i,1); delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; try{ await idbDel(f.id); }catch(e){} afterFilesChanged(); });
+  unregisterFile(f); FILES.splice(i,1); delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; REC.delete(f.id);
+  try{ await idbDel(f.id); await idbDel(f.id,'bytes'); }catch(e){} afterFilesChanged(); });
 const drop=$('#drop'), finp=$('#fileinp');
 drop.addEventListener('click',()=>finp.click());
 drop.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); finp.click(); } });
@@ -947,15 +1252,90 @@ window.addEventListener('dragleave',()=>{ dragDepth=Math.max(0,dragDepth-1); if(
 window.addEventListener('dragover',e=>{ if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
 window.addEventListener('drop',e=>{ if(!e.dataTransfer||!e.dataTransfer.files.length) return; e.preventDefault(); dragDepth=0; $('#dropcover').classList.remove('on'); addFiles(e.dataTransfer.files); });
 
-async function restoreFiles(){
-  let recs=[]; try{ recs=await idbAll()||[]; }catch(e){ storageOK=false; return; }
-  let changed=false;
-  for(const r of recs){
-    if(r.kind==='located'){ const bid=r.id.slice(5); if(BOOK[bid]){ memBytes[r.id]=r.bytes; changed=true; } continue; }
-    const f={id:r.id,name:r.name,kind:r.kind,pages:r.pages||[],toc:r.toc||[],status:`${(r.pages||[]).length} ${r.kind==='slides'?'slides':'pages'} indexed (restored)`,progress:1};
-    FILES.push(f); setBytes(f,r.bytes); registerFile(f); changed=true;
+/* ---------- classes (tabs above the search box, hosted app only) ---------- */
+function fileCount(id){ if(id===activeCls) return FILES.filter(f=>!f.failed).length; let n=0; REC.forEach(r=>{ if(r.cls===id) n++; }); if(SEED&&SEED.cls.id===id) n+=SEED.files.length; return n; }
+function renderClassBar(){
+  const el=$('#classbar'); if(!HOSTED){ el.hidden=true; return; }
+  el.hidden=false;
+  el.innerHTML=CLASSES.map(c=>`<button class="ctab" role="tab" type="button" data-cls="${esc(c.id)}" aria-selected="${c.id===activeCls}">${esc(c.name)}<span class="n">${fileCount(c.id)}</span></button>`).join('')+'<button class="ctab add" type="button" id="newcls">+ New class</button>';
+  fitProj();
+}
+function renderClassEdit(){
+  const box=$('#clsedit'); box.hidden=!HOSTED; if(!HOSTED) return; const c=curClass();
+  if(document.activeElement!==$('#clsname')) $('#clsname').value=c?c.name:'';
+  $('#clsdel').hidden=FILES.some(f=>f.seed);
+}
+async function switchClass(id){
+  const token=(switchClass.n=(switchClass.n||0)+1);
+  if(!CLASSES.some(c=>c.id===id)) id=CLASSES[0].id;
+  FILES.forEach(f=>{ unregisterFile(f); delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; });
+  FILES.length=0; activeCls=id; deckF=''; revealed.clear();
+  try{ localStorage.setItem('classbase-class',id); }catch(e){}
+  renderClassBar();
+  const list=[];
+  if(SEED&&SEED.cls.id===id) SEED.files.forEach(s=>list.push(s));
+  [...REC.values()].filter(r=>r.cls===id).sort((a,b)=>(a.added||0)-(b.added||0)).forEach(r=>list.push({...r}));
+  const bufs=await Promise.all(list.map(f=>f.seed?f.buf:bytesGet(f.id).catch(()=>null)));
+  if(token!==switchClass.n) return;   /* another switch started meanwhile */
+  list.forEach((f,i)=>{ f.progress=1; if(bufs[i]) setBytes(f,bufs[i]); registerFile(f); f.status=statusFor(f); FILES.push(f); });
+  filesReady=true; afterFilesChanged();
+  for(const f of FILES.slice()) await ensureEmphasis(f);
+}
+$('#classbar').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-cls]'); if(b){ if(b.dataset.cls!==activeCls) await switchClass(b.dataset.cls); return; }
+  if(e.target.closest('#newcls')){ const c=newClass('New class'); CLASSES.push(c); try{ await idbPut(c,'classes'); }catch(err){}
+    await switchClass(c.id); showView('add'); const inp=$('#clsname'); inp.focus(); inp.select(); }
+});
+let renameT=null;
+$('#clsname').addEventListener('input',e=>{ const c=curClass(); if(!c) return; c.name=e.target.value.trim()||'Untitled class'; renderClassBar();
+  clearTimeout(renameT); renameT=setTimeout(()=>idbPut(c,'classes').catch(()=>{}),400); });
+$('#clsname').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
+$('#clsdel').addEventListener('click',async()=>{ const c=curClass(); if(!c) return;
+  const ids=[...REC.values()].filter(r=>r.cls===c.id).map(r=>r.id);
+  if(!confirm(`Delete the class "${c.name}"${ids.length?` and its ${ids.length} file${ids.length===1?'':'s'}`:''} from this browser?`)) return;
+  for(const id of ids){ REC.delete(id); try{ await idbDel(id); await idbDel(id,'bytes'); }catch(e){} }
+  CLASSES=CLASSES.filter(x=>x!==c); try{ await idbDel(c.id,'classes'); }catch(e){}
+  if(!CLASSES.length){ const n=newClass('My class'); CLASSES.push(n); idbPut(n,'classes').catch(()=>{}); }
+  await switchClass(CLASSES[0].id);
+});
+
+async function startFiles(){
+  /* a "Download for offline" copy carries its class's files inside the page */
+  try{ const el=document.getElementById('seedfiles'); if(el) SEED=JSON.parse(el.textContent); }catch(e){ SEED=null; }
+  if(SEED) SEED.files.forEach(s=>{ s.seed=true; s.cls=SEED.cls.id; s.buf=b64ToBytes(s.b64).buffer; delete s.b64; });
+  let cls=[], recs=[];
+  try{ [cls,recs]=await Promise.all([idbAll('classes'),idbAll('files')]); }catch(e){ storageOK=false; }
+  cls=(cls||[]).sort((a,b)=>(a.created||0)-(b.created||0));
+  if(SEED&&!cls.some(c=>c.id===SEED.cls.id)){ const c={id:SEED.cls.id,name:SEED.cls.name,created:0}; cls.unshift(c); if(storageOK) idbPut(c,'classes').catch(()=>{}); }
+  if(!cls.length){ const c=newClass('My class'); cls.push(c); if(storageOK) idbPut(c,'classes').catch(()=>{}); }
+  CLASSES=cls;
+  const home=cls.find(c=>!SEED||c.id!==SEED.cls.id)||cls[0];
+  for(const r of recs||[]){
+    if(r.kind==='located'){ const bid=r.id.slice(5); if(BOOK[bid]){ const b=await bytesGet(r.id).catch(()=>null); if(b) memBytes[r.id]=b; } continue; }
+    if(!r.cls||!cls.some(c=>c.id===r.cls)){ r.cls=home.id; idbPut(r).catch(()=>{}); }   /* files from before classes existed */
+    REC.set(r.id,r);
   }
-  if(changed) afterFilesChanged();
+  let want=null; try{ want=localStorage.getItem('classbase-class'); }catch(e){}
+  await switchClass(SEED?SEED.cls.id:want);
+}
+
+/* ---------- Download for offline: the app plus this class's PDFs as one HTML file ---------- */
+function bufToB64(buf){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const s=String(r.result); res(s.slice(s.indexOf(',')+1)); }; r.onerror=()=>rej(r.error); r.readAsDataURL(new Blob([buf])); }); }
+async function downloadOffline(){
+  const btn=$('#dlbtn'), label=btn.innerHTML; btn.disabled=true; btn.textContent='Preparing…';
+  try{
+    const res=await fetch('index.html'); if(!res.ok) throw new Error('HTTP '+res.status);
+    const html=await res.text(), at=html.indexOf('<script>const D=');
+    if(at<0) throw new Error('unexpected page contents');
+    const c=curClass(), files=[];
+    for(const f of FILES){ if(f.failed||!memBytes['deck:'+f.id]) continue;
+      files.push({id:f.id,name:f.name,kind:f.kind,pages:f.pages,toc:f.toc||[],emphV:f.emphV,b64:await bufToB64(memBytes['deck:'+f.id])}); }
+    const seed=files.length?'<script type="application/json" id="seedfiles">'+JSON.stringify({v:1,cls:{id:c.id,name:c.name},files}).replace(/</g,'\\u003c')+'<\/script>\n':'';
+    const name=(files.length?c.name.replace(/[\\/:*?"<>|]+/g,' ').trim()+' - ':'')+'Class Base.html';
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html.slice(0,at),seed,html.slice(at)],{type:'text/html'})); a.download=name;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },10000);
+  }catch(e){ alert('Could not prepare the download: '+(e&&e.message||e)); }
+  finally{ btn.disabled=false; btn.innerHTML=label; }
 }
 
 /* ================= theme ================= */
@@ -968,10 +1348,11 @@ window.addEventListener('resize',fitProj);
 /* ================= hosted site (build.py --site) ================= */
 /* The same page is served on GitHub Pages with no course data: people add their own PDFs.
    There it registers a service worker (offline use) and offers a one-file download. */
-const HOSTED=!!D.meta.hosted;
 if(HOSTED){
-  $('#addlead').textContent="Drop slide decks or a textbook (PDF) here. They're read and indexed in your browser, then remembered on this device, so they're here next time, even offline. Landscape PDFs are treated as slides and portrait PDFs as books; you can switch that below. Nothing is uploaded.";
-  $('#dlrow').hidden=location.protocol==='file:';
+  $('#addlead').textContent="Drop slide decks, textbooks or practice questions (PDF) here. They're read and indexed in your browser and remembered on this device for this class, even offline. Nothing is uploaded. Landscape PDFs become slides, portrait PDFs books, and practice exams or question lists question sets; you can switch that below.";
+  const online=location.protocol!=='file:';
+  $('#dlrow').hidden=$('#dlbtn').hidden=!online;
+  $('#dlbtn').addEventListener('click',downloadOffline);
   if('serviceWorker' in navigator&&location.protocol!=='file:'){
     let reloading=false;
     navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(reloading) return; reloading=true; location.reload(); });
@@ -985,8 +1366,8 @@ if(HOSTED){
 
 /* ================= start ================= */
 buildIndex(); fillDeckSelect(); updateTabs(); fitProj(); run(); qEl.focus();
-restoreFiles();
-window.__studydb={docs:()=>docs.length,openBook,openSlide,BVS};
+startFiles();
+window.__studydb={docs:()=>docs.length,openBook,openSlide,BVS,classes:()=>CLASSES.map(c=>c.name),questions:()=>Object.values(QS).map(S=>S.list),files:()=>FILES.map(f=>({name:f.name,kind:f.kind,status:f.status})),parseQuestions};
 })();
 </script>
 </body>

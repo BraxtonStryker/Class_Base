@@ -6,7 +6,7 @@ Search a class's lecture slides and textbook (PDFs) in seconds during an open-bo
 
 There are two ways to use it:
 
-- **The web app** (link above): add your PDFs and they're indexed in your browser. Nothing is uploaded, files are remembered on your device, and after the first visit it works offline. It can be installed as an app, or downloaded as one HTML file.
+- **The web app** (link above): add your slides, textbooks and practice questions as PDFs, organized by class, and they're indexed in your browser. Nothing is uploaded, files are remembered on your device, and after the first visit it works offline. It can be installed as an app, or a class can be downloaded as one HTML file.
 - **The builder** (`studydb`, this repo's Python code) builds a course into **one offline HTML file**, with everything the browser can't do on its own: OCR of text inside slide images, the phrases the instructor emphasized, figure descriptions, and curated definitions, formulas, names and numbers. Nothing to install or run on exam day: open the file in Chrome, Edge or Firefox.
 
 What the built HTML gives you:
@@ -126,11 +126,14 @@ writes it to `docs/`: `index.html` (one self-contained file with PDF.js and KaTe
 
 To try it locally: `py -m http.server 8000 -d docs`, then open http://localhost:8000/ (the service worker needs http, not `file://`).
 
-What the web app can't do yet, and the builder can: OCR, emphasis detection, figure captions and curated notes. Ideas for next steps:
+What it does:
 
-- Separate classes (one set of PDFs per class, switchable) instead of one shared pool.
-- Import a course built with `studydb` (its `data.json` plus images) into the web app, so curated notes work there too.
-- Detect bold, colored and highlighted text in the browser (PDF.js exposes fonts and colors) for the "Emphasized on slides" view.
+- **Classes**: tabs above the search box. Each class has its own files; **+ New class** adds one, and the Add files tab renames or deletes it. Only the open class's PDFs are loaded into memory.
+- **Download for offline** (top bar) saves the app *plus the open class's PDFs* as one HTML file (`<class> - Class Base.html`). It opens from disk on any computer with no internet, so it's a good way to put a class on an exam laptop.
+- **Emphasized on slides**: for slide decks, bold text (from the font) and red, blue or green text (from the drawing color) are picked up in the browser. Styles that cover most of a slide count as its normal text. Yellow highlighter boxes are still builder-only.
+- **Question sets**: a third kind of file next to slides and books, for practice exams and question lists. It understands numbered questions (`1.` `1)` `(1)` `Q1` `Q.1` `Question 1:` `Problem 1`), `Q:`/`A:` pairs, unnumbered questions ending in `?`, lettered options (`A.` `a)` `(a)`, on separate lines or inline, even when they wrap), numbered options in a different style from the questions, answers (`Answer: B`, `Ans - c`, `Correct answer is (d)`, `Solution: ...`, a `*` or `✓` on the right option) and answer keys (`1. B 2. D`, after an "Answer key" heading or as a run of lines). Questions are searchable, and the **Practice questions** tab shows each one with hidden answers and the slides and book pages that best match it.
+
+What the web app still can't do, and the builder can: OCR, highlighter detection, figure captions and curated notes. A next step: import a course built with `studydb` (its `data.json` plus images) into the web app, so curated notes work there too.
 
 ## Troubleshooting
 
