@@ -1,0 +1,9 @@
+# Courses stay local: PDFs, caches and builds are copyrighted or derived from copyrighted material,
+# and the curated notes follow the instructor's slide wording. The public repo holds only the code.
+courses/
+dist/
+# Python / tooling
+__pycache__/
+*.pyc
+node_modules/
+.venv/

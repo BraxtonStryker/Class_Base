@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__PAGE_TITLE__</title>
+<!--__HEAD__-->
+<style>
+:root{
+  --paper:#EEF2F0; --panel:#FFFFFF; --ink:#18202A; --muted:#566170; --rule:#D3DAD6; --soft:#F6F8F7;
+  --hl:#FFE45C; --hl-ink:#18202A; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00;
+  --grid:rgba(29,78,216,.07); --shadow:0 1px 0 rgba(24,32,42,.06);
+  --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif: Charter,"Bitstream Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14181D; --panel:#1B2027; --ink:#E5E9EE; --muted:#9BA6B2; --rule:#2D343D; --soft:#20262E;
+    --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D;
+    --grid:rgba(138,180,255,.06); --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14181D; --panel:#1B2027; --ink:#E5E9EE; --muted:#9BA6B2; --rule:#2D343D; --soft:#20262E;
+  --hl:#E9C93A; --hl-ink:#14181D; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D;
+  --grid:rgba(138,180,255,.06); --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+mark{background:var(--hl);color:var(--hl-ink);border-radius:2px;padding:0 1px}
+a{color:var(--blue)}
+[hidden]{display:none!important}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+.top-in{max-width:1500px;margin:0 auto;padding:12px 16px 0}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.brand h1{font:700 19px/1.2 var(--sans);margin:0;letter-spacing:-.01em}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+.brand .sp{flex:1}
+.iconbtn{border:1px solid var(--rule);background:var(--panel);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;color:var(--muted)}
+.searchrow{display:flex;gap:8px;align-items:stretch}
+.q{flex:1;display:flex;align-items:center;background:var(--panel);border:2px solid var(--ink);border-radius:10px;padding:0 12px;min-width:0}
+.q:focus-within{border-color:var(--blue)}
+.q svg{flex:none;opacity:.6}
+#q{flex:1;border:0;outline:0;background:transparent;color:var(--ink);font:500 18px/1 var(--sans);padding:12px 10px;min-width:0}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+#clear{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;padding:4px 6px;display:none}
+select{font:inherit;font-size:14px;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:0 10px;max-width:280px}
+.tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:transparent;padding:8px 12px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;font-weight:500}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0}
+.chip{border:1px solid var(--rule);background:var(--panel);border-radius:999px;padding:3px 11px;font-size:13px;cursor:pointer;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip .n{opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
+.hint{color:var(--muted);font-size:12.5px;padding:0 0 10px}
+kbd{font:600 11px/1 var(--sans);border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;padding:2px 5px;background:var(--panel)}
+
+/* ---------- layout ---------- */
+main{max-width:1500px;margin:0 auto;padding:14px 16px 60px}
+.view{display:none}
+.view.on{display:block}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;align-items:start}
+@media (max-width:1100px){.split{grid-template-columns:1fr}.projector{display:none}}
+
+/* ---------- results ---------- */
+.meta{color:var(--muted);font-size:13px;margin:0 0 8px}
+.res{list-style:none;margin:0;padding:0}
+.r{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
+.r[aria-selected="true"]{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue) inset}
+.r .k{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{font-weight:600}
+.b-def{color:var(--blue)} .b-slide{color:var(--ink)} .b-formula{color:var(--green)} .b-trivia{color:var(--red)} .b-number{color:var(--violet)} .b-tb{color:var(--muted)} .b-qa{color:var(--muted)} .b-page{color:var(--amber)}
+.r h3{font:600 15.5px/1.3 var(--sans);margin:3px 0 4px}
+.r .s{font:14.5px/1.55 var(--serif);margin:0;color:var(--ink)}
+.r .s.sans{font-family:var(--sans);font-size:14px}
+.thumb{width:150px;aspect-ratio:4/3;border:1px solid var(--rule);border-radius:6px;background:var(--soft);object-fit:contain;display:block}
+.thumb.portrait{width:96px;aspect-ratio:3/4}
+.refs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.ref{border:1px solid var(--rule);background:var(--soft);border-radius:6px;padding:1px 7px;font-size:12px;cursor:pointer;color:var(--ink);text-align:left}
+.ref:hover{border-color:var(--blue)}
+.ref.book{border-color:color-mix(in srgb,var(--amber) 45%,var(--rule));}
+.ref.static{cursor:default;color:var(--muted)}
+.em{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.e{font-size:12px;padding:0 6px;border-radius:4px;border:1px solid var(--rule);background:var(--soft)}
+.e.red{color:var(--red);font-weight:600}.e.blue{color:var(--blue);font-weight:600}.e.green{color:var(--green);font-weight:600}
+.e.highlight{background:var(--hl);color:var(--hl-ink);border-color:transparent}
+.e.bold{font-weight:700}
+.empty{background:var(--panel);border:1px dashed var(--rule);border-radius:10px;padding:18px;color:var(--muted)}
+.mml{overflow-x:auto;padding:4px 0;font-size:17px}
+
+/* ---------- projector ---------- */
+.projector{position:sticky;top:178px;max-height:calc(100vh - 190px);overflow:auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow)}
+.screen{background-color:var(--soft);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:18px 18px;padding:14px;border-bottom:1px solid var(--rule);border-radius:12px 12px 0 0}
+.screen img{width:100%;display:block;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.18);background:#fff;cursor:zoom-in;min-height:120px}
+.screen.portrait img{max-width:520px;margin:0 auto}
+.pbody{padding:12px 16px 16px}
+.pnav{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pnav .t{flex:1;font-size:13px;color:var(--muted)}
+.pnav button,.btn{border:1px solid var(--rule);background:var(--panel);border-radius:8px;padding:3px 10px;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pbody h2{font:650 17px/1.3 var(--sans);margin:0 0 6px}
+.pbody h4{font:600 13px/1.3 var(--sans);margin:12px 0 4px;color:var(--muted)}
+.pbody .cap{font:14px/1.55 var(--serif);margin:0}
+.pbody pre,.txt{white-space:pre-wrap;font:13.5px/1.5 var(--serif);margin:0;background:var(--soft);border-radius:8px;padding:8px 10px}
+.pdef{font:15px/1.6 var(--serif);margin:0 0 6px}
+.reftabs{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 4px}
+.reftabs .ref[aria-current="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+details summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:10px}
+.noimg{padding:30px;text-align:center;color:var(--muted)}
+
+/* ---------- overlays (slide viewer + book viewer) ---------- */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(10,14,20,.95);display:none;flex-direction:column}
+.ov.on{display:flex}
+.ov-bar{display:flex;gap:8px;align-items:center;padding:10px 14px;color:#fff;flex-wrap:wrap}
+.ov-bar .t{flex:1;font-size:14px;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-bar button{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer}
+.ov-bar button[aria-pressed="true"]{background:#fff;color:#111}
+.ov-bar input{width:64px;font:inherit;padding:4px 6px;border-radius:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;text-align:center}
+.ov-bar label{display:flex;gap:6px;align-items:center;font-size:14px}
+.ov-main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0;min-height:0}
+.ov-img{display:flex;align-items:center;justify-content:center;padding:8px 14px 14px;min-height:0}
+.ov-img img{max-width:100%;max-height:100%;background:#fff;border-radius:4px}
+.ov-side{background:var(--panel);color:var(--ink);overflow:auto;padding:14px 16px}
+.ov-side h2{font:650 17px/1.3 var(--sans);margin:0 0 6px}
+.ov-side h4{margin:12px 0 4px;color:var(--muted);font-size:13px}
+@media (max-width:900px){.ov-main{grid-template-columns:1fr;grid-template-rows:auto 1fr}.ov-side{max-height:45vh}.bv-main .ov-side{display:none}}
+.bv-scroll{overflow:auto;min-height:0;padding:10px 14px 40px;outline:none;position:relative}
+.bv-page{margin:0 auto 14px;background:#fff;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.35);position:relative;overflow:hidden}
+.bv-page canvas{display:block;width:100%;height:100%}
+.bv-page .pn{position:absolute;right:8px;bottom:6px;font:12px var(--sans);color:#8a8f96}
+.bv-page.text{background:var(--panel);color:var(--ink);padding:16px 20px;height:auto!important;aspect-ratio:auto!important}
+.bv-page.text .pn{position:static;display:block;margin-bottom:8px;color:var(--muted)}
+.bv-page.text pre{white-space:pre-wrap;font:14.5px/1.6 var(--serif);margin:0}
+.bv-note{color:#fff;background:rgba(255,255,255,.08);border-radius:8px;padding:12px 14px;max-width:760px;margin:10px auto}
+.bv-note .btn{color:var(--ink)}
+
+/* ---------- pages ---------- */
+.page{max-width:1100px}
+.page h2{font:700 20px/1.25 var(--sans);margin:4px 0 4px}
+.page .lead{color:var(--muted);margin:0 0 14px;max-width:82ch}
+.grp{margin:18px 0 6px;font:650 15px/1.3 var(--sans);border-bottom:2px solid var(--ink);padding-bottom:4px}
+.fx{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:8px 0;display:grid;grid-template-columns:230px minmax(0,1fr);gap:14px;align-items:center}
+.fx .nm{font-weight:600}
+.fx .nt{color:var(--muted);font-size:13px;margin-top:2px}
+@media (max-width:760px){.fx{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule);font-size:14px}
+th{background:var(--soft);font-weight:650}
+td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+.decks{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.cell{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden;cursor:pointer;text-align:left;padding:0}
+.cell img{width:100%;aspect-ratio:4/3;object-fit:contain;display:block;background:var(--soft);border-bottom:1px solid var(--rule)}
+.cell div{padding:6px 9px;font-size:12.5px;line-height:1.35}
+.cell b{font-variant-numeric:tabular-nums;margin-right:4px}
+.tbsec{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:8px 0}
+.tbsec .h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tbsec p{margin:4px 0 0;font:14.5px/1.55 var(--serif);max-width:82ch}
+.toc{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:6px 14px;margin:8px 0}
+.toc details{border-top:1px solid var(--rule);padding:4px 0}
+.toc details:first-child{border-top:0}
+.toc summary{font-weight:600;color:var(--ink);font-size:14px;margin:0;padding:4px 0}
+.toc ul{list-style:none;margin:2px 0 6px;padding:0 0 0 14px}
+.toc li{margin:2px 0}
+.toc .lv3{padding-left:14px}.toc .lv4{padding-left:28px}
+.toc button{background:none;border:0;padding:0;color:var(--blue);cursor:pointer;text-align:left;font-size:13.5px}
+.toc .pg{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12.5px;margin-left:6px}
+.qa dt{font-weight:650;margin-top:10px}
+.qa dd{margin:2px 0 0;font:14.5px/1.55 var(--serif);max-width:82ch}
+.emdeck{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:8px 14px;margin:10px 0}
+.emrow{display:grid;grid-template-columns:200px minmax(0,1fr);gap:10px;padding:6px 0;border-top:1px solid var(--rule)}
+.emrow:first-of-type{border-top:0}
+.emrow .st{font-size:13px;cursor:pointer;color:var(--blue);background:none;border:0;text-align:left;padding:0}
+@media (max-width:700px){.emrow{grid-template-columns:1fr}.thumb{width:96px}}
+.filterbox{width:100%;max-width:420px;font:inherit;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);margin-bottom:8px}
+
+/* ---------- add files ---------- */
+.drop{border:2px dashed var(--rule);border-radius:14px;background:var(--panel);padding:28px;text-align:center;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--blue)}
+.drop p{margin:6px 0;color:var(--muted)}
+.drop strong{font-size:16px}
+.flist{margin-top:14px}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 14px;margin:8px 0}
+.frow .nm{font-weight:600;overflow-wrap:anywhere}
+.frow .st{color:var(--muted);font-size:13px}
+.prog{height:4px;background:var(--soft);border-radius:2px;overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--blue);width:0}
+.dropcover{position:fixed;inset:0;z-index:60;background:rgba(29,78,216,.12);border:4px dashed var(--blue);display:none;align-items:center;justify-content:center;font:700 22px var(--sans);color:var(--blue);pointer-events:none}
+.dropcover.on{display:flex}
+@media (max-width:700px){.searchrow{flex-wrap:wrap}.q{flex:1 1 100%}.searchrow select{flex:1 1 100%;height:40px;max-width:none}.brand p{display:none}}
+/* ---------- hosted site: welcome card, update toast ---------- */
+.projector:empty{visibility:hidden}
+.welcome{padding:22px 24px;color:var(--ink)}
+.welcome h2{font:700 20px/1.25 var(--sans);margin:0 0 6px}
+.welcome p{margin:0 0 12px;max-width:68ch;color:var(--muted)}
+.welcome ol{margin:0 0 14px;padding-left:20px;max-width:68ch}
+.welcome li{margin:3px 0}
+.welcome .btn{padding:7px 14px}
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--paper);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:14px;max-width:calc(100vw - 32px)}
+.toast button{border:1px solid var(--paper);background:transparent;color:var(--paper);border-radius:8px;padding:3px 10px;cursor:pointer}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="top-in">
+  <div class="brand">
+   <h1 id="ttl"></h1>
+   <p id="sub"></p>
+   <span class="sp"></span>
+   <button class="iconbtn" id="addbtn" type="button">Add files</button>
+   <button class="iconbtn" id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button>
+  </div>
+  <div class="searchrow">
+   <label class="q" for="q">
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Type keywords from the question" aria-label="Search">
+    <button id="clear" type="button" aria-label="Clear search">×</button>
+   </label>
+   <select id="deck" aria-label="Limit to one lecture or book"></select>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+   <button class="tab" role="tab" data-v="search" aria-selected="true">Search</button>
+   <button class="tab" role="tab" data-v="browse" aria-selected="false">Browse slides</button>
+   <button class="tab" role="tab" data-v="tb" aria-selected="false">Textbook</button>
+   <button class="tab" role="tab" data-v="formulas" aria-selected="false">Formula sheet</button>
+   <button class="tab" role="tab" data-v="trivia" aria-selected="false">Names, dates &amp; quotes</button>
+   <button class="tab" role="tab" data-v="numbers" aria-selected="false">Key numbers</button>
+   <button class="tab" role="tab" data-v="emph" aria-selected="false">Emphasized on slides</button>
+   <button class="tab" role="tab" data-v="add" aria-selected="false">Add files</button>
+  </nav>
+ </div>
+</header>
+
+<main>
+ <section class="view on" id="v-search">
+  <div class="chips" id="types" role="group" aria-label="Result types"></div>
+  <div class="hint">Use quotes for an exact phrase. <kbd>/</kbd> jumps to search, <kbd>↑</kbd><kbd>↓</kbd> move through results, <kbd>Enter</kbd> opens the slide or book page, <kbd>Esc</kbd> closes it.</div>
+  <div class="split">
+   <div>
+    <p class="meta" id="meta"></p>
+    <ol class="res" id="res" aria-label="Results"></ol>
+   </div>
+   <aside class="projector" id="proj" aria-label="Selected result"></aside>
+  </div>
+ </section>
+ <section class="view page" id="v-browse"></section>
+ <section class="view page" id="v-tb"></section>
+ <section class="view page" id="v-formulas"></section>
+ <section class="view page" id="v-trivia"></section>
+ <section class="view page" id="v-numbers"></section>
+ <section class="view page" id="v-emph"></section>
+ <section class="view page" id="v-add">
+  <h2>Add files</h2>
+  <p class="lead" id="addlead">Drop slide decks or a textbook (PDF) here. They're indexed in your browser: searchable and viewable right away, no rebuild needed. Landscape PDFs are treated as slides and portrait PDFs as books; you can switch that below. Added files are remembered in this browser when it allows storage, but for an exam, build them into the file instead.</p>
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose PDF files to add">
+   <strong>Drop PDFs here, or click to choose</strong>
+   <p>Text is extracted page by page; scanned PDFs without a text layer will be viewable but not searchable.</p>
+   <input type="file" id="fileinp" accept="application/pdf,.pdf" multiple hidden>
+  </div>
+  <div class="flist" id="flist"></div>
+  <p class="meta" id="dlrow" hidden><a href="index.html" download="Class_Base.html">Download Class Base as one HTML file</a> to keep a copy that opens without this site. Files you added here don't carry over; add them to the copy once.</p>
+ </section>
+</main>
+
+<div class="dropcover" id="dropcover">Drop PDFs to add them</div>
+<div class="toast" id="upd" role="status" hidden>A new version of Class Base is ready. <button type="button" id="upd-go">Reload</button></div>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Slide viewer">
+ <div class="ov-bar">
+  <button type="button" id="ov-prev" aria-label="Previous slide">← Prev</button>
+  <button type="button" id="ov-next" aria-label="Next slide">Next →</button>
+  <div class="t" id="ov-t"></div>
+  <button type="button" id="ov-close">Close</button>
+ </div>
+ <div class="ov-main">
+  <div class="ov-img"><img id="ov-img" alt=""></div>
+  <div class="ov-side" id="ov-side"></div>
+ </div>
+</div>
+
+<div class="ov" id="bv" role="dialog" aria-modal="true" aria-label="Book viewer">
+ <div class="ov-bar">
+  <button type="button" id="bv-prev" aria-label="Previous page">← Prev</button>
+  <button type="button" id="bv-next" aria-label="Next page">Next →</button>
+  <label>Page <input id="bv-page" inputmode="numeric" autocomplete="off" aria-label="Go to printed page"></label>
+  <div class="t" id="bv-t"></div>
+  <button type="button" id="bv-zout" aria-label="Zoom out">−</button>
+  <button type="button" id="bv-zin" aria-label="Zoom in">+</button>
+  <button type="button" id="bv-mode" aria-pressed="false">Text view</button>
+  <button type="button" id="bv-native" title="Open the PDF in your browser's own viewer (new tab)">Open in new tab</button>
+  <button type="button" id="bv-locate" hidden>Locate the PDF to see pages</button>
+  <button type="button" id="bv-close">Close</button>
+ </div>
+ <div class="ov-main bv-main">
+  <div class="bv-scroll" id="bv-scroll" tabindex="-1"></div>
+  <div class="ov-side" id="bv-side"></div>
+ </div>
+</div>
+
+<script>const D=/*__DATA__*/null;</script>
+<script type="application/json" id="imgdata">__IMGDATA__</script>
+<!--__BOOKS__-->
+<script>/*__KATEX__*/</script>
+<script>/*__PDFJS__*/</script>
+<script type="text/plain" id="pdfworker">__PDFWORKER__</script>
+<script>
+(function(){
+"use strict";
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
+$('#ttl').textContent=D.meta.title; $('#sub').textContent=D.meta.subtitle||'';
+
+/* formulas: LaTeX -> MathML in the browser (KaTeX, bundled) */
+const hasKatex=typeof katex!=='undefined';
+D.formulas.forEach(f=>{ try{ f.mml=hasKatex?katex.renderToString(f.tex,{output:'mathml',displayMode:true,throwOnError:false,strict:false}):'<code>'+esc(f.tex)+'</code>'; }catch(e){ f.mml='<code>'+esc(f.tex)+'</code>'; } });
+
+/* ================= registries ================= */
+const DECK={}, SL={}, BOOK={}, deckCount={};
+function registerDeck(d){ DECK[d.id]=d; }
+function registerSlide(s){ SL[s.id]=s; deckCount[s.deck]=(deckCount[s.deck]||0)+1; }
+D.decks.forEach(registerDeck); D.slides.forEach(registerSlide);
+D.books.forEach(b=>{ BOOK[b.id]=b; });
+function bookLabel(b,n){ const p=b.pages[n-1]; return (p&&p.label)?('p. '+p.label):('PDF p. '+n); }
+function slideLabel(id){const s=SL[id]; return s?(DECK[s.deck].short+' #'+s.n):id;}
+const isUserDeck=id=>!!(DECK[id]&&DECK[id].user);
+
+/* ================= embedded slide images ================= */
+let IMG=null;
+function embeddedImg(id){ if(!IMG){ try{ IMG=JSON.parse(document.getElementById('imgdata').textContent); }catch(e){ IMG={}; } } const b=IMG[id]; return b?('data:image/webp;base64,'+b):''; }
+
+/* ================= PDF.js plumbing ================= */
+const hasPdf=typeof pdfjsLib!=='undefined';
+if(hasPdf){ try{ pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([document.getElementById('pdfworker').textContent],{type:'text/javascript'})); }catch(e){} }
+const SRC={};          // key -> () => Uint8Array|null   ("book:<id>" or "deck:<id>")
+const pdfDocs={};      // key -> Promise<PDFDocumentProxy>
+const memBytes={};     // key -> ArrayBuffer (files added or located this session)
+function b64ToBytes(b64){ const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+D.books.forEach(b=>{ SRC['book:'+b.id]=()=>{ const el=document.getElementById('book-'+b.id); if(el&&el.textContent.trim()) return b64ToBytes(el.textContent.trim()); if(memBytes['book:'+b.id]) return new Uint8Array(memBytes['book:'+b.id].slice(0)); return null; }; });
+function hasBytes(key){ const f=SRC[key]; if(!f) return false; if(key.startsWith('book:')){ const id=key.slice(5); const el=document.getElementById('book-'+id); return !!((el&&el.textContent.trim())||memBytes[key]); } return !!memBytes[key]; }
+function getPdf(key){
+  if(!hasPdf) return Promise.reject(new Error('PDF viewer library not available'));
+  if(pdfDocs[key]) return pdfDocs[key];
+  const bytes=SRC[key]&&SRC[key]();
+  if(!bytes) return Promise.reject(new Error('missing'));
+  pdfDocs[key]=pdfjsLib.getDocument({data:bytes,isEvalSupported:false,useSystemFonts:true,verbosity:0}).promise;
+  pdfDocs[key].catch(()=>{ delete pdfDocs[key]; });
+  return pdfDocs[key];
+}
+const urlCache=new Map();
+async function renderToURL(key,n,cssW){
+  const ck=key+'|'+n+'|'+cssW; if(urlCache.has(ck)) return urlCache.get(ck);
+  const p=(async()=>{ const pdf=await getPdf(key); const page=await pdf.getPage(n); const v1=page.getViewport({scale:1});
+    const scale=Math.min(3,(cssW*(window.devicePixelRatio||1))/v1.width); const vp=page.getViewport({scale});
+    const c=document.createElement('canvas'); c.width=Math.ceil(vp.width); c.height=Math.ceil(vp.height);
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    await page.render({canvasContext:ctx,viewport:vp}).promise;
+    const blob=await new Promise(r=>c.toBlob(r,'image/webp',0.85)); return blob?URL.createObjectURL(blob):c.toDataURL(); })();
+  urlCache.set(ck,p); p.catch(()=>urlCache.delete(ck)); return p;
+}
+/* set an <img> to a slide image (embedded WebP or rendered from an added PDF) */
+function setSlideImg(im,id,w){ const s=SL[id]; if(!s) return; const e=embeddedImg(id); if(e){ im.src=e; return; }
+  if(isUserDeck(s.deck)) renderToURL('deck:'+s.deck,s.n,w||320).then(u=>{im.src=u;}).catch(()=>{}); }
+
+/* ================= text normalization & tokenizing ================= */
+const GREEK={'σ':' sigma ','θ':' theta ','η':' eta ','λ':' lambda ','μ':' mu ','φ':' phi ','ϕ':' phi ','ε':' epsilon ','ϵ':' epsilon ','α':' alpha ','Σ':' sum ','∑':' sum ','∇':' gradient ','π':' pi ','∞':' infinity ','ℓ':'l','≥':' ','≤':' ','→':' ','−':'-','–':'-','—':' '};
+const SUBS={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9','⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','ᵀ':'t','ᵢ':'i'};
+function norm(s){
+  s=String(s).replace(/[σθηλμφϕεϵαΣ∑∇π∞ℓ≥≤→−–—]/g,c=>GREEK[c]).replace(/[₀-₉⁰¹²³⁴-⁹ᵀᵢ]/g,c=>SUBS[c]||c);
+  s=s.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  s=s.replace(/\bk\s*-\s*nn\b/g,' knn ').replace(/\bk\s*-?\s*nearest\s+neighbou?rs?\b/g,' knn nearest neighbors ');
+  s=s.replace(/\bl\s*[_ ]?\s*([12])\b(?=\s*(norm|regulari|penalt|distance|loss|-?regularized))/g,' l$1 ');
+  s=s.replace(/\bl\s*-?\s*(infinity|inf)\b/g,' linf max norm ').replace(/\bl\s*p\s+norm\b/g,' lp norm ');
+  return s;
+}
+const STOP=new Set('a an the of to in is are be been being by for on with as that this these those it its and or not no we our you your can could would should will from at which what who whom whose when where why how into than then there their they them do does did done if so such also about over under between both each other some any all most more very just only following statement statements describe describes described best true false correct incorrect option options answer choose select given question regarding concerning'.split(' '));
+function stem(w){
+  if(w.length<=3||/^\d/.test(w)) return w;
+  w=w.replace(/(ization|izations|izing|ized|izes|ize|izer)$/,'iz');
+  if(/ies$/.test(w)&&w.length>4) w=w.slice(0,-3)+'y';
+  else if(/sses$/.test(w)) w=w.slice(0,-2);
+  else if(/[^su]s$/.test(w)&&w.length>3) w=w.slice(0,-1);
+  if(/ing$/.test(w)&&w.length>5) w=w.slice(0,-3);
+  else if(/ed$/.test(w)&&w.length>4&&!/eed$/.test(w)) w=w.slice(0,-2);
+  if(/ity$/.test(w)&&w.length>6) w=w.slice(0,-3);
+  if(/e$/.test(w)&&w.length>4) w=w.slice(0,-1);
+  return w;
+}
+const TOK=/[a-z0-9]+(?:\.[0-9]+)?/g;
+function tokens(s,keepStop){
+  const n=norm(s); const out=[];
+  const hy=n.match(/[a-z0-9]+(?:-[a-z0-9]+)+/g)||[];
+  for(const h of hy) out.push(h.replace(/-/g,''));
+  for(const t of (n.match(TOK)||[])){
+    if(!keepStop && STOP.has(t)) continue;
+    if(t.length<2 && !/^\d$/.test(t) && t!=='k') continue;
+    out.push(t);
+  }
+  return out.map(stem);
+}
+
+/* ================= search index ================= */
+let docs=[], df=new Map(), avgdl=1, VOCAB=[], N=0;
+const TYPEBOOST={def:1.35,slide:1.0,formula:0.95,trivia:1.15,number:1.1,tb:0.8,qa:0.85,page:0.62};
+function refDecks(refs,tb){ const s=new Set((refs||[]).map(r=>SL[r]&&SL[r].deck).filter(Boolean)); if(tb&&tb.book) s.add(tb.book); return s; }
+function buildIndex(){
+  docs=[];
+  const add=o=>{ o.ix=docs.length; docs.push(o); };
+  D.defs.forEach((d,i)=>add({type:'def',obj:d,decks:refDecks(d.refs,d.tb),fields:[[d.t,5],[d.a.join(' ; '),3],[d.d,1.1],[d.topic,0.5]]}));
+  Object.values(SL).forEach(s=>add({type:'slide',obj:s,decks:new Set([s.deck]),fields:[[s.title,2.2],[(s.emph||[]).map(e=>e.t).join(' ; '),1.6],[s.text,1],[s.cap,0.9],[s.ocr,0.6]]}));
+  D.formulas.forEach(f=>add({type:'formula',obj:f,decks:refDecks(f.refs,f.tb),fields:[[f.name,3],[f.g,1],[f.note,1],[f.tex.replace(/\\[a-zA-Z]+/g,m=>' '+m.slice(1)+' '),0.5]]}));
+  D.trivia.forEach(t=>add({type:'trivia',obj:t,decks:refDecks(t.refs,t.tb),fields:[[t.who,3],[t.when,2],[t.fact,1.2]]}));
+  D.numbers.forEach(n=>add({type:'number',obj:n,decks:refDecks(n.refs,n.tb),fields:[[n.item,3],[n.val,1.5]]}));
+  D.tb.forEach(t=>add({type:'tb',obj:t,decks:refDecks([],t.ref),fields:[[t.sec,2.5],[t.tags,1.5],[t.notes,1]]}));
+  D.qa.forEach(q=>add({type:'qa',obj:q,decks:refDecks([],q.ref),fields:[[q.q,2.5],[q.a,1]]}));
+  Object.values(BOOK).forEach(b=>{ const hasCh=b.pages.some(p=>p.ch); b.pages.forEach(p=>{ if(p.text) add({type:'page',front:hasCh&&!p.ch,obj:{book:b.id,n:p.n},decks:new Set([b.id]),fields:[[(p.ch||'')+' '+(p.sec||''),0.8],[p.text,1]]}); }); });
+  df=new Map(); let tot=0;
+  for(const d of docs){
+    const tf=new Map(); let len=0; let plain='';
+    for(const [txt,w] of d.fields){ if(!txt) continue; plain+=' '+norm(txt);
+      for(const t of tokens(txt)){ tf.set(t,(tf.get(t)||0)+w); len+=w; } }
+    d.tf=tf; d.len=len; d.plain=plain.replace(/\s+/g,' '); d.fields=null;
+    for(const t of tf.keys()) df.set(t,(df.get(t)||0)+1);
+    tot+=len;
+  }
+  N=docs.length; avgdl=tot/Math.max(1,N); VOCAB=[...df.keys()];
+}
+function idf(t){ const n=df.get(t)||0; return Math.log(1+(N-n+0.5)/(n+0.5)); }
+const SYN={}; const SYNRAW=D.meta.synonyms||{};
+function levenshtein(a,b,max){ if(Math.abs(a.length-b.length)>max) return max+1; const v=new Array(b.length+1); for(let j=0;j<=b.length;j++) v[j]=j;
+  for(let i=1;i<=a.length;i++){ let prev=v[0]; v[0]=i; let rowMin=v[0]; for(let j=1;j<=b.length;j++){ const tmp=v[j]; v[j]=Math.min(v[j]+1,v[j-1]+1,prev+(a[i-1]===b[j-1]?0:1)); prev=tmp; if(v[j]<rowMin) rowMin=v[j]; } if(rowMin>max) return max+1; }
+  return v[b.length]; }
+for(const k in SYNRAW){ SYN[k]=SYNRAW[k]; SYN[stem(k)]=SYNRAW[k]; }
+function expand(qtoks){
+  const m=new Map(); const groups=[];
+  qtoks.forEach((t,gi)=>{
+    groups.push(t);
+    const put=(term,w)=>{ const cur=m.get(term); if(!cur||cur.w<w) m.set(term,{w,g:gi}); };
+    if(df.has(t)) put(t,1);
+    if(t.length>=4){ let c=0; for(const v of VOCAB){ if(v!==t && v.startsWith(t)){ put(v,0.7); if(++c>=40) break; } } }
+    if(!df.has(t) && t.length>=5 && !/^\d/.test(t)){
+      const max=t.length>=8?2:1; let c=0;
+      for(const v of VOCAB){ if(Math.abs(v.length-t.length)<=max && levenshtein(t,v,max)<=max){ put(v,0.6); if(++c>=8) break; } }
+    }
+    const syn=SYN[t]; if(syn) for(const s of syn){ for(const st of tokens(s,true)){ if(df.has(st)) put(st,0.4); else for(const v of VOCAB){ if(v.startsWith(st)){ put(v,0.35); break; } } } }
+  });
+  return {m,groups};
+}
+function search(q,deckFilter){
+  const phrases=[]; q=q.replace(/"([^"]+)"/g,(_,p)=>{phrases.push(norm(p).replace(/\s+/g,' ').trim()); return ' '+p+' ';});
+  let qt=tokens(q); if(!qt.length) qt=tokens(q,true);
+  const uniq=[...new Set(qt)];
+  const {m,groups}=expand(uniq);
+  const scores=[]; const k1=1.2,b=0.6;
+  const ph=uniq.length>=2?norm(q).replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim():'';
+  for(const d of docs){
+    if(deckFilter && !d.decks.has(deckFilter)) continue;
+    if(phrases.length && !phrases.every(p=>d.plain.includes(p))) continue;
+    let s=0; const hit=new Set();
+    for(const [term,{w,g}] of m){ const f=d.tf.get(term); if(!f) continue; s+=idf(term)*(f*(k1+1))/(f+k1*(1-b+b*d.len/avgdl))*w; hit.add(g); }
+    if(phrases.length && !s) s=1;
+    if(!s) continue;
+    const cov=groups.length?hit.size/groups.length:1;
+    s*=(0.35+0.65*cov*cov);
+    if(ph.length>5 && d.plain.includes(ph)) s*=1.5;
+    s*=TYPEBOOST[d.type]; if(d.front) s*=0.45;
+    scores.push([s,d]);
+  }
+  scores.sort((a,b)=>b[0]-a[0]);
+  return {res:scores,terms:m,phrases};
+}
+
+/* ================= highlighting & snippets ================= */
+function hlTerms(termMap){ return [...termMap.entries()].filter(([t,o])=>o.w>=0.35).map(([t])=>t); }
+function isHitWord(w,terms){ const lw=w.toLowerCase(); if(!terms.some(t=>lw.includes(t.slice(0,3)))&&!/[^a-z0-9.\-]/.test(lw)) return false; const st=tokens(w,true); return st.some(x=>terms.some(t=>x===t||(t.length>=4&&x.startsWith(t)))); }
+function highlight(text,terms){
+  if(!text) return '';
+  if(!terms||!terms.length) return esc(text);
+  const parts=String(text).split(/([A-Za-z0-9σθηλμφεαℓ₀-₉²]+(?:[.\-][A-Za-z0-9]+)*)/);
+  let out='';
+  for(let i=0;i<parts.length;i++){ const p=parts[i]; out+=(i%2===1&&isHitWord(p,terms))?'<mark>'+esc(p)+'</mark>':esc(p); }
+  return out;
+}
+function snippet(text,terms,len){
+  text=String(text||'').replace(/•/g,' ').replace(/\s*\n\s*/g,' · ').replace(/(\s*·\s*)+/g,' · ').replace(/^\s*·\s*/,'');
+  if(text.length<=len) return text;
+  const words=text.split(' '); let best=0,bestI=0; const win=Math.max(12,Math.round(len/6.5));
+  const hits=words.map(w=>isHitWord(w,terms));
+  let cur=0; for(let i=0;i<words.length;i++){ cur+=hits[i]?1:0; if(i>=win) cur-=hits[i-win]?1:0; if(cur>best){best=cur;bestI=Math.max(0,i-win+1);} }
+  const start=Math.max(0,bestI-3); const s=words.slice(start,start+win+8).join(' ');
+  return (start>0?'… ':'')+s+(start+win+8<words.length?' …':'');
+}
+
+/* ================= UI state ================= */
+const TYPES=[['','All'],['def','Definitions'],['slide','Slides'],['page','Book pages'],['formula','Formulas'],['trivia','Names & dates'],['number','Key numbers'],['tb','Book index'],['qa','Q&A']];
+let typeF='', deckF='', results=[], sel=0, lastTerms=[];
+const qEl=$('#q'), resEl=$('#res'), projEl=$('#proj'), metaEl=$('#meta');
+function fillDeckSelect(){
+  const s=$('#deck'); const cur=s.value;
+  let h='<option value="">All lectures &amp; books</option>';
+  const decks=Object.values(DECK); if(decks.length) h+='<optgroup label="Lectures">'+decks.map(d=>`<option value="${esc(d.id)}">${esc(d.short)} — ${esc(d.title)}</option>`).join('')+'</optgroup>';
+  const books=Object.values(BOOK); if(books.length) h+='<optgroup label="Books">'+books.map(b=>`<option value="${esc(b.id)}">${esc(b.short)} — ${esc(b.title)}</option>`).join('')+'</optgroup>';
+  s.innerHTML=h; s.value=(DECK[cur]||BOOK[cur])?cur:''; deckF=s.value;
+}
+function renderTypes(counts){
+  $('#types').innerHTML=TYPES.filter(([v])=>!v||!counts||counts[v]||typeF===v).map(([v,l])=>`<button class="chip" type="button" data-t="${v}" aria-pressed="${typeF===v}">${esc(l)}${counts?`<span class="n">${counts[v]||0}</span>`:''}</button>`).join('');
+}
+$('#types').addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; typeF=b.dataset.t; run();});
+$('#deck').addEventListener('change',e=>{deckF=e.target.value; run(); if(view==='browse') renderBrowse();});
+
+const lazyObs=('IntersectionObserver' in window)?new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){const im=en.target; lazyObs.unobserve(im); loadLazy(im);}});},{rootMargin:'300px'}):null;
+function loadLazy(im){ if(im.dataset.id) setSlideImg(im,im.dataset.id,320); else if(im.dataset.bk) renderToURL('book:'+im.dataset.bk,+im.dataset.pg,200).then(u=>{im.src=u;}).catch(()=>{im.remove();}); }
+function lazy(container){ container.querySelectorAll('img[data-id],img[data-bk]').forEach(im=>{ if(lazyObs) lazyObs.observe(im); else loadLazy(im); }); }
+
+function bookChip(ref){ if(!ref||!BOOK[ref.book]) return ''; const b=BOOK[ref.book]; return `<button class="ref book" type="button" data-book="${esc(ref.book)}" data-page="${ref.pdf}" title="Open ${esc(b.title)} at this page">${esc(b.short)} ${esc(ref.label?('p. '+ref.label):('PDF p. '+ref.pdf))}</button>`; }
+function refChips(refs,tb){
+  let h=(refs||[]).filter(r=>SL[r]).map(r=>`<button class="ref" type="button" data-slide="${esc(r)}" title="${esc(SL[r].title)}">${esc(slideLabel(r))}</button>`).join('');
+  h+=bookChip(tb);
+  return h?`<div class="refs">${h}</div>`:'';
+}
+function emChips(em,terms){ if(!em||!em.length) return ''; return '<div class="em">'+em.slice(0,10).map(e=>`<span class="e ${e.k.map(k=>esc(k)).join(' ')}">${highlight(e.t,terms)}</span>`).join('')+'</div>'; }
+function pageCtx(b,p){ return [p.ch,p.sec].filter(Boolean).join(' › '); }
+
+function card(d,terms){
+  const o=d.obj; let k='',h='',s='',side='',extra='';
+  if(d.type==='def'){ k=`<span class="badge b-def">Definition</span><span>${esc(o.topic)}</span>`; h=highlight(o.t,terms); s=`<p class="s">${highlight(o.d,terms)}</p>`; extra=refChips(o.refs.slice(0,8),o.tb); const r0=o.refs.find(r=>SL[r]); if(r0) side=`<img class="thumb" data-id="${esc(r0)}" alt="">`; }
+  else if(d.type==='slide'){ const dk=DECK[o.deck]; k=`<span class="badge b-slide">Slide</span><span>${esc(dk.short)} #${o.n}</span>${o.fig?'<span>has figure</span>':''}`; h=highlight(o.title,terms);
+    const body=[o.text,o.cap].filter(Boolean).join(' · '); s=`<p class="s sans">${highlight(snippet(body,terms,260),terms)}</p>`+emChips(o.emph,terms); side=`<img class="thumb" data-id="${esc(o.id)}" alt="Slide ${o.n}">`; }
+  else if(d.type==='page'){ const b=BOOK[o.book], p=b.pages[o.n-1]; k=`<span class="badge b-page">Book page</span><span>${esc(b.short)} ${esc(bookLabel(b,o.n))}</span>`; h=highlight(pageCtx(b,p)||b.title,terms); s=`<p class="s">${highlight(snippet(p.text,terms,300),terms)}</p>`+`<div class="refs">${bookChip({book:o.book,pdf:o.n,label:p.label})}</div>`; }
+  else if(d.type==='formula'){ k=`<span class="badge b-formula">Formula</span><span>${esc(o.g)}</span>`; h=highlight(o.name,terms); s=`<div class="mml">${o.mml}</div>${o.note?`<p class="s sans">${highlight(o.note,terms)}</p>`:''}`; extra=refChips(o.refs,o.tb); }
+  else if(d.type==='trivia'){ k=`<span class="badge b-trivia">Name / date</span><span>${esc(o.when)}</span>`; h=highlight(o.who,terms); s=`<p class="s">${highlight(o.fact,terms)}</p>`; extra=refChips(o.refs,o.tb); }
+  else if(d.type==='number'){ k=`<span class="badge b-number">Key number</span>`; h=highlight(o.item,terms); s=`<p class="s">${highlight(o.val,terms)}</p>`; extra=refChips(o.refs,o.tb); }
+  else if(d.type==='tb'){ k=`<span class="badge b-tb">Book index</span><span>${esc(o.ch)}</span>`; h=highlight(o.sec,terms); s=`<p class="s">${highlight(o.notes,terms)}</p>`; extra=refChips([],o.ref); }
+  else if(d.type==='qa'){ k=`<span class="badge b-qa">Q&amp;A</span><span>${esc(o.src)}</span>`; h=highlight(o.q,terms); s=`<p class="s">${highlight(o.a,terms)}</p>`; extra=refChips([],o.ref); }
+  return `<div><div class="k">${k}</div><h3>${h}</h3>${s}${extra}</div>${side?`<div>${side}</div>`:''}`;
+}
+
+function welcomeHTML(){
+  return `<li class="empty welcome"><h2>Find the slide behind the question</h2>
+   <p>Add your lecture slides and textbook as PDFs. Every page becomes searchable, so during an open-book exam you can paste the key words of a question and jump straight to the slide or book page that answers it.</p>
+   <ol><li>Click <b>Add PDFs</b> (or drop files anywhere on this page).</li><li>Wide PDFs are treated as slide decks and tall ones as books; you can switch either.</li><li>Type keywords. Typos and plurals are fine; <b>"quotes"</b> match an exact phrase.</li></ol>
+   <button class="btn primary" type="button" data-goadd>Add PDFs</button>
+   <p class="meta" style="margin:12px 0 0">Your files stay on this device. They're read in your browser and never uploaded.</p></li>`;
+}
+resEl.addEventListener('click',e=>{ if(e.target.closest('[data-goadd]')){ showView('add'); finp.click(); } });
+let runT=null;
+function run(){
+  const q=qEl.value.trim(); $('#clear').style.display=q?'block':'none';
+  $('#types').hidden=$('#v-search .hint').hidden=!docs.length;
+  if(!q&&!docs.length){ results=[]; metaEl.textContent=''; projEl.innerHTML=''; resEl.innerHTML=welcomeHTML(); return; }
+  if(!q){ results=[]; renderTypes(null); metaEl.textContent=''; const nb=Object.values(BOOK).reduce((a,b)=>a+b.pages.length,0);
+    resEl.innerHTML=`<li class="empty">Start typing to search ${Object.keys(SL).length} slides${nb?`, ${nb} book pages`:''}${D.defs.length?`, ${D.defs.length} definitions`:''}${D.formulas.length?`, ${D.formulas.length} formulas`:''} and more. Paste the key words of an exam question; extra words don't hurt.</li>`; projEl.innerHTML=''; return; }
+  const t0=performance.now();
+  const all=search(q,deckF);
+  const counts={'':all.res.length}; all.res.forEach(([s,d])=>counts[d.type]=(counts[d.type]||0)+1);
+  renderTypes(counts);
+  results=(typeF?all.res.filter(r=>r[1].type===typeF):all.res).slice(0,80);
+  lastTerms=hlTerms(all.terms);
+  const ms=Math.round(performance.now()-t0);
+  metaEl.textContent=results.length?`${counts[typeF]||0} matches${(counts[typeF]||0)>80?', showing the best 80':''} (${ms} ms)`:'';
+  if(!results.length){ resEl.innerHTML=`<li class="empty">No matches for “${esc(q)}”${typeF||deckF?' with the current filters. Try All results or All lectures & books.':'. Try fewer or different words.'}</li>`; projEl.innerHTML=''; return; }
+  resEl.innerHTML=results.map(([s,d],i)=>`<li class="r" role="option" tabindex="-1" data-i="${i}" aria-selected="${i===0}">${card(d,lastTerms)}</li>`).join('');
+  lazy(resEl); sel=0; showProj();
+}
+qEl.addEventListener('input',()=>{clearTimeout(runT); runT=setTimeout(run,110);});
+$('#clear').addEventListener('click',()=>{qEl.value=''; run(); qEl.focus();});
+
+function primaryTarget(d){ const o=d.obj;
+  if(d.type==='slide') return {slide:o.id};
+  if(d.type==='page') return {book:o.book,page:o.n};
+  const r=(o.refs||[]).find(x=>SL[x]); if(r) return {slide:r};
+  const t=o.tb||o.ref; if(t&&BOOK[t.book]) return {book:t.book,page:t.pdf};
+  return null; }
+function openTarget(t){ if(!t) return; if(t.slide) openSlide(t.slide); else openBook(t.book,t.page); }
+resEl.addEventListener('click',e=>{
+  const li=e.target.closest('.r'); if(!li) return;
+  if(e.target.closest('[data-slide],[data-book]')) return; /* handled globally */
+  select(+li.dataset.i);
+  if(e.target.closest('.thumb')||window.matchMedia('(max-width:1100px)').matches) openTarget(primaryTarget(results[sel][1]));
+});
+function select(i){ if(!results.length) return; sel=Math.max(0,Math.min(results.length-1,i));
+  resEl.querySelectorAll('.r').forEach(li=>li.setAttribute('aria-selected',String(+li.dataset.i===sel)));
+  const li=resEl.querySelector(`.r[data-i="${sel}"]`); if(li) li.scrollIntoView({block:'nearest'}); showProj(); }
+
+/* ================= projector (right panel) ================= */
+function slidePanel(sid,terms){
+  const s=SL[sid]; if(!s) return '';
+  const dk=DECK[s.deck];
+  return `<div class="screen"><img alt="${esc(dk.short)} slide ${s.n}: ${esc(s.title)}" data-open="${esc(sid)}" data-sid="${esc(sid)}"></div>
+  <div class="pbody">
+   <div class="pnav"><button type="button" data-step="-1" data-sid="${esc(sid)}" aria-label="Previous slide">←</button><span class="t">${esc(dk.title)}, slide ${s.n} of ${deckCount[s.deck]}</span><button type="button" data-step="1" data-sid="${esc(sid)}" aria-label="Next slide">→</button></div>
+   <h2>${highlight(s.title,terms)}</h2>
+   ${s.emph&&s.emph.length?`<h4>Emphasized on this slide</h4>${emChips(s.emph,terms)}`:''}
+   ${s.cap?`<h4>What the figure shows</h4><p class="cap">${highlight(s.cap,terms)}</p>`:''}
+   <h4>Slide text</h4><pre>${highlight(s.text,terms)}</pre>
+   ${s.ocr?`<details><summary>Text read from images on this slide</summary><pre>${highlight(s.ocr,terms)}</pre></details>`:''}
+   ${s.cited&&s.cited.length?`<h4>Definitions citing this slide</h4><div class="refs">${s.cited.map(t=>`<button class="ref" type="button" data-q="${esc(t)}">${esc(t)}</button>`).join('')}</div>`:''}
+  </div>`;
+}
+function bookPanel(bid,n,terms){
+  const b=BOOK[bid]; if(!b) return ''; const p=b.pages[n-1]; if(!p) return '';
+  const can=hasBytes('book:'+bid)&&hasPdf;
+  return `<div class="screen portrait">${can?`<img alt="${esc(b.short)} ${esc(bookLabel(b,n))}" data-openbook="${esc(bid)}" data-pg="${n}">`:`<div class="noimg">Page image unavailable: the book PDF isn't in this file. <button class="btn" type="button" data-locate="${esc(bid)}">Locate ${esc(b.file||'the PDF')}</button></div>`}</div>
+  <div class="pbody">
+   <div class="pnav"><button type="button" data-bstep="-1" data-bk="${esc(bid)}" data-pg="${n}" aria-label="Previous page">←</button><span class="t">${esc(b.title)}: ${esc(bookLabel(b,n))} (PDF ${n} of ${b.pages.length})</span><button type="button" data-bstep="1" data-bk="${esc(bid)}" data-pg="${n}" aria-label="Next page">→</button></div>
+   <h2>${highlight(pageCtx(b,p)||b.title,terms)}</h2>
+   <div class="refs"><button class="btn primary" type="button" data-book="${esc(bid)}" data-page="${n}">Open the book here</button></div>
+   <h4>Page text</h4><pre>${highlight(p.text,terms)}</pre>
+  </div>`;
+}
+function fillPanelImages(root){
+  root.querySelectorAll('img[data-sid]').forEach(im=>setSlideImg(im,im.dataset.sid,700));
+  root.querySelectorAll('img[data-openbook]').forEach(im=>renderToURL('book:'+im.dataset.openbook,+im.dataset.pg,640).then(u=>{im.src=u;}).catch(()=>{}));
+}
+function showProj(){
+  if(!results.length){projEl.innerHTML='';return;}
+  const d=results[sel][1], o=d.obj;
+  if(d.type==='slide'){ projEl.innerHTML=slidePanel(o.id,lastTerms); fillPanelImages(projEl); return; }
+  if(d.type==='page'){ projEl.innerHTML=bookPanel(o.book,o.n,lastTerms); fillPanelImages(projEl); return; }
+  const refs=(o.refs||[]).filter(r=>SL[r]); const tb=o.tb||o.ref;
+  let head='';
+  if(d.type==='def') head=`<h2>${highlight(o.t,lastTerms)}</h2><p class="pdef">${highlight(o.d,lastTerms)}</p>`;
+  else if(d.type==='formula') head=`<h2>${esc(o.name)}</h2><div class="mml">${o.mml}</div><p class="meta">${esc(o.note||'')}</p>`;
+  else if(d.type==='trivia') head=`<h2>${esc(o.who)} (${esc(o.when)})</h2><p class="pdef">${highlight(o.fact,lastTerms)}</p>`;
+  else if(d.type==='number') head=`<h2>${esc(o.item)}</h2><p class="pdef">${highlight(o.val,lastTerms)}</p>`;
+  else if(d.type==='tb') head=`<h2>${esc(o.sec)}</h2><p class="meta">${esc(o.ch)}</p><p class="pdef">${highlight(o.notes,lastTerms)}</p>`;
+  else if(d.type==='qa') head=`<h2>${esc(o.q)}</h2><p class="pdef">${highlight(o.a,lastTerms)}</p><p class="meta">${esc(o.src)}</p>`;
+  const tabs=[...refs.map((r,i)=>`<button class="ref" type="button" data-pr="s:${esc(r)}" aria-current="${i===0}">${esc(slideLabel(r))}</button>`),
+    ...(tb&&BOOK[tb.book]?[`<button class="ref book" type="button" data-pr="b:${esc(tb.book)}:${tb.pdf}" aria-current="${refs.length===0}">${esc(BOOK[tb.book].short)} ${esc(tb.label?'p. '+tb.label:'PDF p. '+tb.pdf)}</button>`]:[])];
+  projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)">${head}${tabs.length?`<div class="reftabs">${tabs.join('')}</div>`:''}</div><div id="projslide">${refs.length?slidePanel(refs[0],lastTerms):(tb&&BOOK[tb.book]?bookPanel(tb.book,tb.pdf,lastTerms):'<div class="noimg">No slide or book page linked to this item.</div>')}</div>`;
+  fillPanelImages(projEl);
+}
+projEl.addEventListener('click',e=>{
+  const pr=e.target.closest('[data-pr]'); if(pr){ projEl.querySelectorAll('[data-pr]').forEach(b=>b.setAttribute('aria-current',String(b===pr))); const v=pr.dataset.pr; const host=$('#projslide');
+    if(v.startsWith('s:')) host.innerHTML=slidePanel(v.slice(2),lastTerms); else { const [_,bk,pg]=v.split(':'); host.innerHTML=bookPanel(bk,+pg,lastTerms); } fillPanelImages(host); return; }
+  const st=e.target.closest('[data-step]'); if(st){ const nid=stepId(st.dataset.sid,+st.dataset.step); if(nid){ const host=st.closest('#projslide')||projEl; host.innerHTML=slidePanel(nid,lastTerms); fillPanelImages(host);} return; }
+  const bs=e.target.closest('[data-bstep]'); if(bs){ const b=BOOK[bs.dataset.bk]; const n=+bs.dataset.pg+(+bs.dataset.bstep); if(b&&n>=1&&n<=b.pages.length){ const host=bs.closest('#projslide')||projEl; host.innerHTML=bookPanel(b.id,n,lastTerms); fillPanelImages(host);} return; }
+  const op=e.target.closest('[data-open]'); if(op){ openSlide(op.dataset.open); return; }
+  const ob=e.target.closest('img[data-openbook]'); if(ob){ openBook(ob.dataset.openbook,+ob.dataset.pg); return; }
+  const qb=e.target.closest('[data-q]'); if(qb){ qEl.value='"'+qb.dataset.q+'"'; typeF='def'; run(); return; }
+});
+function stepId(sid,dir){ const s=SL[sid]; if(!s) return null; const id=s.deck+'-'+(s.n+dir); return SL[id]?id:null; }
+
+/* ================= slide viewer ================= */
+const ov=$('#ov'); let ovId=null, lastFocus=null;
+function openSlide(sid){ if(!SL[sid]) return; if(!ov.classList.contains('on')&&!bv.classList.contains('on')) lastFocus=document.activeElement; ovId=sid; const s=SL[sid], dk=DECK[s.deck];
+  const im=$('#ov-img'); im.removeAttribute('src'); im.alt=dk.short+' slide '+s.n; setSlideImg(im,sid,1400);
+  $('#ov-t').textContent=`${dk.title}, slide ${s.n} of ${deckCount[s.deck]}: ${s.title}`;
+  const terms=lastTerms;
+  $('#ov-side').innerHTML=`<h2>${highlight(s.title,terms)}</h2>
+   ${s.emph&&s.emph.length?`<h4>Emphasized on this slide</h4>${emChips(s.emph,terms)}`:''}
+   ${s.cap?`<h4>What the figure shows</h4><p style="font:14px/1.55 var(--serif);margin:0">${highlight(s.cap,terms)}</p>`:''}
+   <h4>Slide text</h4><pre class="txt">${highlight(s.text,terms)}</pre>
+   ${s.ocr?`<details><summary>Text read from images on this slide</summary><pre class="txt">${highlight(s.ocr,terms)}</pre></details>`:''}
+   ${s.cited&&s.cited.length?`<h4>Definitions citing this slide</h4><div class="refs">${s.cited.map(t=>`<span class="ref static">${esc(t)}</span>`).join('')}</div>`:''}`;
+  ov.classList.add('on'); $('#ov-close').focus(); }
+function closeOv(){ ov.classList.remove('on'); if(!bv.classList.contains('on')&&lastFocus&&lastFocus.focus) lastFocus.focus(); }
+$('#ov-close').addEventListener('click',closeOv);
+$('#ov-prev').addEventListener('click',()=>{const n=stepId(ovId,-1); if(n) openSlide(n);});
+$('#ov-next').addEventListener('click',()=>{const n=stepId(ovId,1); if(n) openSlide(n);});
+ov.addEventListener('click',e=>{ if(e.target===ov||e.target.classList.contains('ov-img')) closeOv(); });
+
+/* ================= book viewer ================= */
+const bv=$('#bv'), bvScroll=$('#bv-scroll');
+const BVS={book:null,page:1,zoom:1,mode:'pdf',els:[],aspect:1.3125,rendered:new Map(),queue:[],busy:0,obs:null,scrollRaf:0};
+function bvBaseWidth(){ return Math.max(320,Math.min(bvScroll.clientWidth-28,900)); }
+function bvLayout(){
+  const w=Math.round(bvBaseWidth()*BVS.zoom);
+  BVS.els.forEach(el=>{ if(BVS.mode==='pdf'){ el.style.width=w+'px'; el.style.height=Math.round(w*BVS.aspect)+'px'; } else { el.style.width=Math.min(w,820)+'px'; el.style.height=''; } });
+}
+function bvBuild(){
+  const b=BOOK[BVS.book]; bvScroll.innerHTML=''; BVS.els=[]; BVS.rendered.clear(); BVS.queue=[];
+  if(BVS.obs) BVS.obs.disconnect();
+  const can=BVS.mode==='pdf';
+  if(!can){ const why=!hasBytes('book:'+b.id)?`This file doesn't contain the PDF for <b>${esc(b.title)}</b>, so you're seeing its text. <button class="btn" type="button" data-locate="${esc(b.id)}">Locate ${esc(b.file||'the PDF')}</button> to see the real pages.`:'';
+    if(why){ const n=document.createElement('div'); n.className='bv-note'; n.innerHTML=why; bvScroll.appendChild(n); } }
+  const frag=document.createDocumentFragment();
+  b.pages.forEach(p=>{ const el=document.createElement('div'); el.className='bv-page'+(can?'':' text'); el.dataset.n=p.n;
+    if(can) el.innerHTML=`<span class="pn">${esc(bookLabel(b,p.n))}</span>`;
+    else el.innerHTML=`<span class="pn">${esc(bookLabel(b,p.n))} · PDF ${p.n}</span><pre>${highlight(p.text,lastTerms)}</pre>`;
+    BVS.els.push(el); frag.appendChild(el); });
+  bvScroll.appendChild(frag); bvLayout();
+  if(can){ BVS.obs=new IntersectionObserver(es=>{ es.forEach(en=>{ const n=+en.target.dataset.n; if(en.isIntersecting) bvQueue(n); else bvRelease(n); }); },{root:bvScroll,rootMargin:'1500px 0px'}); BVS.els.forEach(el=>BVS.obs.observe(el)); }
+}
+function bvQueue(n){ if(BVS.rendered.has(n)||BVS.queue.includes(n)) return; BVS.queue.push(n); bvPump(); }
+function bvRelease(n){ const r=BVS.rendered.get(n); if(r&&r.canvas){ r.canvas.width=0; r.canvas.height=0; r.canvas.remove(); } BVS.rendered.delete(n); const i=BVS.queue.indexOf(n); if(i>=0) BVS.queue.splice(i,1); }
+async function bvPump(){
+  while(BVS.busy<2&&BVS.queue.length){
+    const cur=BVS.page; BVS.queue.sort((a,b)=>Math.abs(a-cur)-Math.abs(b-cur)); const n=BVS.queue.shift(); BVS.busy++;
+    const token=BVS.book+'|'+BVS.zoom; BVS.rendered.set(n,{pending:true});
+    (async()=>{ try{
+        const pdf=await getPdf('book:'+BVS.book); const page=await pdf.getPage(n); const v1=page.getViewport({scale:1});
+        const el=BVS.els[n-1]; if(!el||token!==BVS.book+'|'+BVS.zoom||!BVS.rendered.has(n)) return;
+        const cssW=el.clientWidth; const scale=Math.min(4,cssW*(window.devicePixelRatio||1)/v1.width); const vp=page.getViewport({scale});
+        const c=document.createElement('canvas'); c.width=Math.ceil(vp.width); c.height=Math.ceil(vp.height);
+        const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+        await page.render({canvasContext:ctx,viewport:vp}).promise;
+        if(!BVS.rendered.has(n)||token!==BVS.book+'|'+BVS.zoom){ c.width=0; return; }
+        const old=el.querySelector('canvas'); if(old) old.remove(); el.prepend(c); BVS.rendered.set(n,{canvas:c});
+      }catch(err){ BVS.rendered.delete(n); if(String(err&&err.message)!=='missing'&&!BVS.failed){ BVS.failed=true; bvSetMode('text'); } }
+      finally{ BVS.busy--; bvPump(); } })();
+  }
+}
+function bvJump(n){ const el=BVS.els[n-1]; if(!el) return; bvScroll.scrollTop=Math.max(0,el.offsetTop-8); BVS.page=n; bvUpdateBar(); }
+function bvCurrent(){ const top=bvScroll.scrollTop+bvScroll.clientHeight*0.3; let lo=0,hi=BVS.els.length-1;
+  while(lo<hi){ const mid=(lo+hi+1)>>1; if(BVS.els[mid].offsetTop<=top) lo=mid; else hi=mid-1; } return lo+1; }
+function bvUpdateBar(){
+  const b=BOOK[BVS.book]; const p=b.pages[BVS.page-1]; if(!p) return;
+  if(document.activeElement!==$('#bv-page')) $('#bv-page').value=p.label||String(BVS.page);
+  $('#bv-t').textContent=`${b.short}: ${bookLabel(b,BVS.page)} · PDF ${BVS.page} of ${b.pages.length}${pageCtx(b,p)?' · '+pageCtx(b,p):''}`;
+  $('#bv-side').innerHTML=`<h2>${esc(bookLabel(b,BVS.page))}</h2><p class="meta">${esc(pageCtx(b,p))}</p><h4>Text on this page${lastTerms.length?' (search terms highlighted)':''}</h4><pre class="txt">${highlight(p.text,lastTerms)}</pre>`;
+}
+bvScroll.addEventListener('scroll',()=>{ if(BVS.scrollRaf) return; BVS.scrollRaf=requestAnimationFrame(()=>{ BVS.scrollRaf=0; const n=bvCurrent(); if(n!==BVS.page){ BVS.page=n; bvUpdateBar(); } }); });
+function bvSetMode(m){ if(m==='pdf'&&(!hasPdf||!hasBytes('book:'+BVS.book))) m='text'; BVS.mode=m; $('#bv-mode').setAttribute('aria-pressed',String(m==='text')); const keep=BVS.page; bvBuild(); requestAnimationFrame(()=>bvJump(keep)); }
+async function openBook(bid,n){
+  const b=BOOK[bid]; if(!b) return; n=Math.max(1,Math.min(b.pages.length,n||1));
+  if(!bv.classList.contains('on')&&!ov.classList.contains('on')) lastFocus=document.activeElement;
+  ov.classList.remove('on'); bv.classList.add('on');
+  let wantPdf=hasPdf&&hasBytes('book:'+bid)&&!BVS.failed;
+  if(wantPdf&&!b._aspect){ $('#bv-t').textContent='Opening '+b.title+'…';
+    try{ const pdf=await getPdf('book:'+bid); const pg=await pdf.getPage(n); const v=pg.getViewport({scale:1}); b._aspect=v.height/v.width; }
+    catch(e){ wantPdf=false; } }
+  const mode=wantPdf?'pdf':'text';
+  BVS.aspect=b._aspect||1.3;
+  if(BVS.book!==bid||BVS.mode!==mode){ BVS.book=bid; BVS.mode=mode; $('#bv-mode').setAttribute('aria-pressed',String(mode==='text')); bvBuild(); }
+  else if(mode==='text'){ BVS.els.forEach(el=>{ const p=b.pages[+el.dataset.n-1]; const pre=el.querySelector('pre'); if(pre) pre.innerHTML=highlight(p.text,lastTerms); }); }
+  $('#bv-native').hidden=!hasBytes('book:'+bid);
+  $('#bv-mode').hidden=!(hasPdf&&hasBytes('book:'+bid));
+  const lb=$('#bv-locate'); lb.hidden=!hasPdf||hasBytes('book:'+bid); lb.dataset.locate=bid;
+  requestAnimationFrame(()=>{ bvLayout(); bvJump(n); bvScroll.focus({preventScroll:true}); });
+}
+function closeBook(){ bv.classList.remove('on'); if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
+$('#bv-close').addEventListener('click',closeBook);
+$('#bv-prev').addEventListener('click',()=>bvJump(Math.max(1,BVS.page-1)));
+$('#bv-next').addEventListener('click',()=>bvJump(Math.min(BOOK[BVS.book].pages.length,BVS.page+1)));
+$('#bv-zin').addEventListener('click',()=>{ BVS.zoom=Math.min(3,BVS.zoom*1.2); const k=BVS.page; bvLayout(); [...BVS.rendered.keys()].forEach(bvRelease); bvJump(k); BVS.els.forEach(el=>{ BVS.obs&&BVS.obs.unobserve(el); BVS.obs&&BVS.obs.observe(el); }); });
+$('#bv-zout').addEventListener('click',()=>{ BVS.zoom=Math.max(0.5,BVS.zoom/1.2); const k=BVS.page; bvLayout(); [...BVS.rendered.keys()].forEach(bvRelease); bvJump(k); BVS.els.forEach(el=>{ BVS.obs&&BVS.obs.unobserve(el); BVS.obs&&BVS.obs.observe(el); }); });
+$('#bv-mode').addEventListener('click',()=>bvSetMode(BVS.mode==='pdf'?'text':'pdf'));
+$('#bv-native').addEventListener('click',()=>{ const bytes=SRC['book:'+BVS.book](); if(!bytes) return; const u=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})); window.open(u+'#page='+BVS.page,'_blank'); });
+$('#bv-page').addEventListener('keydown',e=>{ if(e.key!=='Enter') return; const b=BOOK[BVS.book]; const v=e.target.value.trim();
+  let n=(b.printed_to_pdf&&b.printed_to_pdf[v])||null;
+  if(!n){ const all=b.pages.filter(p=>p.label===v); n=all.length?all[all.length-1].n:(/^\d+$/.test(v)?+v:null); }
+  if(n) bvJump(Math.max(1,Math.min(b.pages.length,n))); e.target.blur(); });
+window.addEventListener('resize',()=>{ if(bv.classList.contains('on')){ const k=BVS.page; bvLayout(); [...BVS.rendered.keys()].forEach(bvRelease); bvJump(k); BVS.els.forEach(el=>{ BVS.obs&&BVS.obs.unobserve(el); BVS.obs&&BVS.obs.observe(el); }); } });
+
+/* locate a non-embedded book PDF */
+const locInp=document.createElement('input'); locInp.type='file'; locInp.accept='application/pdf,.pdf'; locInp.hidden=true; document.body.appendChild(locInp);
+let locFor=null;
+locInp.addEventListener('change',async()=>{ const f=locInp.files[0]; locInp.value=''; if(!f||!locFor) return; const buf=await f.arrayBuffer(); memBytes['book:'+locFor]=buf; delete pdfDocs['book:'+locFor];
+  try{ await idbPut({id:'book:'+locFor,kind:'located',name:f.name,bytes:buf}); }catch(e){}
+  if(bv.classList.contains('on')&&BVS.book===locFor){ BVS.failed=false; $('#bv-locate').hidden=true; $('#bv-mode').hidden=false; bvSetMode('pdf'); } $('#bv-native').hidden=false; if(view==='search') showProj(); });
+
+/* ================= global clicks: slide / book chips ================= */
+document.addEventListener('click',e=>{
+  const bk=e.target.closest('[data-book]'); if(bk){ e.preventDefault(); openBook(bk.dataset.book,+bk.dataset.page); return; }
+  const lc=e.target.closest('[data-locate]'); if(lc){ locFor=lc.dataset.locate; locInp.click(); return; }
+  const sl=e.target.closest('[data-slide]'); if(sl){ openSlide(sl.dataset.slide); return; }
+});
+
+/* ================= keyboard ================= */
+document.addEventListener('keydown',e=>{
+  if(bv.classList.contains('on')){
+    if(document.activeElement===$('#bv-page')) return;
+    if(e.key==='Escape'){ closeBook(); e.preventDefault(); }
+    else if(e.key==='ArrowLeft'){ bvJump(Math.max(1,BVS.page-1)); e.preventDefault(); }
+    else if(e.key==='ArrowRight'){ bvJump(Math.min(BOOK[BVS.book].pages.length,BVS.page+1)); e.preventDefault(); }
+    return;
+  }
+  if(ov.classList.contains('on')){
+    if(e.key==='Escape'){closeOv();e.preventDefault();}
+    else if(e.key==='ArrowLeft'){const n=stepId(ovId,-1); if(n) openSlide(n); e.preventDefault();}
+    else if(e.key==='ArrowRight'){const n=stepId(ovId,1); if(n) openSlide(n); e.preventDefault();}
+    return;
+  }
+  const inField=document.activeElement&&/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if(e.key==='/'&&!inField){ e.preventDefault(); showView('search'); qEl.focus(); qEl.select(); return; }
+  if(view!=='search') return;
+  if(e.key==='ArrowDown'&&(document.activeElement===qEl||!inField)){ e.preventDefault(); select(sel+1); }
+  else if(e.key==='ArrowUp'&&(document.activeElement===qEl||!inField)){ e.preventDefault(); select(sel-1); }
+  else if(e.key==='Enter'&&results.length&&(document.activeElement===qEl||!inField)){ const t=primaryTarget(results[sel][1]); if(t){ e.preventDefault(); openTarget(t);} }
+  else if(e.key==='Escape'&&document.activeElement===qEl){ qEl.value=''; run(); }
+});
+
+/* ================= tabs / views ================= */
+let view='search'; const built={};
+function showView(v){ view=v; document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.v===v)));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(!built[v]){ ({formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph}[v]||(()=>{}))(); built[v]=1; }
+  window.scrollTo(0,0); }
+document.querySelector('.tabs').addEventListener('click',e=>{const t=e.target.closest('.tab'); if(t) showView(t.dataset.v);});
+function updateTabs(){
+  const has={browse:Object.keys(SL).length>0,tb:Object.keys(BOOK).length>0||D.tb.length>0||D.qa.length>0,formulas:D.formulas.length>0,trivia:D.trivia.length>0,numbers:D.numbers.length>0,emph:Object.values(SL).some(s=>s.emph&&s.emph.length)};
+  document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.v in has) t.hidden=!has[t.dataset.v]; });
+}
+
+let figOnly=false;
+function renderBrowse(){
+  const el=$('#v-browse'); const ids=Object.keys(DECK); if(!ids.length){ el.innerHTML='<h2>Browse slides</h2><div class="empty">No slide decks yet. Add some on the Add files tab.</div>'; return; }
+  const dk=DECK[deckF]?deckF:ids[0];
+  const list=Object.values(SL).filter(s=>s.deck===dk&&(!figOnly||s.fig)).sort((a,b)=>a.n-b.n);
+  el.innerHTML=`<h2>Browse slides</h2><p class="lead">Every slide, in lecture order. Click one to view it full size; use the arrow keys to flip through the deck.</p>
+   <div class="decks">${ids.map(id=>`<button class="chip" type="button" data-deck="${esc(id)}" aria-pressed="${id===dk}">${esc(DECK[id].short)}<span class="n">${deckCount[id]||0}</span></button>`).join('')}
+   <button class="chip" type="button" id="figonly" aria-pressed="${figOnly}">Only slides with figures</button></div>
+   <p class="meta">${esc(DECK[dk].title)}: ${list.length} slides</p>
+   <div class="grid">${list.map(s=>`<button class="cell" type="button" data-slide="${esc(s.id)}"><img data-id="${esc(s.id)}" alt=""><div><b>${s.n}</b>${esc(s.title)}</div></button>`).join('')}</div>`;
+  lazy(el);
+}
+$('#v-browse').addEventListener('click',e=>{ const b=e.target.closest('[data-deck]'); if(b){ deckF=b.dataset.deck; $('#deck').value=deckF; renderBrowse(); run(); e.stopPropagation(); return;} if(e.target.closest('#figonly')){ figOnly=!figOnly; renderBrowse(); e.stopPropagation(); } });
+
+function renderFormulas(){
+  const groups=[...new Set(D.formulas.map(f=>f.g))];
+  $('#v-formulas').innerHTML=`<h2>Formula sheet</h2><p class="lead">Every equation from the slides, grouped by topic, with the slide or book page it came from.</p>`+
+   groups.map(g=>`<h3 class="grp">${esc(g)}</h3>`+D.formulas.filter(f=>f.g===g).map(f=>`<div class="fx"><div><div class="nm">${esc(f.name)}</div>${f.note?`<div class="nt">${esc(f.note)}</div>`:''}${refChips(f.refs,f.tb)}</div><div class="mml">${f.mml}</div></div>`).join('')).join('');
+}
+function renderTrivia(){
+  $('#v-trivia').innerHTML=`<h2>Names, dates &amp; quotes</h2><p class="lead">People, years, books and quotes from the slides and the textbook.</p>
+  <table><thead><tr><th>When</th><th>Who / what</th><th>Fact</th><th>Source</th></tr></thead><tbody>${D.trivia.map(t=>`<tr><td class="when">${esc(t.when)}</td><td><b>${esc(t.who)}</b></td><td>${esc(t.fact)}</td><td>${refChips(t.refs,t.tb)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderNumbers(){
+  $('#v-numbers').innerHTML=`<h2>Key numbers &amp; defaults</h2><p class="lead">Ratios, defaults, counts and table values that make easy multiple-choice distractors.</p>
+  <table><thead><tr><th>Item</th><th>Value</th><th>Source</th></tr></thead><tbody>${D.numbers.map(n=>`<tr><td><b>${esc(n.item)}</b></td><td>${esc(n.val)}</td><td>${refChips(n.refs,n.tb)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderEmph(){
+  const el=$('#v-emph');
+  el.innerHTML=`<h2>Emphasized on slides</h2><p class="lead">Words and phrases set in red, blue, bold or yellow highlight on each slide: a strong hint at what the instructor considers testable. Type below to filter.</p>
+   <input class="filterbox" id="emf" type="search" placeholder="Filter, e.g. covariance" aria-label="Filter emphasized terms"><div id="emlist"></div>`;
+  const draw=()=>{ const f=norm($('#emf').value).trim();
+    $('#emlist').innerHTML=Object.values(DECK).map(d=>{ const rows=Object.values(SL).filter(s=>s.deck===d.id&&s.n>1&&s.emph&&s.emph.length&&(!f||norm(s.title+' '+s.emph.map(e=>e.t).join(' ')).includes(f))).sort((a,b)=>a.n-b.n);
+      if(!rows.length) return '';
+      return `<div class="emdeck"><h3 class="grp" style="border:0;margin:6px 0">${esc(d.title)}</h3>${rows.map(s=>`<div class="emrow"><button class="st" type="button" data-slide="${esc(s.id)}">#${s.n} ${esc(s.title)}</button>${emChips(s.emph,[])}</div>`).join('')}</div>`;}).join('')||'<div class="empty">Nothing matches that filter.</div>'; };
+  $('#emf').addEventListener('input',draw); draw();
+}
+function tocHTML(b){
+  if(!b.toc||!b.toc.length) return '';
+  const chapters=[]; let cur=null;
+  const isChap=t=>/^(chapter|part|appendix)\b/i.test(t.title)||t.lvl===1;
+  b.toc.forEach(t=>{ if(isChap(t)){ cur={t,kids:[]}; chapters.push(cur); } else if(cur) cur.kids.push(t); else chapters.push({t,kids:[]}); });
+  const minLvl=Math.min(...b.toc.map(t=>t.lvl));
+  const item=t=>`<li class="lv${Math.min(4,t.lvl-minLvl+1)}"><button type="button" data-book="${esc(b.id)}" data-page="${t.page}">${esc(t.title)}</button><span class="pg">${esc(bookLabel(b,t.page))}</span></li>`;
+  return `<div class="toc">${chapters.map(c=>`<details><summary><span>${esc(c.t.title)}</span> <span class="pg">${esc(bookLabel(b,c.t.page))}</span></summary><ul><li><button type="button" data-book="${esc(b.id)}" data-page="${c.t.page}">Open at the start</button></li>${c.kids.map(item).join('')}</ul></details>`).join('')}</div>`;
+}
+function renderTB(){
+  const books=Object.values(BOOK);
+  const chs=[...new Set(D.tb.map(t=>t.ch))];
+  let h=`<h2>Textbook</h2>`;
+  books.forEach(b=>{ h+=`<h3 class="grp">${esc(b.title)}</h3><p class="lead">${b.pages.length} pages, all searchable. Open it at any chapter or section below${hasBytes('book:'+b.id)?'':' (the PDF isn\'t in this file; you\'ll see the page text, or locate the PDF to see real pages)'}.</p>
+    <div class="refs" style="margin-bottom:8px"><button class="btn primary" type="button" data-book="${esc(b.id)}" data-page="1">Open the book</button></div>${tocHTML(b)}`; });
+  if(D.tb.length){ h+=`<h3 class="grp">Where to look: sections that match the syllabus</h3>`+chs.map(c=>`<h4 style="margin:14px 0 4px">${esc(c)}</h4>`+D.tb.filter(t=>t.ch===c).map(t=>`<div class="tbsec"><div class="h">${t.ref?bookChip(t.ref):''}<b>${esc(t.sec)}</b></div><p>${esc(t.notes)}</p></div>`).join('')).join(''); }
+  if(D.qa.length){ h+=`<h3 class="grp">Exercise questions: short answers</h3><dl class="qa">${D.qa.map(q=>`<dt>${esc(q.q)}</dt><dd>${esc(q.a)}</dd>`).join('')}</dl>`; }
+  $('#v-tb').innerHTML=h;
+}
+
+/* ================= added files (live indexing) ================= */
+let idb=null;
+function idbOpen(){ if(idb) return idb; idb=new Promise((res,rej)=>{ try{ const r=indexedDB.open('studydb-'+COURSE_KEY,1); r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id'}); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }); idb.catch(()=>{}); return idb; }
+async function idbTx(mode,fn){ const db=await idbOpen(); return new Promise((res,rej)=>{ const tx=db.transaction('files',mode); const st=tx.objectStore('files'); const r=fn(st); tx.oncomplete=()=>res(r&&r.result); tx.onerror=()=>rej(tx.error); }); }
+const idbPut=o=>idbTx('readwrite',st=>st.put(o));
+const idbDel=id=>idbTx('readwrite',st=>st.delete(id));
+const idbAll=()=>idbTx('readonly',st=>st.getAll());
+let storageOK=true;
+const FILES=[]; // {id,name,kind,pages:[{text,title}],status,progress}
+
+function registerFile(f){
+  if(f.kind==='slides'){
+    registerDeck({id:f.id,short:f.name.replace(/\.pdf$/i,'').slice(0,16),title:f.name.replace(/\.pdf$/i,''),user:true});
+    f.pages.forEach((p,i)=>registerSlide({id:f.id+'-'+(i+1),deck:f.id,n:i+1,title:p.title||('Slide '+(i+1)),text:p.text||'',ocr:'',emph:[],fig:false,cap:'',cited:[]}));
+  } else {
+    BOOK[f.id]={id:f.id,short:f.name.replace(/\.pdf$/i,'').slice(0,16),title:f.name.replace(/\.pdf$/i,''),file:f.name,embedded:false,user:true,toc:f.toc||[],pages:f.pages.map((p,i)=>({n:i+1,label:'',ch:'',sec:'',text:p.text||''}))};
+    SRC['book:'+f.id]=()=>memBytes['book:'+f.id]?new Uint8Array(memBytes['book:'+f.id].slice(0)):null;
+  }
+  SRC['deck:'+f.id]=()=>memBytes['deck:'+f.id]?new Uint8Array(memBytes['deck:'+f.id].slice(0)):null;
+}
+function unregisterFile(f){
+  if(DECK[f.id]){ Object.keys(SL).filter(k=>SL[k].deck===f.id).forEach(k=>delete SL[k]); delete DECK[f.id]; delete deckCount[f.id]; }
+  if(BOOK[f.id]) delete BOOK[f.id];
+  ['deck:','book:'].forEach(p=>{ delete pdfDocs[p+f.id]; });
+}
+function afterFilesChanged(){ buildIndex(); fillDeckSelect(); updateTabs(); if(view==='add') renderFiles(); run(); }
+function setBytes(f,buf){ memBytes['deck:'+f.id]=buf; memBytes['book:'+f.id]=buf; }
+
+async function extractPdf(f,buf){
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0)),isEvalSupported:false,useSystemFonts:true,verbosity:0}).promise;
+  const p1=await pdf.getPage(1); const v=p1.getViewport({scale:1}); if(!f.kind) f.kind=v.width>v.height?'slides':'book';
+  let toc=[]; try{ const ol=await pdf.getOutline(); if(ol){ const walk=async(items,lvl)=>{ for(const it of items){ let pg=null; try{ let dest=it.dest; if(typeof dest==='string') dest=await pdf.getDestination(dest); if(dest&&dest[0]) pg=(await pdf.getPageIndex(dest[0]))+1; }catch(e){} if(pg) toc.push({lvl,title:it.title,page:pg}); if(it.items&&it.items.length&&lvl<3) await walk(it.items,lvl+1); } }; await walk(ol,1); } }catch(e){}
+  f.toc=toc; f.pages=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i); const vp=page.getViewport({scale:1}); const tc=await page.getTextContent();
+    let text='', items=[];
+    tc.items.forEach(it=>{ if(!('str' in it)) return; text+=it.str+(it.hasEOL?'\n':' '); const h=Math.hypot(it.transform[2],it.transform[3]); items.push({s:it.str,h,y:it.transform[5],x:it.transform[4]}); });
+    let title='';
+    const top=items.filter(o=>o.s.trim()&&o.y>vp.height*0.62);
+    if(top.length){ const mx=Math.max(...top.map(o=>o.h)); title=top.filter(o=>o.h>=mx-0.6).sort((a,b)=>b.y-a.y||a.x-b.x).map(o=>o.s).join(' ').replace(/\s+/g,' ').trim(); }
+    if(!title){ title=(text.split('\n').find(l=>l.trim())||'').trim(); }
+    f.pages.push({text:text.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim(),title:title.slice(0,120)});
+    f.progress=i/pdf.numPages; if(i%5===0||i===pdf.numPages) drawProgress(f);
+  }
+  pdf.destroy();
+}
+async function addFiles(list){
+  if(!hasPdf){ alert('The PDF library is missing from this file, so PDFs can\'t be added.'); return; }
+  const pdfs=[...list].filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
+  if(!pdfs.length) return;
+  showView('add');
+  for(const file of pdfs){
+    const f={id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name,kind:null,pages:[],status:'Reading…',progress:0};
+    FILES.push(f); renderFiles();
+    try{
+      const buf=await file.arrayBuffer(); f.status='Extracting text…'; renderFiles();
+      await extractPdf(f,buf); setBytes(f,buf); registerFile(f);
+      const words=f.pages.reduce((a,p)=>a+(p.text?p.text.split(/\s+/).length:0),0);
+      f.status=`${f.pages.length} ${f.kind==='slides'?'slides':'pages'} indexed${words<f.pages.length*3?' (little or no text found; scanned PDF?)':''}`;
+      try{ await idbPut({id:f.id,name:f.name,kind:f.kind,pages:f.pages,toc:f.toc,bytes:buf,added:Date.now()}); }catch(e){ storageOK=false; }
+      if(HOSTED&&navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+    }catch(err){ f.status='Could not read this PDF: '+(err&&err.message||err); f.failed=true; }
+    afterFilesChanged();
+  }
+}
+function drawProgress(f){ const row=document.querySelector(`.frow[data-f="${f.id}"] .prog i`); if(row) row.style.width=Math.round(f.progress*100)+'%'; }
+function renderFiles(){
+  const el=$('#flist'); if(!el) return;
+  el.innerHTML=(FILES.length?'':'<p class="meta">No files added yet.</p>')+FILES.map(f=>`<div class="frow" data-f="${f.id}">
+    <div><div class="nm">${esc(f.name)}</div><div class="st">${esc(f.status||'')}</div>${f.progress<1&&!f.failed?'<div class="prog"><i></i></div>':''}</div>
+    ${f.pages.length&&!f.failed?`<select data-kind="${f.id}" aria-label="Treat as"><option value="slides"${f.kind==='slides'?' selected':''}>Slides</option><option value="book"${f.kind==='book'?' selected':''}>Book</option></select>`:'<span></span>'}
+    <button class="btn" type="button" data-rm="${f.id}">Remove</button></div>`).join('')+(FILES.length&&!storageOK?'<p class="meta">This browser won\'t let the page store files, so added files last until you close it.</p>':'');
+  FILES.forEach(drawProgress);
+}
+$('#flist').addEventListener('change',async e=>{ const s=e.target.closest('[data-kind]'); if(!s) return; const f=FILES.find(x=>x.id===s.dataset.kind); if(!f) return;
+  unregisterFile(f); f.kind=s.value; registerFile(f); try{ const all=await idbAll(); const rec=all.find(r=>r.id===f.id); if(rec){ rec.kind=f.kind; await idbPut(rec);} }catch(e){} afterFilesChanged(); });
+$('#flist').addEventListener('click',async e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const i=FILES.findIndex(x=>x.id===b.dataset.rm); if(i<0) return; const f=FILES[i];
+  unregisterFile(f); FILES.splice(i,1); delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; try{ await idbDel(f.id); }catch(e){} afterFilesChanged(); });
+const drop=$('#drop'), finp=$('#fileinp');
+drop.addEventListener('click',()=>finp.click());
+drop.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); finp.click(); } });
+finp.addEventListener('change',()=>{ addFiles(finp.files); finp.value=''; });
+$('#addbtn').addEventListener('click',()=>{ showView('add'); });
+let dragDepth=0;
+window.addEventListener('dragenter',e=>{ if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')){ dragDepth++; $('#dropcover').classList.add('on'); } });
+window.addEventListener('dragleave',()=>{ dragDepth=Math.max(0,dragDepth-1); if(!dragDepth) $('#dropcover').classList.remove('on'); });
+window.addEventListener('dragover',e=>{ if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
+window.addEventListener('drop',e=>{ if(!e.dataTransfer||!e.dataTransfer.files.length) return; e.preventDefault(); dragDepth=0; $('#dropcover').classList.remove('on'); addFiles(e.dataTransfer.files); });
+
+async function restoreFiles(){
+  let recs=[]; try{ recs=await idbAll()||[]; }catch(e){ storageOK=false; return; }
+  let changed=false;
+  for(const r of recs){
+    if(r.kind==='located'){ const bid=r.id.slice(5); if(BOOK[bid]){ memBytes[r.id]=r.bytes; changed=true; } continue; }
+    const f={id:r.id,name:r.name,kind:r.kind,pages:r.pages||[],toc:r.toc||[],status:`${(r.pages||[]).length} ${r.kind==='slides'?'slides':'pages'} indexed (restored)`,progress:1};
+    FILES.push(f); setBytes(f,r.bytes); registerFile(f); changed=true;
+  }
+  if(changed) afterFilesChanged();
+}
+
+/* ================= theme ================= */
+$('#theme').addEventListener('click',()=>{ const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme=dark?'light':'dark'; try{localStorage.setItem('studydb-theme',r.dataset.theme);}catch(e){} });
+try{ const t=localStorage.getItem('studydb-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
+
+function fitProj(){ const h=document.querySelector('.top').offsetHeight; projEl.style.top=(h+12)+'px'; projEl.style.maxHeight='calc(100vh - '+(h+24)+'px)'; }
+window.addEventListener('resize',fitProj);
+
+/* ================= hosted site (build.py --site) ================= */
+/* The same page is served on GitHub Pages with no course data: people add their own PDFs.
+   There it registers a service worker (offline use) and offers a one-file download. */
+const HOSTED=!!D.meta.hosted;
+if(HOSTED){
+  $('#addlead').textContent="Drop slide decks or a textbook (PDF) here. They're read and indexed in your browser, then remembered on this device, so they're here next time, even offline. Landscape PDFs are treated as slides and portrait PDFs as books; you can switch that below. Nothing is uploaded.";
+  $('#dlrow').hidden=location.protocol==='file:';
+  if('serviceWorker' in navigator&&location.protocol!=='file:'){
+    let reloading=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(reloading) return; reloading=true; location.reload(); });
+    const offer=w=>{ if(!w||!navigator.serviceWorker.controller) return; $('#upd').hidden=false; $('#upd-go').onclick=()=>w.postMessage({type:'SKIP_WAITING'}); };
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      offer(reg.waiting);
+      reg.addEventListener('updatefound',()=>{ const w=reg.installing; if(w) w.addEventListener('statechange',()=>{ if(w.state==='installed') offer(w); }); });
+    }).catch(()=>{});
+  }
+}
+
+/* ================= start ================= */
+buildIndex(); fillDeckSelect(); updateTabs(); fitProj(); run(); qEl.focus();
+restoreFiles();
+window.__studydb={docs:()=>docs.length,openBook,openSlide,BVS};
+})();
+</script>
+</body>
+</html>
