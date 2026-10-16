@@ -130,6 +130,8 @@ main{max-width:1500px;margin:0 auto;padding:14px 16px 60px}
 .e.bold{font-weight:700}
 .empty{background:var(--panel);border:1px dashed var(--rule);border-radius:var(--radius);padding:18px;color:var(--muted)}
 .mml{overflow-x:auto;padding:4px 0;font-size:calc(17px * var(--fs))}
+.mml .mhl{background:var(--hl);color:var(--hl-ink);border-radius:2px}
+.also{margin:4px 0 0;color:var(--muted);font-size:calc(13px * var(--fs))}
 
 /* ---------- projector ---------- */
 .projector{position:sticky;top:178px;max-height:calc(100vh - 190px);overflow:auto;background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -510,7 +512,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
 const HOSTED=!!D.meta.hosted;   /* the GitHub Pages app (build.py --site): classes, offline download, service worker */
-const APP_VERSION='1.0.3';      /* shown in Settings; log each release in VERSIONS there */
+const APP_VERSION='1.0.4';      /* shown in Settings; log each release in VERSIONS there */
 if(HOSTED&&D.meta.title==='Class Base') $('#ttl').innerHTML='Class <span>Base</span>'; else $('#ttl').textContent=D.meta.title;
 $('#sub').textContent=D.meta.subtitle||''; $('#sub').hidden=!D.meta.subtitle;
 $('#homeback').hidden=!(HOSTED&&/^https?:$/.test(location.protocol));   /* the study apps homepage is the site root, one level up */
@@ -581,6 +583,9 @@ function norm(s){
   return s;
 }
 const STOP=new Set('a an the of to in is are be been being by for on with as that this these those it its and or not no we our you your can could would should will from at which what who whom whose when where why how into than then there their they them do does did done if so such also about over under between both each other some any all most more very just only following statement statements describe describes described best true false correct incorrect option options answer choose select given question regarding concerning'.split(' '));
+/* Exam-question filler: dropped from a pasted question, but kept in a short query or a quoted phrase,
+   where "true positive" or "false negative" means exactly that. */
+const FILL=new Set('following statement statements describe describes described best true false correct incorrect option options answer choose select given question regarding concerning'.split(' '));
 function stem(w){
   if(w.length<=3||/^\d/.test(w)) return w;
   w=w.replace(/(ization|izations|izing|ized|izes|ize|izer)$/,'iz');
@@ -599,7 +604,8 @@ function tokens(s,keepStop){
   const hy=n.match(/[a-z0-9]+(?:-[a-z0-9]+)+/g)||[];
   for(const h of hy) out.push(h.replace(/-/g,''));
   for(const t of (n.match(TOK)||[])){
-    if(!keepStop && STOP.has(t)) continue;
+    if(!keepStop && STOP.has(t)) continue;   /* keepStop: true keeps every word, 'fill' keeps FILL words only */
+    if(keepStop==='fill' && STOP.has(t) && !FILL.has(t)) continue;
     if(t.length<2 && !/^\d$/.test(t) && t!=='k') continue;
     out.push(t);
   }
@@ -627,7 +633,7 @@ function buildIndex(){
   for(const d of docs){
     const tf=new Map(); let len=0; let plain='';
     for(const [txt,w] of d.fields){ if(!txt) continue; plain+=' '+norm(txt);
-      for(const t of tokens(txt)){ tf.set(t,(tf.get(t)||0)+w); len+=w; } }
+      for(const t of tokens(txt,'fill')){ tf.set(t,(tf.get(t)||0)+w); len+=w; } }
     d.tf=tf; d.len=len; d.plain=plain.replace(/\s+/g,' '); d.fields=null;
     for(const t of tf.keys()) df.set(t,(df.get(t)||0)+1);
     tot+=len;
@@ -658,8 +664,9 @@ function expand(qtoks){
   return {m,groups};
 }
 function search(q,deckFilter,opt){
-  const phrases=[]; q=q.replace(/"([^"]+)"/g,(_,p)=>{phrases.push(norm(p).replace(/\s+/g,' ').trim()); return ' '+p+' ';});
-  let qt=tokens(q); if(!qt.length) qt=tokens(q,true);
+  const phrases=[], quoted=[]; q=q.replace(/[“”]/g,'"').replace(/"([^"]+)"/g,(_,p)=>{phrases.push(norm(p).replace(/\s+/g,' ').trim()); quoted.push(p); return ' '+p+' ';});
+  const short=(q.match(/\S+/g)||[]).length<=4;
+  let qt=tokens(q,short?'fill':false); quoted.forEach(p=>qt.push(...tokens(p,'fill'))); if(!qt.length) qt=tokens(q,true);
   const uniq=[...new Set(qt)];
   const {m,groups}=expand(uniq);
   const scores=[]; const k1=1.2,b=0.6;
@@ -685,6 +692,24 @@ function search(q,deckFilter,opt){
 /* ================= highlighting & snippets ================= */
 function hlTerms(termMap){ return [...termMap.entries()].filter(([t,o])=>o.w>=0.35).map(([t])=>t); }
 function isHitWord(w,terms){ const lw=w.toLowerCase(); if(!terms.some(t=>lw.includes(t.slice(0,3)))&&!/[^a-z0-9.\-]/.test(lw)) return false; const st=tokens(w,true); return st.some(x=>terms.some(t=>x===t||(t.length>=4&&x.startsWith(t)))); }
+/* a definition's aliases aren't shown, so the ones a search matched are listed under it */
+function aliasLine(a,terms){ if(!a||!a.length||!terms||!terms.length) return '';
+  const hit=a.filter(x=>String(x).split(/[\s\/(),;]+/).some(w=>w&&isHitWord(w,terms)));
+  return hit.length?`<p class="also">Also: ${hit.map(x=>highlight(x,terms)).join(' · ')}</p>`:''; }
+/* mark searched symbols inside rendered equations (KaTeX MathML): runs of letters such as <mi>T</mi><mi>N</mi> */
+function markMath(root,terms){
+  const ts=(terms||[]).filter(t=>t.length>=2&&/^[a-z0-9]+$/.test(t)); if(!ts.length) return;
+  root.querySelectorAll('.mml math *').forEach(par=>{
+    let run=[];
+    const flush=()=>{ if(!run.length) return; let str='', at=[];
+      run.forEach(k=>{ at.push(str.length); str+=k.textContent.toLowerCase(); });
+      for(const t of ts){ let i=str.indexOf(t); while(i>=0){ const j=i+t.length;
+        if(i===0||/[^a-z0-9]/.test(str[i-1])) run.forEach((k,n)=>{ const a=at[n], b=a+k.textContent.length; if(a<j&&b>i) k.classList.add('mhl'); });
+        i=str.indexOf(t,i+1); } }
+      run=[]; };
+    [...par.children].forEach(k=>{ if(/^m(i|n|text)$/.test(k.localName)&&/^[A-Za-z0-9 ]+$/.test(k.textContent)) run.push(k); else flush(); }); flush();
+  });
+}
 function highlight(text,terms){
   if(!text) return '';
   if(!terms||!terms.length) return esc(text);
@@ -739,7 +764,7 @@ function pageCtx(b,p){ return [p.ch,p.sec].filter(Boolean).join(' › '); }
 
 function card(d,terms){
   const o=d.obj; let k='',h='',s='',side='',extra='';
-  if(d.type==='def'){ k=`<span class="badge b-def">Definition</span><span>${esc(o.topic)}</span>`; h=highlight(o.t,terms); s=`<p class="s">${highlight(o.d,terms)}</p>`; extra=refChips(o.refs.slice(0,8),o.tb); const r0=o.refs.find(r=>SL[r]); if(r0) side=`<img class="thumb" data-id="${esc(r0)}" alt="">`; }
+  if(d.type==='def'){ k=`<span class="badge b-def">Definition</span><span>${esc(o.topic)}</span>`; h=highlight(o.t,terms); s=`<p class="s">${highlight(o.d,terms)}</p>`+aliasLine(o.a,terms); extra=refChips(o.refs.slice(0,8),o.tb); const r0=o.refs.find(r=>SL[r]); if(r0) side=`<img class="thumb" data-id="${esc(r0)}" alt="">`; }
   else if(d.type==='slide'){ const dk=DECK[o.deck]; k=`<span class="badge b-slide">Slide</span><span>${esc(dk.short)} #${o.n}</span>${o.fig?'<span>has figure</span>':''}`; h=highlight(o.title,terms);
     const body=[o.text,o.cap].filter(Boolean).join(' · '); s=`<p class="s sans">${highlight(snippet(body,terms,260),terms)}</p>`+emChips(o.emph,terms); side=`<img class="thumb" data-id="${esc(o.id)}" alt="Slide ${o.n}">`; }
   else if(d.type==='page'){ const b=BOOK[o.book], p=b.pages[o.n-1]; k=`<span class="badge b-page">Book page</span><span>${esc(b.short)} ${esc(bookLabel(b,o.n))}</span>`; h=highlight(pageCtx(b,p)||b.title,terms); s=`<p class="s">${highlight(snippet(p.text,terms,300),terms)}</p>`+`<div class="refs">${bookChip({book:o.book,pdf:o.n,label:p.label})}</div>`; }
@@ -780,6 +805,7 @@ function run(){
   metaEl.textContent=results.length?`${counts[typeF]||0} matches${(counts[typeF]||0)>80?', showing the best 80':''} (${ms} ms)`:'';
   if(!results.length){ resEl.innerHTML=`<li class="empty">No matches for “${esc(q)}”${typeF||deckF?' with the current filters. Try All results or All lectures & books.':'. Try fewer or different words.'}</li>`; projEl.innerHTML=''; return; }
   resEl.innerHTML=results.map(([s,d],i)=>`<li class="r" role="option" tabindex="-1" data-i="${i}" aria-selected="${i===0}">${card(d,lastTerms)}</li>`).join('');
+  markMath(resEl,lastTerms);
   lazy(resEl); sel=0; showProj();
 }
 qEl.addEventListener('input',()=>{hideQ=false; clearTimeout(runT); runT=setTimeout(run,110);});
@@ -848,7 +874,7 @@ function showProj(){
     fillPanelImages(projEl); return; }
   const refs=(o.refs||[]).filter(r=>SL[r]); const tb=o.tb||o.ref;
   let head='';
-  if(d.type==='def') head=`<h2>${highlight(o.t,lastTerms)}</h2><p class="pdef">${highlight(o.d,lastTerms)}</p>`;
+  if(d.type==='def') head=`<h2>${highlight(o.t,lastTerms)}</h2><p class="pdef">${highlight(o.d,lastTerms)}</p>${aliasLine(o.a,lastTerms)}`;
   else if(d.type==='formula') head=`<h2>${esc(o.name)}</h2><div class="mml">${o.mml}</div><p class="meta">${esc(o.note||'')}</p>`;
   else if(d.type==='trivia') head=`<h2>${esc(o.who)} (${esc(o.when)})</h2><p class="pdef">${highlight(o.fact,lastTerms)}</p>`;
   else if(d.type==='number') head=`<h2>${esc(o.item)}</h2><p class="pdef">${highlight(o.val,lastTerms)}</p>`;
@@ -858,7 +884,7 @@ function showProj(){
     ...(tb&&BOOK[tb.book]?[`<button class="ref book" type="button" data-pr="b:${esc(tb.book)}:${tb.pdf}" aria-current="${refs.length===0}">${esc(BOOK[tb.book].short)} ${esc(tb.label?'p. '+tb.label:'PDF p. '+tb.pdf)}</button>`]:[]),
     ...(tb&&tb.txt&&!BOOK[tb.book]?[bookChip(tb)]:[])];
   projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)">${head}${tabs.length?`<div class="reftabs">${tabs.join('')}</div>`:''}</div><div id="projslide">${refs.length?slidePanel(refs[0],lastTerms):(tb&&BOOK[tb.book]?bookPanel(tb.book,tb.pdf,lastTerms):`<div class="noimg">${tb&&tb.txt?'No lecture slide for this item; it comes from the textbook ('+esc(tb.txt)+').':'No slide or book page linked to this item.'}</div>`)}</div>`;
-  fillPanelImages(projEl);
+  fillPanelImages(projEl); markMath(projEl,lastTerms);
 }
 let projReveal=!!CBSET.S.showAnswers;
 projEl.addEventListener('click',e=>{
@@ -1676,6 +1702,7 @@ const SETTINGS_UI=[
     {key:'showAnswers',label:'Show answers right away',desc:'Off hides each answer until you click Show answer.',type:'switch'}]}
 ];
 const VERSIONS=[
+  ['1.0.4','Short searches and "quoted phrases" keep words like true and false, so "true positive" finds and highlights both words. Matches in a definition's other names are listed under it, and searched symbols are highlighted inside equations.'],
   ['1.0.3','Add an exam reference page (.html) made with Class Base to bring in its formula sheet, definitions, names and dates, key numbers and slide images. Search finds words that are partly bold or colored on a slide, and words split by a hyphen at a line break; PDFs you added earlier are re-read once in the background.'],
   ['1.0.2','The Quiz Qrusher look, with Settings behind the cog: theme, accent color, text size, line spacing and font. Note sheets: notes and cheat sheets are searched passage by passage instead of being read as question sets. A \u2039 next to the name goes back to the study apps homepage.'],
   ['1.0.1','Classes, Download for offline, emphasis detection on added slides, and question sets with practice questions.'],
