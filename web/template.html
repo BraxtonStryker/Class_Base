@@ -399,15 +399,16 @@ window.CBSET=(function(){
   <div class="clsedit" id="clsedit" hidden><label>Class name<input id="clsname" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label><button class="btn" type="button" id="clsdel">Delete this class</button></div>
   <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose PDF files to add">
    <strong>Drop PDFs here, or click to choose</strong>
+   <p>An exam reference page made with Class Base (an <b>.html</b> database with its definitions and formula sheet) can be added here too.</p>
    <p>Text is extracted page by page; scanned PDFs without a text layer will be viewable but not searchable.</p>
-   <input type="file" id="fileinp" accept="application/pdf,.pdf" multiple hidden>
+   <input type="file" id="fileinp" accept="application/pdf,.pdf,text/html,.html,.htm" multiple hidden>
   </div>
   <div class="flist" id="flist"></div>
   <p class="meta" id="dlrow" hidden><b>Download for offline</b> (top right) saves the app and this class's PDFs as one HTML file that opens on any computer with no internet, for example on an exam laptop.</p>
  </section>
 </main>
 
-<div class="dropcover" id="dropcover">Drop PDFs to add them</div>
+<div class="dropcover" id="dropcover">Drop files to add them</div>
 <div class="toast" id="upd" role="status" hidden>A new version of Class Base is ready. <button type="button" id="upd-go">Reload</button></div>
 
 <div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Slide viewer">
@@ -456,14 +457,15 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
 const HOSTED=!!D.meta.hosted;   /* the GitHub Pages app (build.py --site): classes, offline download, service worker */
-const APP_VERSION='1.0.2';      /* shown in Settings; log each release in VERSIONS there */
+const APP_VERSION='1.0.3';      /* shown in Settings; log each release in VERSIONS there */
 if(HOSTED&&D.meta.title==='Class Base') $('#ttl').innerHTML='Class <span>Base</span>'; else $('#ttl').textContent=D.meta.title;
 $('#sub').textContent=D.meta.subtitle||''; $('#sub').hidden=!D.meta.subtitle;
 $('#homeback').hidden=!(HOSTED&&/^https?:$/.test(location.protocol));   /* the study apps homepage is the site root, one level up */
 
 /* formulas: LaTeX -> MathML in the browser (KaTeX, bundled) */
 const hasKatex=typeof katex!=='undefined';
-D.formulas.forEach(f=>{ try{ f.mml=hasKatex?katex.renderToString(f.tex,{output:'mathml',displayMode:true,throwOnError:false,strict:false}):'<code>'+esc(f.tex)+'</code>'; }catch(e){ f.mml='<code>'+esc(f.tex)+'</code>'; } });
+function texToMml(f){ try{ f.mml=hasKatex?katex.renderToString(f.tex,{output:'mathml',displayMode:true,throwOnError:false,strict:false}):(f.mml0||'<code>'+esc(f.tex)+'</code>'); }catch(e){ f.mml=f.mml0||'<code>'+esc(f.tex)+'</code>'; } }
+D.formulas.forEach(texToMml);
 
 /* ================= registries ================= */
 const DECK={}, SL={}, BOOK={}, NOTES={}, deckCount={};
@@ -477,7 +479,8 @@ const isUserDeck=id=>!!(DECK[id]&&DECK[id].user);
 
 /* ================= embedded slide images ================= */
 let IMG=null;
-function embeddedImg(id){ if(!IMG){ try{ IMG=JSON.parse(document.getElementById('imgdata').textContent); }catch(e){ IMG={}; } } const b=IMG[id]; return b?('data:image/webp;base64,'+b):''; }
+const DBIMG={};   /* slide images of imported databases (see "imported databases" below) */
+function embeddedImg(id){ if(!IMG){ try{ IMG=JSON.parse(document.getElementById('imgdata').textContent); }catch(e){ IMG={}; } } const b=IMG[id]||DBIMG[id]; return b?('data:image/webp;base64,'+b):''; }
 
 /* ================= PDF.js plumbing ================= */
 const hasPdf=typeof pdfjsLib!=='undefined';
@@ -518,6 +521,7 @@ const SUBS={'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6
 function norm(s){
   s=String(s).replace(/[σθηλμφϕεϵαΣ∑∇π∞ℓ≥≤→−–—]/g,c=>GREEK[c]).replace(/[₀-₉⁰¹²³⁴-⁹ᵀᵢ]/g,c=>SUBS[c]||c);
   s=s.normalize('NFKD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  s=s.replace(/([a-z])-[ \t]*\n[ \t]*([a-z])/g,'$1-$2');   /* a word hyphenated at a line break ("de-" / "scent") */
   s=s.replace(/\bk\s*-\s*nn\b/g,' knn ').replace(/\bk\s*-?\s*nearest\s+neighbou?rs?\b/g,' knn nearest neighbors ');
   s=s.replace(/\bl\s*[_ ]?\s*([12])\b(?=\s*(norm|regulari|penalt|distance|loss|-?regularized))/g,' l$1 ');
   s=s.replace(/\bl\s*-?\s*(infinity|inf)\b/g,' linf max norm ').replace(/\bl\s*p\s+norm\b/g,' lp norm ');
@@ -578,11 +582,13 @@ function buildIndex(){
   N=docs.length; avgdl=tot/Math.max(1,N); VOCAB=[...df.keys()];
 }
 function idf(t){ const n=df.get(t)||0; return Math.log(1+(N-n+0.5)/(n+0.5)); }
-const SYN={}; const SYNRAW=D.meta.synonyms||{};
+const SYN={}; const DBS={};   /* DBS: imported databases by file id; their synonyms join the course's */
+function rebuildSyn(){ for(const k in SYN) delete SYN[k];
+  [D.meta.synonyms||{},...Object.values(DBS).map(db=>db.syn||{})].forEach(raw=>{ for(const k in raw){ SYN[k]=raw[k]; SYN[stem(k)]=raw[k]; } }); }
 function levenshtein(a,b,max){ if(Math.abs(a.length-b.length)>max) return max+1; const v=new Array(b.length+1); for(let j=0;j<=b.length;j++) v[j]=j;
   for(let i=1;i<=a.length;i++){ let prev=v[0]; v[0]=i; let rowMin=v[0]; for(let j=1;j<=b.length;j++){ const tmp=v[j]; v[j]=Math.min(v[j]+1,v[j-1]+1,prev+(a[i-1]===b[j-1]?0:1)); prev=tmp; if(v[j]<rowMin) rowMin=v[j]; } if(rowMin>max) return max+1; }
   return v[b.length]; }
-for(const k in SYNRAW){ SYN[k]=SYNRAW[k]; SYN[stem(k)]=SYNRAW[k]; }
+rebuildSyn();
 function expand(qtoks){
   const m=new Map(); const groups=[];
   qtoks.forEach((t,gi)=>{
@@ -668,7 +674,8 @@ const lazyObs=('IntersectionObserver' in window)?new IntersectionObserver(es=>{e
 function loadLazy(im){ if(im.dataset.id) setSlideImg(im,im.dataset.id,320); else if(im.dataset.bk) renderToURL('book:'+im.dataset.bk,+im.dataset.pg,200).then(u=>{im.src=u;}).catch(()=>{im.remove();}); }
 function lazy(container){ container.querySelectorAll('img[data-id],img[data-bk]').forEach(im=>{ if(lazyObs) lazyObs.observe(im); else loadLazy(im); }); }
 
-function bookChip(ref){ if(!ref||!BOOK[ref.book]) return ''; const b=BOOK[ref.book]; return `<button class="ref book" type="button" data-book="${esc(ref.book)}" data-page="${ref.pdf}" title="Open ${esc(b.title)} at this page">${esc(b.short)} ${esc(ref.label?('p. '+ref.label):('PDF p. '+ref.pdf))}</button>`; }
+function bookChip(ref){ if(ref&&ref.txt&&!BOOK[ref.book]) return `<span class="ref static">${esc(ref.txt)}</span>`;   /* a page reference with no book PDF to open */
+  if(!ref||!BOOK[ref.book]) return ''; const b=BOOK[ref.book]; return `<button class="ref book" type="button" data-book="${esc(ref.book)}" data-page="${ref.pdf}" title="Open ${esc(b.title)} at this page">${esc(b.short)} ${esc(ref.label?('p. '+ref.label):('PDF p. '+ref.pdf))}</button>`; }
 function refChips(refs,tb){
   let h=(refs||[]).filter(r=>SL[r]).map(r=>`<button class="ref" type="button" data-slide="${esc(r)}" title="${esc(SL[r].title)}">${esc(slideLabel(r))}</button>`).join('');
   h+=bookChip(tb);
@@ -795,8 +802,9 @@ function showProj(){
   else if(d.type==='tb') head=`<h2>${esc(o.sec)}</h2><p class="meta">${esc(o.ch)}</p><p class="pdef">${highlight(o.notes,lastTerms)}</p>`;
   else if(d.type==='qa') head=`<h2>${esc(o.q)}</h2><p class="pdef">${highlight(o.a,lastTerms)}</p><p class="meta">${esc(o.src)}</p>`;
   const tabs=[...refs.map((r,i)=>`<button class="ref" type="button" data-pr="s:${esc(r)}" aria-current="${i===0}">${esc(slideLabel(r))}</button>`),
-    ...(tb&&BOOK[tb.book]?[`<button class="ref book" type="button" data-pr="b:${esc(tb.book)}:${tb.pdf}" aria-current="${refs.length===0}">${esc(BOOK[tb.book].short)} ${esc(tb.label?'p. '+tb.label:'PDF p. '+tb.pdf)}</button>`]:[])];
-  projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)">${head}${tabs.length?`<div class="reftabs">${tabs.join('')}</div>`:''}</div><div id="projslide">${refs.length?slidePanel(refs[0],lastTerms):(tb&&BOOK[tb.book]?bookPanel(tb.book,tb.pdf,lastTerms):'<div class="noimg">No slide or book page linked to this item.</div>')}</div>`;
+    ...(tb&&BOOK[tb.book]?[`<button class="ref book" type="button" data-pr="b:${esc(tb.book)}:${tb.pdf}" aria-current="${refs.length===0}">${esc(BOOK[tb.book].short)} ${esc(tb.label?'p. '+tb.label:'PDF p. '+tb.pdf)}</button>`]:[]),
+    ...(tb&&tb.txt&&!BOOK[tb.book]?[bookChip(tb)]:[])];
+  projEl.innerHTML=`<div class="pbody" style="border-bottom:1px solid var(--rule)">${head}${tabs.length?`<div class="reftabs">${tabs.join('')}</div>`:''}</div><div id="projslide">${refs.length?slidePanel(refs[0],lastTerms):(tb&&BOOK[tb.book]?bookPanel(tb.book,tb.pdf,lastTerms):`<div class="noimg">${tb&&tb.txt?'No lecture slide for this item; it comes from the textbook ('+esc(tb.txt)+').':'No slide or book page linked to this item.'}</div>`)}</div>`;
   fillPanelImages(projEl);
 }
 let projReveal=!!CBSET.S.showAnswers;
@@ -954,10 +962,11 @@ document.addEventListener('keydown',e=>{
 
 /* ================= tabs / views ================= */
 let view='search'; const built={};
+const BUILT_ONCE={formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph};   /* rebuilt only after files change */
 function showView(v){ view=v; document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.v===v)));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   if(v==='settings') $('#setbtn').setAttribute('aria-current','page'); else $('#setbtn').removeAttribute('aria-current');
-  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(v==='qs') renderQs(); else if(v==='notes') renderNotes(); else if(v==='settings') renderSettings(); else if(!built[v]){ ({formulas:renderFormulas,trivia:renderTrivia,numbers:renderNumbers,emph:renderEmph}[v]||(()=>{}))(); built[v]=1; }
+  if(v==='browse') renderBrowse(); else if(v==='add') renderFiles(); else if(v==='tb') renderTB(); else if(v==='qs') renderQs(); else if(v==='notes') renderNotes(); else if(v==='settings') renderSettings(); else if(!built[v]&&BUILT_ONCE[v]){ BUILT_ONCE[v](); built[v]=1; }
   window.scrollTo(0,0); }
 document.querySelector('.tabs').addEventListener('click',e=>{const t=e.target.closest('.tab'); if(t) showView(t.dataset.v);});
 function updateTabs(){
@@ -1047,12 +1056,69 @@ const FILES=[];        // files of the active class: the stored record plus {sta
 const REC=new Map();   // every stored file record, all classes (no bytes)
 const QS={};           // question-set file id -> {id,short,title,list:[question]}
 let CLASSES=[], activeCls=null, SEED=null;
-const fileTitle=f=>f.name.replace(/\.pdf$/i,'');
+const fileTitle=f=>f.name.replace(/\.(pdf|html?)$/i,'');
 function newClass(name){ return {id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name,created:Date.now()}; }
 const curClass=()=>CLASSES.find(c=>c.id===activeCls)||CLASSES[0];
-function saveRec(f){ const r={id:f.id,name:f.name,kind:f.kind,cls:f.cls,pages:f.pages,toc:f.toc||[],added:f.added||Date.now(),emphV:f.emphV}; REC.set(f.id,r); return idbPut(r); }
+function saveRec(f){ const r={id:f.id,name:f.name,kind:f.kind,cls:f.cls,pages:f.pages,toc:f.toc||[],added:f.added||Date.now(),emphV:f.emphV,textV:f.textV}; if(f.db) r.db=f.db; REC.set(f.id,r); return idbPut(r); }
+
+/* ---------- imported databases ---------- */
+/* An exam reference page (an older database, or a course build from build.py) can be added like a PDF. Its data
+   (`const D=...`) and slide images are read out of the page and merged into this one: slides, definitions,
+   formulas, names and dates, key numbers, the book index, Q&A and search synonyms. Ids get the file id as a
+   prefix, so two databases never collide. In storage, the record keeps the data (f.db) and 'bytes' keeps
+   {imgs: slide id -> WebP base64, books: book id -> PDF ArrayBuffer}. */
+const DBKEYS=['defs','formulas','trivia','numbers','tb','qa'];
+function scriptBody(html,marker){ const i=html.indexOf(marker); if(i<0) return null; const s=i+marker.length; const e=html.indexOf('<\/script>',s); return e<0?null:html.slice(s,e); }
+function parseDbPage(html,fid){
+  const raw=scriptBody(html,'<script>const D=');
+  if(raw==null) throw new Error('this page has no Class Base data in it');
+  const d=JSON.parse(raw.trim().replace(/;$/,''));
+  if(!d||!Array.isArray(d.slides)||!Array.isArray(d.defs)) throw new Error('this page has no Class Base data in it');
+  if(!d.slides.length&&!d.defs.length&&!d.formulas.length) throw new Error('this page holds no slides or notes of its own (a Download for offline copy keeps its files as PDFs; add those instead)');
+  const P=fid+'_', pre=r=>P+r, refs=a=>(a||[]).map(pre);
+  const bookIds=new Set((d.books||[]).map(b=>b.id));
+  /* page references: a course build's {book,pdf,label}; an older database's {p,pdf} has no book to open */
+  const ref=t=>{ if(!t) return null; if(t.book) return bookIds.has(t.book)?{...t,book:P+t.book}:{txt:'Book '+(t.label?'p. '+t.label:'PDF p. '+t.pdf)};
+    if(t.p!=null) return {txt:t.p==='Preface'?'Textbook preface':'Textbook p. '+t.p+(t.pdf?' (PDF p. '+t.pdf+')':'')}; return null; };
+  let syn=d.meta&&d.meta.synonyms;
+  if(!syn||!Object.keys(syn).length){   /* older databases kept their synonyms in the script as a JS object */
+    const m=/const SYN=(\{[\s\S]*?\});/.exec(html);
+    try{ syn=m?JSON.parse(m[1].replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g,'$1"$2":').replace(/'/g,'"')):{}; }catch(e){ syn={}; } }
+  const db={title:(d.meta&&d.meta.title)||'',syn,
+    decks:d.decks.map(k=>({id:P+k.id,short:k.short,title:k.title})),
+    slides:d.slides.map(s=>({id:P+s.id,deck:P+s.deck,n:s.n,title:s.title||'',text:s.text||'',ocr:s.ocr||'',emph:s.emph||[],fig:!!s.fig,cap:s.cap||'',cited:s.cited||[]})),
+    books:(d.books||[]).map(b=>({id:P+b.id,short:b.short,title:b.title,file:b.file,toc:b.toc||[],pages:b.pages})),
+    defs:d.defs.map(x=>({t:x.t,a:x.a||[],d:x.d||'',refs:refs(x.refs),tb:ref(x.tb),topic:x.topic||''})),
+    formulas:(d.formulas||[]).map(x=>({g:x.g||'',name:x.name,tex:x.tex||'',mml0:x.mml||'',note:x.note||'',refs:refs(x.refs),tb:ref(x.tb)})),
+    trivia:(d.trivia||[]).map(x=>({when:x.when||'',who:x.who,fact:x.fact||'',refs:refs(x.refs),tb:ref(x.tb)})),
+    numbers:(d.numbers||[]).map(x=>({item:x.item,val:x.val||'',refs:refs(x.refs),tb:ref(x.tb)})),
+    tb:(d.tb||[]).map(x=>({ch:/^\d+$/.test(String(x.ch))?'Chapter '+x.ch:(x.ch||''),sec:x.sec||'',notes:x.notes||'',tags:x.tags||'',ref:x.ref?ref(x.ref):ref(x)})),
+    qa:(d.qa||[]).map(x=>({q:x.q,a:x.a||'',src:x.src||'',ref:ref(x.ref)}))};
+  const imgs={}; try{ const im=JSON.parse(scriptBody(html,'id="imgdata">')||'{}'); for(const k in im) imgs[P+k]=im[k]; }catch(e){}
+  const books={}; (d.books||[]).forEach(b=>{ const t=scriptBody(html,`id="book-${b.id}">`); if(t&&t.trim()) books[P+b.id]=b64ToBytes(t.trim()).buffer; });
+  return {db,store:{imgs,books}};
+}
+function registerDb(f){
+  const db=f.db; DBS[f.id]=db;
+  db.decks.forEach(k=>registerDeck({...k})); db.slides.forEach(registerSlide);
+  db.books.forEach(b=>{ BOOK[b.id]={...b,embedded:false,pages:b.pages.map((p,i)=>({n:i+1,label:p.label||'',ch:p.ch||'',sec:p.sec||'',text:p.text||''}))};
+    SRC['book:'+b.id]=()=>memBytes['book:'+b.id]?new Uint8Array(memBytes['book:'+b.id].slice(0)):null; });
+  DBKEYS.forEach(k=>db[k].forEach(o=>{ o._f=f.id; D[k].push(o); }));
+  db.formulas.forEach(x=>{ if(!x.mml) texToMml(x); });
+  rebuildSyn();
+}
+function unregisterDb(f){
+  const db=DBS[f.id]; if(!db) return; delete DBS[f.id];
+  db.decks.forEach(k=>{ delete DECK[k.id]; delete deckCount[k.id]; }); db.slides.forEach(s=>{ delete SL[s.id]; delete DBIMG[s.id]; });
+  db.books.forEach(b=>{ delete BOOK[b.id]; delete SRC['book:'+b.id]; delete memBytes['book:'+b.id]; if(pdfDocs['book:'+b.id]) pdfDocs['book:'+b.id].then(x=>x.destroy()).catch(()=>{}); delete pdfDocs['book:'+b.id]; });
+  DBKEYS.forEach(k=>{ D[k]=D[k].filter(o=>o._f!==f.id); });
+  rebuildSyn();
+}
+function dbStatus(f){ const db=f.db, c=(n,w)=>n?`${n} ${w}${n===1?'':'s'}`:'';
+  return [c(db.slides.length,'slide'),c(db.defs.length,'definition'),c(db.formulas.length,'formula'),(db.trivia.length?db.trivia.length+' names and dates':''),c(db.numbers.length,'key number'),c(db.books.length,'book')].filter(Boolean).join(', ')+' imported'; }
 
 function registerFile(f){
+  if(f.kind==='db'){ registerDb(f); return; }
   const title=fileTitle(f), short=title.slice(0,16);
   if(f.kind==='slides'){
     registerDeck({id:f.id,short,title,user:true});
@@ -1066,19 +1132,24 @@ function registerFile(f){
   SRC['deck:'+f.id]=()=>memBytes['deck:'+f.id]?new Uint8Array(memBytes['deck:'+f.id].slice(0)):null;
 }
 function unregisterFile(f){
+  if(f.kind==='db'){ unregisterDb(f); return; }
   if(DECK[f.id]){ Object.keys(SL).filter(k=>SL[k].deck===f.id).forEach(k=>delete SL[k]); delete DECK[f.id]; delete deckCount[f.id]; }
   delete BOOK[f.id]; delete QS[f.id]; delete NOTES[f.id];
   ['deck:','book:'].forEach(p=>{ if(pdfDocs[p+f.id]) pdfDocs[p+f.id].then(d=>d.destroy()).catch(()=>{}); delete pdfDocs[p+f.id]; });
 }
 function afterFilesChanged(){
-  buildIndex(); fillDeckSelect(); updateTabs(); delete built.emph;
+  buildIndex(); fillDeckSelect(); updateTabs(); for(const k in BUILT_ONCE) delete built[k];
   const tab=document.querySelector(`.tab[data-v="${view}"]`);
   if(tab&&tab.hidden) showView('search');
-  else if(view==='add') renderFiles(); else if(view==='qs') renderQs(); else if(view==='notes') renderNotes(); else if(view==='browse') renderBrowse(); else if(view==='tb') renderTB(); else if(view==='emph'){ renderEmph(); built.emph=1; }
+  else if(view==='add') renderFiles(); else if(view==='qs') renderQs(); else if(view==='notes') renderNotes(); else if(view==='browse') renderBrowse(); else if(view==='tb') renderTB(); else if(BUILT_ONCE[view]){ BUILT_ONCE[view](); built[view]=1; }
   renderClassBar(); run();
 }
-function setBytes(f,buf){ memBytes['deck:'+f.id]=buf; memBytes['book:'+f.id]=buf; }
+function setBytes(f,buf){
+  if(f.kind==='db'){ memBytes['db:'+f.id]=buf; Object.assign(DBIMG,buf.imgs||{}); for(const b in buf.books||{}) memBytes['book:'+b]=buf.books[b]; return; }
+  memBytes['deck:'+f.id]=buf; memBytes['book:'+f.id]=buf; }
+function dropBytes(f){ delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; delete memBytes['db:'+f.id]; }
 function statusFor(f){
+  if(f.kind==='db') return dbStatus(f)+(f.seed?' · built into this file':'');
   const n=f.pages.length;
   let s;
   if(f.kind==='questions'){ const L=QS[f.id]?QS[f.id].list:[];
@@ -1092,6 +1163,29 @@ function statusFor(f){
 
 /* ---------- reading a PDF ---------- */
 const openPdf=buf=>pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0)),isEvalSupported:false,useSystemFonts:true,verbosity:0}).promise;
+/* PDF.js starts a new text item wherever the font or color changes, even inside a word ("Over" in bold, then
+   "fitting"). So items are joined by where they sit: nothing between two items that touch on the same line, a line
+   break after an item that ends a line, a space otherwise. TEXTV versions this; older files are redone in the background. */
+const TEXTV=2;
+function joinItems(items){
+  let out='', prev=null;
+  for(const it of items){
+    if(prev){ const gap=it.x-(prev.x+prev.w);
+      if(prev.eol) out+='\n'; else if(!(prev.h>0&&Math.abs(it.y-prev.y)<prev.h*0.5&&gap<prev.h*0.12&&gap>-prev.h*0.5)) out+=' '; }
+    out+=it.s; prev=it;
+  }
+  return out;
+}
+function pageText(tc,vp){
+  const items=[];
+  tc.items.forEach(it=>{ if('str' in it) items.push({s:it.str,h:Math.hypot(it.transform[2],it.transform[3]),y:it.transform[5],x:it.transform[4],w:it.width||0,eol:!!it.hasEOL}); });
+  const text=joinItems(items);
+  let title='';
+  const top=items.filter(o=>o.s.trim()&&o.y>vp.height*0.62);
+  if(top.length){ const mx=Math.max(...top.map(o=>o.h)); title=joinItems(top.filter(o=>o.h>=mx-0.6).sort((a,b)=>b.y-a.y||a.x-b.x).map(o=>({...o,eol:false}))).replace(/\s+/g,' ').trim(); }
+  if(!title){ title=(text.split('\n').find(l=>l.trim())||'').trim(); }
+  return {text:text.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim(),title:title.slice(0,120)};
+}
 async function extractPdf(f,buf){
   const pdf=await openPdf(buf);
   const p1=await pdf.getPage(1); const v=p1.getViewport({scale:1}); const wide=v.width>v.height;
@@ -1099,18 +1193,13 @@ async function extractPdf(f,buf){
   f.toc=toc; f.pages=[];
   for(let i=1;i<=pdf.numPages;i++){
     const page=await pdf.getPage(i); const vp=page.getViewport({scale:1}); const tc=await page.getTextContent();
-    let text='', items=[];
-    tc.items.forEach(it=>{ if(!('str' in it)) return; text+=it.str+(it.hasEOL?'\n':' '); const h=Math.hypot(it.transform[2],it.transform[3]); items.push({s:it.str,h,y:it.transform[5],x:it.transform[4]}); });
-    let title='';
-    const top=items.filter(o=>o.s.trim()&&o.y>vp.height*0.62);
-    if(top.length){ const mx=Math.max(...top.map(o=>o.h)); title=top.filter(o=>o.h>=mx-0.6).sort((a,b)=>b.y-a.y||a.x-b.x).map(o=>o.s).join(' ').replace(/\s+/g,' ').trim(); }
-    if(!title){ title=(text.split('\n').find(l=>l.trim())||'').trim(); }
-    const pg={text:text.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim(),title:title.slice(0,120)};
+    const pg=pageText(tc,vp);
     if(wide) pg.emph=await pageEmphasis(page,tc,vp);   // landscape = probably slides
     f.pages.push(pg);
     f.progress=i/pdf.numPages; if(i%5===0||i===pdf.numPages) drawProgress(f);
   }
   if(wide) f.emphV=EMPHV;
+  f.textV=TEXTV;
   pdf.destroy();
   if(!f.kind) f.kind=guessKind(f,wide);
 }
@@ -1192,14 +1281,17 @@ async function pageEmphasis(page,tc,vp){
   }
   return out;
 }
-/* files added before emphasis detection existed get it in the background */
-async function ensureEmphasis(f){
-  if(f.kind!=='slides'||f.emphV===EMPHV||f.seed||!hasPdf||!memBytes['deck:'+f.id]) return;
+/* files read by an older version (before emphasis detection, or before TEXTV's text joining) are redone in the background */
+async function refreshFile(f){
+  const needText=f.textV!==TEXTV, needEmph=f.kind==='slides'&&f.emphV!==EMPHV;
+  if(f.kind==='db'||(!needText&&!needEmph)||f.seed||!hasPdf||!memBytes['deck:'+f.id]) return;
   try{
     const pdf=await openPdf(memBytes['deck:'+f.id]);
-    for(let i=1;i<=Math.min(pdf.numPages,f.pages.length);i++){ const page=await pdf.getPage(i); f.pages[i-1].emph=await pageEmphasis(page,await page.getTextContent(),page.getViewport({scale:1})); }
-    pdf.destroy(); f.emphV=EMPHV; saveRec(f).catch(()=>{});
-    if(FILES.includes(f)&&f.kind==='slides'){ unregisterFile(f); registerFile(f); f.status=statusFor(f); afterFilesChanged(); }
+    for(let i=1;i<=Math.min(pdf.numPages,f.pages.length);i++){ const page=await pdf.getPage(i), tc=await page.getTextContent(), vp=page.getViewport({scale:1});
+      if(needText) Object.assign(f.pages[i-1],pageText(tc,vp));
+      if(needEmph) f.pages[i-1].emph=await pageEmphasis(page,tc,vp); }
+    pdf.destroy(); if(needText) f.textV=TEXTV; if(needEmph) f.emphV=EMPHV; saveRec(f).catch(()=>{});
+    if(FILES.includes(f)){ unregisterFile(f); registerFile(f); f.status=statusFor(f); afterFilesChanged(); }
   }catch(e){}
 }
 
@@ -1373,22 +1465,26 @@ $('#v-qs').addEventListener('click',e=>{
 });
 
 /* ---------- adding, switching kind, removing ---------- */
+const isPdf=f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf', isHtml=f=>/\.html?$/i.test(f.name)||f.type==='text/html';
 async function addFiles(list){
-  if(!hasPdf){ alert('The PDF library is missing from this file, so PDFs can\'t be added.'); return; }
-  const pdfs=[...list].filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
+  const pdfs=[...list].filter(f=>isPdf(f)||isHtml(f));
   if(!pdfs.length) return;
+  if(!hasPdf&&pdfs.some(isPdf)){ alert('The PDF library is missing from this file, so PDFs can\'t be added.'); return; }
   showView('add'); const cls=activeCls;
   for(const file of pdfs){
     const f={id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name,kind:null,cls,pages:[],added:Date.now(),status:'Reading…',progress:0};
     FILES.push(f); renderFiles();
     try{
-      const buf=await file.arrayBuffer(); f.status='Extracting text…'; renderFiles();
-      await extractPdf(f,buf);
+      let buf;
+      if(isHtml(file)){   /* an exam reference page: import its data (see "imported databases") */
+        if(FILES.some(x=>x!==f&&x.kind==='db'&&x.name===file.name&&!x.failed)) throw new Error('it is already in this class');
+        const {db,store}=parseDbPage(await file.text(),f.id); f.kind='db'; f.db=db; f.progress=1; buf=store;
+      } else { buf=await file.arrayBuffer(); f.status='Extracting text…'; renderFiles(); await extractPdf(f,buf); }
       if(activeCls===cls){ setBytes(f,buf); registerFile(f); }
       f.status=statusFor(f);
       try{ await saveRec(f); await bytesPut(f.id,buf); }catch(e){ storageOK=false; }
       if(HOSTED&&navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{});
-    }catch(err){ f.status='Could not read this PDF: '+(err&&err.message||err); f.failed=true; }
+    }catch(err){ f.status='Could not read this '+(isHtml(file)?'page':'PDF')+': '+(err&&err.message||err); f.failed=true; }
     if(activeCls===cls) afterFilesChanged(); else renderClassBar();
   }
 }
@@ -1404,9 +1500,9 @@ function renderFiles(){
   FILES.forEach(drawProgress);
 }
 $('#flist').addEventListener('change',e=>{ const s=e.target.closest('[data-kind]'); if(!s) return; const f=FILES.find(x=>x.id===s.dataset.kind); if(!f) return;
-  unregisterFile(f); f.kind=s.value; registerFile(f); f.status=statusFor(f); if(!f.seed) saveRec(f).catch(()=>{}); afterFilesChanged(); ensureEmphasis(f); });
+  unregisterFile(f); f.kind=s.value; registerFile(f); f.status=statusFor(f); if(!f.seed) saveRec(f).catch(()=>{}); afterFilesChanged(); refreshFile(f); });
 $('#flist').addEventListener('click',async e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; const i=FILES.findIndex(x=>x.id===b.dataset.rm); if(i<0) return; const f=FILES[i];
-  unregisterFile(f); FILES.splice(i,1); delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; REC.delete(f.id);
+  unregisterFile(f); FILES.splice(i,1); dropBytes(f); REC.delete(f.id);
   try{ await idbDel(f.id); await idbDel(f.id,'bytes'); }catch(e){} afterFilesChanged(); });
 const drop=$('#drop'), finp=$('#fileinp');
 drop.addEventListener('click',()=>finp.click());
@@ -1435,7 +1531,7 @@ function renderClassEdit(){
 async function switchClass(id){
   const token=(switchClass.n=(switchClass.n||0)+1);
   if(!CLASSES.some(c=>c.id===id)) id=CLASSES[0].id;
-  FILES.forEach(f=>{ unregisterFile(f); delete memBytes['deck:'+f.id]; delete memBytes['book:'+f.id]; });
+  FILES.forEach(f=>{ unregisterFile(f); dropBytes(f); });
   FILES.length=0; activeCls=id; deckF=''; revealed.clear();
   try{ localStorage.setItem('classbase-class',id); }catch(e){}
   renderClassBar();
@@ -1446,7 +1542,7 @@ async function switchClass(id){
   if(token!==switchClass.n) return;   /* another switch started meanwhile */
   list.forEach((f,i)=>{ f.progress=1; if(bufs[i]) setBytes(f,bufs[i]); registerFile(f); f.status=statusFor(f); FILES.push(f); });
   filesReady=true; afterFilesChanged();
-  for(const f of FILES.slice()) await ensureEmphasis(f);
+  for(const f of FILES.slice()) await refreshFile(f);
 }
 $('#classbar').addEventListener('click',async e=>{
   const b=e.target.closest('[data-cls]'); if(b){ if(b.dataset.cls!==activeCls) await switchClass(b.dataset.cls); return; }
@@ -1469,7 +1565,9 @@ $('#clsdel').addEventListener('click',async()=>{ const c=curClass(); if(!c) retu
 async function startFiles(){
   /* a "Download for offline" copy carries its class's files inside the page */
   try{ const el=document.getElementById('seedfiles'); if(el) SEED=JSON.parse(el.textContent); }catch(e){ SEED=null; }
-  if(SEED) SEED.files.forEach(s=>{ s.seed=true; s.cls=SEED.cls.id; s.buf=b64ToBytes(s.b64).buffer; delete s.b64; });
+  if(SEED) SEED.files.forEach(s=>{ s.seed=true; s.cls=SEED.cls.id;
+    if(s.kind==='db'){ const books={}; for(const b in s.books||{}) books[b]=b64ToBytes(s.books[b]).buffer; s.buf={imgs:s.imgs||{},books}; delete s.imgs; delete s.books; }
+    else{ s.buf=b64ToBytes(s.b64).buffer; delete s.b64; } });
   let cls=[], recs=[];
   try{ [cls,recs]=await Promise.all([idbAll('classes'),idbAll('files')]); }catch(e){ storageOK=false; }
   cls=(cls||[]).sort((a,b)=>(a.created||0)-(b.created||0));
@@ -1495,8 +1593,11 @@ async function downloadOffline(){
     const html=await res.text(), at=html.indexOf('<script>const D=');
     if(at<0) throw new Error('unexpected page contents');
     const c=curClass(), files=[];
-    for(const f of FILES){ if(f.failed||!memBytes['deck:'+f.id]) continue;
-      files.push({id:f.id,name:f.name,kind:f.kind,pages:f.pages,toc:f.toc||[],emphV:f.emphV,b64:await bufToB64(memBytes['deck:'+f.id])}); }
+    for(const f of FILES){ if(f.failed) continue;
+      if(f.kind==='db'){ const st=memBytes['db:'+f.id]; if(!st) continue; const books={}; for(const b in st.books) books[b]=await bufToB64(st.books[b]);
+        files.push({id:f.id,name:f.name,kind:'db',pages:[],db:f.db,imgs:st.imgs,books}); continue; }
+      if(!memBytes['deck:'+f.id]) continue;
+      files.push({id:f.id,name:f.name,kind:f.kind,pages:f.pages,toc:f.toc||[],emphV:f.emphV,textV:f.textV,b64:await bufToB64(memBytes['deck:'+f.id])}); }
     const seed=files.length?'<script type="application/json" id="seedfiles">'+JSON.stringify({v:1,cls:{id:c.id,name:c.name},files}).replace(/</g,'\\u003c')+'<\/script>\n':'';
     const name=(files.length?c.name.replace(/[\\/:*?"<>|]+/g,' ').trim()+' - ':'')+'Class Base.html';
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html.slice(0,at),seed,html.slice(at)],{type:'text/html'})); a.download=name;
@@ -1522,6 +1623,7 @@ const SETTINGS_UI=[
     {key:'showAnswers',label:'Show answers right away',desc:'Off hides each answer until you click Show answer.',type:'switch'}]}
 ];
 const VERSIONS=[
+  ['1.0.3','Add an exam reference page (.html) made with Class Base to bring in its formula sheet, definitions, names and dates, key numbers and slide images. Search finds words that are partly bold or colored on a slide, and words split by a hyphen at a line break; PDFs you added earlier are re-read once in the background.'],
   ['1.0.2','The Quiz Qrusher look, with Settings behind the cog: theme, accent color, text size, line spacing and font. Note sheets: notes and cheat sheets are searched passage by passage instead of being read as question sets. A \u2039 next to the name goes back to the study apps homepage.'],
   ['1.0.1','Classes, Download for offline, emphasis detection on added slides, and question sets with practice questions.'],
   ['1.0','The web app: add your own slides and textbooks and search them in your browser, offline.']];
