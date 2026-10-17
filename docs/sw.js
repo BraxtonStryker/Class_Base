@@ -9,7 +9,7 @@
  * - Added PDFs live in IndexedDB, not here; this worker never touches them.
  */
 "use strict";
-const VERSION = "96ca1ac5b3e1";
+const VERSION = "8d225ff815f8";
 const CACHE = "classBase-" + VERSION;
 const PRECACHE = [
   "./",
