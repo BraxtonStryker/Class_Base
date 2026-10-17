@@ -107,7 +107,7 @@ SITE_HEAD = """<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E7A4C" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161C25" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-title" content="InfoBase">
 <meta name="description" content="Search your lecture slides, textbooks and note sheets in seconds, offline. Your PDFs never leave your device.">"""
