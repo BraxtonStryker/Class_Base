@@ -109,7 +109,7 @@ SITE_HEAD = """<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161C25" media="(prefers-color-scheme: dark)">
-<meta name="apple-mobile-web-app-title" content="Class Base">
+<meta name="apple-mobile-web-app-title" content="InfoBase">
 <meta name="description" content="Search your lecture slides, textbooks and note sheets in seconds, offline. Your PDFs never leave your device.">"""
 
 
@@ -122,11 +122,13 @@ def write_site(out_dir, log=print):
     out_dir = Path(out_dir)
     site = WEB / "site"
     (out_dir / "icons").mkdir(parents=True, exist_ok=True)
+    # The app is called InfoBase now, but the data title stays "Class Base": the page derives the name of the
+    # IndexedDB database that holds visitors' added files from it, so changing it would lose their files.
     data = {"meta": {"title": "Class Base", "subtitle": "", "version": 2,
                      "synonyms": {}, "hosted": True},
             "decks": [], "slides": [], "books": [], "defs": [], "formulas": [], "trivia": [], "numbers": [],
             "tb": [], "qa": []}
-    html = render_html("Class Base", data, {}, head=SITE_HEAD)
+    html = render_html("InfoBase", data, {}, head=SITE_HEAD)
     (out_dir / "index.html").write_text(html, encoding="utf-8", newline="\n")  # LF on every OS: identical builds
     shutil.copyfile(site / "manifest.webmanifest", out_dir / "manifest.webmanifest")
     icons = sorted(f.name for f in (site / "icons").iterdir() if f.suffix == ".png" or f.name == "icon.svg")

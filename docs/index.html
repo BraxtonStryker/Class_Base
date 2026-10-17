@@ -3,19 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Class Base</title>
+<title>InfoBase</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161C25" media="(prefers-color-scheme: dark)">
-<meta name="apple-mobile-web-app-title" content="Class Base">
+<meta name="apple-mobile-web-app-title" content="InfoBase">
 <meta name="description" content="Search your lecture slides, textbooks and note sheets in seconds, offline. Your PDFs never leave your device.">
 <style>
 :root{
-  /* the same palette as Quiz Qrusher. The accent comes from Settings (applyLook) and defaults to Class Base green */
+  /* the same palette as QuizQrusher. The accent comes from Settings (applyLook) and defaults to InfoBase green */
   color-scheme:light;
+  --app-qq:#4338CA; --app-ib:#1E7A4C; --app-cc:#C2410C;   /* each study app's own color, for the app switcher */
   --paper:#EEF1F5; --panel:#FFFFFF; --ink:#131A24; --muted:#616B7A; --rule:#E2E7EE; --soft:#F6F8FB;
   --accent:#1E7A4C; --accent-hover:#17633D; --accent-soft:#E3F2EA; --on-accent:#FFFFFF;
   --hl:#FFE45C; --hl-ink:#131A24; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00; --teal:#0F766E;
@@ -32,6 +33,7 @@
     --accent:#6FD3A0; --accent-hover:#8FE0B6; --accent-soft:#13281E; --on-accent:#08160F;
     --hl:#E9C93A; --hl-ink:#0E1218; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
     --grid:rgba(232,236,242,.04); --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --shadow-sm:none; --knob:#F4F6FA;
+    --app-qq:#8B87FF; --app-ib:#6FD3A0; --app-cc:#FB923C;
   }
 }
 :root[data-theme="dark"]{
@@ -40,6 +42,7 @@
   --accent:#6FD3A0; --accent-hover:#8FE0B6; --accent-soft:#13281E; --on-accent:#08160F;
   --hl:#E9C93A; --hl-ink:#0E1218; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
   --grid:rgba(232,236,242,.04); --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --shadow-sm:none; --knob:#F4F6FA;
+  --app-qq:#8B87FF; --app-ib:#6FD3A0; --app-cc:#FB923C;
 }
 /* Settings > Font (Atkinson Hyperlegible is inlined from web/vendor/atkinson.css) */
 /* Atkinson Hyperlegible: Copyright 2020 Braille Institute of America, Inc., SIL Open Font License 1.1
@@ -67,9 +70,24 @@ a{color:var(--accent)}
 .brand h1 span{color:var(--accent)}
 .brand p{margin:0;color:var(--muted);font-size:calc(13px * var(--fs))}
 .brand .sp{flex:1}
-.homeback{display:inline-grid;place-items:center;width:24px;height:32px;margin:0 -8px 0 -8px;color:var(--muted);border-radius:6px;text-decoration:none}
-.homeback:hover{color:var(--ink);background:var(--soft)}
-.homeback svg{width:18px;height:18px}
+/* app switcher (hosted only): the down arrow before the name opens a menu of the study apps, with Home last (was a "<" link to the homepage) */
+.appsw{position:relative;display:flex;align-items:center;margin:0 -8px}
+.appsw-btn{display:inline-grid;place-items:center;width:26px;height:32px;padding:0;background:none;border:0;color:var(--muted);border-radius:6px;cursor:pointer}
+.appsw-btn:hover,.appsw-btn[aria-expanded="true"]{color:var(--ink);background:var(--soft)}
+.appsw-btn svg{width:18px;height:18px;transition:transform .15s ease}
+.appsw-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.appsw-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:60;width:250px;max-width:calc(100vw - 24px);padding:6px;background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow)}
+.appsw-item{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:var(--radius-sm);color:var(--ink);text-decoration:none;font:750 calc(16.5px * var(--fs))/calc(1.3 * var(--lh)) var(--sans);letter-spacing:-.02em}
+.appsw-item:hover,.appsw-item:focus-visible{background:var(--soft)}
+.appsw-item svg{width:30px;height:30px;flex:none;border-radius:8px}
+.appsw-item b{font-weight:inherit}
+.appsw-item.qq b{color:var(--app-qq)} .appsw-item.ib b{color:var(--app-ib)} .appsw-item.cc b{color:var(--app-cc)}
+.appsw-item[aria-current="page"]::after{content:"";margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.appsw-home{display:flex;align-items:center;gap:12px;margin-top:6px;padding:9px 10px;border:1px solid var(--rule);border-radius:var(--radius-sm);background:var(--soft);color:var(--ink);text-decoration:none;font:650 calc(15px * var(--fs))/calc(1.3 * var(--lh)) var(--sans)}
+.appsw-home:hover,.appsw-home:focus-visible{border-color:var(--accent)}
+.appsw-home svg{width:30px;height:30px;flex:none;border-radius:8px;box-shadow:0 0 0 1px var(--rule)}
+.appsw-home small{display:block;font-size:calc(12.5px * var(--fs));font-weight:500;color:var(--muted)}
+.beta{font-size:calc(11px * var(--fs));font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:999px;padding:1px 8px;margin-left:-4px}
 .iconbtn{border:1px solid var(--rule);background:var(--panel);border-radius:var(--radius-sm);padding:6px 12px;cursor:pointer;font-size:calc(13.5px * var(--fs));font-weight:600;color:var(--ink)}
 .iconbtn:hover{background:var(--soft)}
 .cog{display:inline-grid;place-items:center;width:36px;height:36px;border:0;background:none;border-radius:var(--radius-sm);color:var(--muted);cursor:pointer;padding:0}
@@ -272,7 +290,7 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
 .welcome .btn{padding:7px 14px}
 .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:70;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:var(--radius-sm);padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);font-size:calc(14px * var(--fs));max-width:calc(100vw - 32px)}
 .toast button{border:0;background:var(--accent);color:var(--on-accent);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;font-weight:600}
-/* ---------- settings (same layout as Quiz Qrusher's) ---------- */
+/* ---------- settings (same layout as QuizQrusher's) ---------- */
 .setwrap{max-width:760px}
 .set-section{background:var(--panel);border:1px solid var(--rule);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:16px;padding:6px 0}
 .set-section h3{font-size:calc(13px * var(--fs));padding:12px 20px 6px;margin:0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
@@ -309,11 +327,11 @@ td.when{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script>
-/* Settings, applied before the first paint. Kept in localStorage 'classbase-settings' (Quiz Qrusher shares this
+/* Settings, applied before the first paint. Kept in localStorage 'classbase-settings' (QuizQrusher shares this
    origin, so every key here starts with classbase-). Older versions kept only the theme, in 'studydb-theme'. */
 window.CBSET=(function(){
   "use strict";
-  /* accent presets: [accent, hover, soft, text on accent] for light and dark; the same as Quiz Qrusher's, plus Class Base green */
+  /* accent presets: [accent, hover, soft, text on accent] for light and dark; the same as QuizQrusher's, plus InfoBase green */
   const ACCENTS={
     green:{name:'Green',light:['#1E7A4C','#17633D','#E3F2EA','#FFFFFF'],dark:['#6FD3A0','#8FE0B6','#13281E','#08160F']},
     indigo:{name:'Indigo',light:['#4338CA','#372FB0','#ECEBFB','#FFFFFF'],dark:['#8B87FF','#A6A2FF','#23233A','#FFFFFF']},
@@ -352,8 +370,17 @@ window.CBSET=(function(){
 <header class="top">
  <div class="top-in">
   <div class="brand">
-   <a class="homeback" id="homeback" href="../" hidden aria-label="All study apps" title="All study apps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+   <div class="appsw" id="appsw" hidden>
+    <button class="appsw-btn" id="appsw-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="appsw-menu" aria-label="Switch study app" title="Study apps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="appsw-menu" id="appsw-menu" role="menu" aria-label="Study apps" hidden>
+     <a class="appsw-item qq" role="menuitem" href="../Quiz_Qrusher/"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swqq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5145E6"/><stop offset="1" stop-color="#3A31B8"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swqq)"/><g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"><circle cx="246" cy="240" r="153" stroke-width="50"/><path d="M368 336L430 378" stroke-width="54"/><path d="M190 244L232 288L304 200" stroke-width="34"/></g></svg><span>Quiz<b>Qrusher</b></span></a>
+     <a class="appsw-item ib" role="menuitem" href="../Class_Base/" aria-current="page"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#24935C"/><stop offset="1" stop-color="#16603B"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swib)"/><rect x="132" y="92" width="268" height="190" rx="24" fill="#FFFFFF" fill-opacity=".42"/><rect x="92" y="130" width="282" height="206" rx="26" fill="#FFFFFF"/><path d="M136 186H290M136 230H252M136 274H214" fill="none" stroke="#1B7047" stroke-width="22" stroke-linecap="round"/><circle cx="338" cy="326" r="70" fill="#1B7047" stroke="#FFFFFF" stroke-width="30"/><path d="M392 380L432 420" fill="none" stroke="#FFFFFF" stroke-width="42" stroke-linecap="round"/></svg><span>Info<b>Base</b></span></a>
+     <a class="appsw-item cc" role="menuitem" href="../CwikCard/"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset="1" stop-color="#B83A0A"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swcc)"/><rect x="168" y="92" width="232" height="300" rx="30" fill="#FFFFFF" fill-opacity=".42" transform="rotate(12 284 242)"/><g transform="rotate(-6 236 268)"><rect x="120" y="118" width="232" height="300" rx="30" fill="#FFFFFF"/><path d="M262 166L192 290H240L218 372L290 244H242Z" fill="#C2410C"/></g></svg><span>Cwik<b>Card</b></span></a>
+     <a class="appsw-home" role="menuitem" href="../"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#131A24"/><rect x="14" y="14" width="16" height="16" rx="4" fill="#5145E6"/><rect x="34" y="14" width="16" height="16" rx="4" fill="#24935C"/><rect x="14" y="34" width="36" height="16" rx="4" fill="#E8611A"/></svg><span>Home<small>All study apps</small></span></a>
+    </div>
+   </div>
    <h1 id="ttl"></h1>
+   <span class="beta" id="beta" hidden>Beta</span>
    <p id="sub"></p>
    <span class="sp"></span>
    <button class="iconbtn" id="dlbtn" type="button" hidden title="Save the app and this class's PDFs as one HTML file that opens without internet">Download<span class="wide"> for offline</span></button>
@@ -412,7 +439,7 @@ window.CBSET=(function(){
   <div class="clsedit" id="clsedit" hidden><label>Class name<input id="clsname" type="text" maxlength="60" autocomplete="off" spellcheck="false"></label><button class="btn" type="button" id="clsdel">Delete this class</button></div>
   <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose PDF files to add">
    <strong>Drop PDFs here, or click to choose</strong>
-   <p>An exam reference page made with Class Base (an <b>.html</b> database with its definitions and formula sheet) can be added here too.</p>
+   <p>An exam reference page made with InfoBase or Class Base (an <b>.html</b> database with its definitions and formula sheet) can be added here too.</p>
    <p>Text is extracted page by page; scanned PDFs without a text layer will be viewable but not searchable.</p>
    <input type="file" id="fileinp" accept="application/pdf,.pdf,text/html,.html,.htm" multiple hidden>
   </div>
@@ -422,7 +449,7 @@ window.CBSET=(function(){
 </main>
 
 <div class="dropcover" id="dropcover">Drop files to add them</div>
-<div class="toast" id="upd" role="status" hidden>A new version of Class Base is ready. <button type="button" id="upd-go">Reload</button></div>
+<div class="toast" id="upd" role="status" hidden>A new version of InfoBase is ready. <button type="button" id="upd-go">Reload</button></div>
 
 <div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Slide viewer">
  <div class="ov-bar">
@@ -512,10 +539,30 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
 const HOSTED=!!D.meta.hosted;   /* the GitHub Pages app (build.py --site): classes, offline download, service worker */
-const APP_VERSION='1.0.4';      /* shown in Settings; log each release in VERSIONS there */
-if(HOSTED&&D.meta.title==='Class Base') $('#ttl').innerHTML='Class <span>Base</span>'; else $('#ttl').textContent=D.meta.title;
+const APP_VERSION='1.1.0';      /* shown in Settings; log each release in VERSIONS there */
+/* The hosted app is called InfoBase (it was Class Base). Its data still says 'Class Base': that title is COURSE_KEY, which names
+   the IndexedDB database holding people's added files, so changing it would lose them. Only the name on screen changed. */
+if(HOSTED&&D.meta.title==='Class Base'){ $('#ttl').innerHTML='Info<span>Base</span>'; $('#beta').hidden=false; } else $('#ttl').textContent=D.meta.title;
 $('#sub').textContent=D.meta.subtitle||''; $('#sub').hidden=!D.meta.subtitle;
-$('#homeback').hidden=!(HOSTED&&/^https?:$/.test(location.protocol));   /* the study apps homepage is the site root, one level up */
+/* app switcher (hosted only): the other study apps and the homepage are sibling folders on the site, so it's hidden from file://
+   and in course builds */
+(function(){
+  if(!(HOSTED&&/^https?:$/.test(location.protocol))) return;
+  const wrap=$('#appsw'), btn=$('#appsw-btn'), menu=$('#appsw-menu'), items=()=>[...menu.querySelectorAll('a')];
+  const setOpen=(on,focus)=>{ menu.hidden=!on; btn.setAttribute('aria-expanded',String(on)); if(on&&focus) items()[0].focus(); };
+  wrap.hidden=false;
+  btn.addEventListener('click',()=>setOpen(menu.hidden,false));
+  btn.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){ e.preventDefault(); e.stopPropagation(); setOpen(true,true); } });
+  menu.addEventListener('keydown',e=>{ e.stopPropagation();   /* keep the search shortcuts (arrows, Enter, /) out of the menu */
+    const l=items(), i=l.indexOf(document.activeElement);
+    if(e.key==='ArrowDown'){ e.preventDefault(); l[(i+1)%l.length].focus(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); l[(i-1+l.length)%l.length].focus(); }
+    else if(e.key==='Home'){ e.preventDefault(); l[0].focus(); }
+    else if(e.key==='End'){ e.preventDefault(); l[l.length-1].focus(); }
+    else if(e.key==='Escape'){ e.preventDefault(); setOpen(false); btn.focus(); }
+    else if(e.key==='Tab') setOpen(false); });
+  document.addEventListener('click',e=>{ if(!wrap.contains(e.target)) setOpen(false); });
+})();
 
 /* formulas: LaTeX -> MathML in the browser (KaTeX, bundled) */
 const hasKatex=typeof katex!=='undefined';
@@ -1150,9 +1197,9 @@ const DBKEYS=['defs','formulas','trivia','numbers','tb','qa'];
 function scriptBody(html,marker){ const i=html.indexOf(marker); if(i<0) return null; const s=i+marker.length; const e=html.indexOf('<\/script>',s); return e<0?null:html.slice(s,e); }
 function parseDbPage(html,fid){
   const raw=scriptBody(html,'<script>const D=');
-  if(raw==null) throw new Error('this page has no Class Base data in it');
+  if(raw==null) throw new Error('this page has no InfoBase data in it');
   const d=JSON.parse(raw.trim().replace(/;$/,''));
-  if(!d||!Array.isArray(d.slides)||!Array.isArray(d.defs)) throw new Error('this page has no Class Base data in it');
+  if(!d||!Array.isArray(d.slides)||!Array.isArray(d.defs)) throw new Error('this page has no InfoBase data in it');
   if(!d.slides.length&&!d.defs.length&&!d.formulas.length) throw new Error('this page holds no slides or notes of its own (a Download for offline copy keeps its files as PDFs; add those instead)');
   const P=fid+'_', pre=r=>P+r, refs=a=>(a||[]).map(pre);
   const bookIds=new Set((d.books||[]).map(b=>b.id));
@@ -1678,7 +1725,7 @@ async function downloadOffline(){
       if(!memBytes['deck:'+f.id]) continue;
       files.push({id:f.id,name:f.name,kind:f.kind,pages:f.pages,toc:f.toc||[],emphV:f.emphV,textV:f.textV,b64:await bufToB64(memBytes['deck:'+f.id])}); }
     const seed=files.length?'<script type="application/json" id="seedfiles">'+JSON.stringify({v:1,cls:{id:c.id,name:c.name},files}).replace(/</g,'\\u003c')+'<\/script>\n':'';
-    const name=(files.length?c.name.replace(/[\\/:*?"<>|]+/g,' ').trim()+' - ':'')+'Class Base.html';
+    const name=(files.length?c.name.replace(/[\\/:*?"<>|]+/g,' ').trim()+' - ':'')+'InfoBase.html';
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html.slice(0,at),seed,html.slice(at)],{type:'text/html'})); a.download=name;
     document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },10000);
   }catch(e){ alert('Could not prepare the download: '+(e&&e.message||e)); }
@@ -1702,6 +1749,7 @@ const SETTINGS_UI=[
     {key:'showAnswers',label:'Show answers right away',desc:'Off hides each answer until you click Show answer.',type:'switch'}]}
 ];
 const VERSIONS=[
+  ['1.1.0','Class Base is now InfoBase (in beta): same app, same classes and files. The down arrow next to the name opens a menu of the study apps (QuizQrusher, InfoBase and the new CwikCard flashcards) with Home at the bottom.'],
   ['1.0.4','Short searches and "quoted phrases" keep words like true and false, so "true positive" finds and highlights both words. Matches in a definition’s other names are listed under it, and searched symbols are highlighted inside equations.'],
   ['1.0.3','Add an exam reference page (.html) made with Class Base to bring in its formula sheet, definitions, names and dates, key numbers and slide images. Search finds words that are partly bold or colored on a slide, and words split by a hyphen at a line break; PDFs you added earlier are re-read once in the background.'],
   ['1.0.2','The Quiz Qrusher look, with Settings behind the cog: theme, accent color, text size, line spacing and font. Note sheets: notes and cheat sheets are searched passage by passage instead of being read as question sets. A \u2039 next to the name goes back to the study apps homepage.'],
@@ -1727,7 +1775,7 @@ function settingCtl(r){
 }
 function renderSettings(){
   const el=$('#v-settings');
-  el.innerHTML=`<h2>Settings</h2><p class="lead">Class Base v${APP_VERSION}. Settings are saved in this browser${HOSTED?' and shared by all your classes':''}.</p>`;
+  el.innerHTML=`<h2>Settings</h2><p class="lead">InfoBase v${APP_VERSION}. Settings are saved in this browser${HOSTED?' and shared by all your classes':''}.</p>`;
   SETTINGS_UI.forEach(sec=>{ const card=document.createElement('div'); card.className='set-section'; card.innerHTML=`<h3>${esc(sec.title)}</h3>`;
     sec.rows.forEach(r=>card.appendChild(setRow(r.label,r.desc,settingCtl(r)))); el.appendChild(card); });
   const about=document.createElement('div'); about.className='set-section';

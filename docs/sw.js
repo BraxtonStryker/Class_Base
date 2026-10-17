@@ -1,4 +1,4 @@
-/* Class Base service worker. Keeps the hosted app working offline once it has been opened.
+/* InfoBase (formerly Class Base) service worker. Keeps the hosted app working offline once it has been opened.
  *
  * - Every file in PRECACHE is cached together under one version; requests for them are answered from that cache.
  * - VERSION is a hash of those files, written by `python build.py --site`. When any of them changes, this file
@@ -9,7 +9,7 @@
  * - Added PDFs live in IndexedDB, not here; this worker never touches them.
  */
 "use strict";
-const VERSION = "8baf62d46a06";
+const VERSION = "96ca1ac5b3e1";
 const CACHE = "classBase-" + VERSION;
 const PRECACHE = [
   "./",

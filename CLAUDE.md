@@ -1,4 +1,6 @@
-# Working on Class Base (instructions for Claude)
+# Working on InfoBase, formerly Class Base (instructions for Claude)
+
+**Naming (2026-10-16, v1.1.0):** the app is called **InfoBase** on screen, with a "Beta" tag next to the name in the hosted app's header (not in the study-app switcher or on the homepage). Only the displayed name changed. The repo (`Class_Base`), the URL (`/Class_Base/`), the hosted build's data title (`"Class Base"`, which `COURSE_KEY` turns into the IndexedDB name `studydb-Class_Base`), and the `classbase-`/`classBase-` storage and cache prefixes all stay, so people keep their added files and installs. Code comments and the history in `VERSIONS` may still say Class Base.
 
 This repo builds offline, searchable exam references from lecture slides and textbooks. The user is an EE student (strong in C, rusty in Python, on Windows) who uses the output HTML during open-book, multiple-choice exams. **The instructor pulls definitions and facts straight from the slides**, so fidelity to the slide wording matters more than elegance.
 
@@ -49,9 +51,9 @@ After changing `web/` or `studydb/assemble.py`, run `python build.py --site` and
 
 ## Versions and settings
 
-- The front end's version is `APP_VERSION` in `web/template.html` (v1.0.4 as of 2026-10-16), with a `VERSIONS` list shown in Settings under What's new. Bump both with each release of the web app.
-- The look matches Quiz Qrusher: the same color tokens, and an accent from Settings (default Class Base green). Settings live behind the cog (`SETTINGS_UI`, `renderSettings`) and are applied before first paint by the `CBSET` script in `<head>`. Font sizes are `calc(Npx * var(--fs))` and shorthand line heights `calc(N * var(--lh))`, so write new CSS the same way. The Atkinson Hyperlegible font comes from `web/vendor/atkinson.css`, inlined at `/*__ATKINSON__*/`.
-- The hosted app shows a "‹" link to the study apps homepage (`../`, the site root); it's hidden from `file://` and in course builds.
+- The front end's version is `APP_VERSION` in `web/template.html` (v1.1.0 as of 2026-10-16), with a `VERSIONS` list shown in Settings under What's new. Bump both with each release of the web app.
+- The look matches QuizQrusher: the same color tokens, and an accent from Settings (default InfoBase green). Settings live behind the cog (`SETTINGS_UI`, `renderSettings`) and are applied before first paint by the `CBSET` script in `<head>`. Font sizes are `calc(Npx * var(--fs))` and shorthand line heights `calc(N * var(--lh))`, so write new CSS the same way. The Atkinson Hyperlegible font comes from `web/vendor/atkinson.css`, inlined at `/*__ATKINSON__*/`.
+- The hosted app shows an app switcher before the name (v1.1.0, replacing the "‹" link): a down arrow that opens a menu of QuizQrusher, InfoBase and CwikCard (`../Quiz_Qrusher/`, `../Class_Base/`, `../CwikCard/`) with Home (`../`, the site root) last. It's hidden from `file://` and in course builds. QuizQrusher and CwikCard have the same menu; keep the three in step.
 
 ## Conventions
 

@@ -1,4 +1,4 @@
-# Class Base
+# InfoBase (formerly Class Base)
 
 Search a class's lecture slides and textbook (PDFs) in seconds during an open-book exam. Paste the key words of a question and jump straight to the slide or book page that answers it.
 
@@ -129,7 +129,7 @@ To try it locally: `py -m http.server 8000 -d docs`, then open http://localhost:
 What it does:
 
 - **Classes**: tabs above the search box. Each class has its own files; **+ New class** adds one, and the Add files tab renames or deletes it. Only the open class's PDFs are loaded into memory.
-- **Download for offline** (top bar) saves the app *plus the open class's PDFs* as one HTML file (`<class> - Class Base.html`). It opens from disk on any computer with no internet, so it's a good way to put a class on an exam laptop.
+- **Download for offline** (top bar) saves the app *plus the open class's PDFs* as one HTML file (`<class> - InfoBase.html`). It opens from disk on any computer with no internet, so it's a good way to put a class on an exam laptop.
 - **Emphasized on slides**: for slide decks, bold text (from the font) and red, blue or green text (from the drawing color) are picked up in the browser. Styles that cover most of a slide count as its normal text. Yellow highlighter boxes are still builder-only.
 - **Question sets**: a third kind of file next to slides and books, for practice exams and question lists. It understands numbered questions (`1.` `1)` `(1)` `Q1` `Q.1` `Question 1:` `Problem 1`), `Q:`/`A:` pairs, unnumbered questions ending in `?`, lettered options (`A.` `a)` `(a)`, on separate lines or inline, even when they wrap), numbered options in a different style from the questions, answers (`Answer: B`, `Ans - c`, `Correct answer is (d)`, `Solution: ...`, a `*` or `✓` on the right option) and answer keys (`1. B 2. D`, after an "Answer key" heading or as a run of lines). Questions are searchable, and the **Practice questions** tab shows each one with hidden answers and the slides and book pages that best match it.
 
