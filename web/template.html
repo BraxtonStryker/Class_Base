@@ -9,7 +9,7 @@
 :root{
   /* the same palette as QuizQrusher. The accent comes from Settings (applyLook) and defaults to InfoBase green */
   color-scheme:light;
-  --app-qq:#4338CA; --app-ib:#1E7A4C; --app-cc:#C2410C;   /* each study app's own color, for the app switcher */
+  --app-qq:#4338CA; --app-ib:#1E7A4C; --app-cc:#C2410C; --app-rd:#0F766E;   /* each study app's own color, for the app switcher */
   --paper:#EEF1F5; --panel:#FFFFFF; --ink:#131A24; --muted:#616B7A; --rule:#E2E7EE; --soft:#F6F8FB;
   --accent:#1E7A4C; --accent-hover:#17633D; --accent-soft:#E3F2EA; --on-accent:#FFFFFF;
   --hl:#FFE45C; --hl-ink:#131A24; --red:#B3261E; --blue:#1D4ED8; --green:#1E7A4C; --violet:#6B3FA0; --amber:#8A5A00; --teal:#0F766E;
@@ -26,7 +26,7 @@
     --accent:#6FD3A0; --accent-hover:#8FE0B6; --accent-soft:#13281E; --on-accent:#08160F;
     --hl:#E9C93A; --hl-ink:#0E1218; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
     --grid:rgba(232,236,242,.04); --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --shadow-sm:none; --knob:#F4F6FA;
-    --app-qq:#8B87FF; --app-ib:#6FD3A0; --app-cc:#FB923C;
+    --app-qq:#8B87FF; --app-ib:#6FD3A0; --app-cc:#FB923C; --app-rd:#2DD4BF;
   }
 }
 :root[data-theme="dark"]{
@@ -35,7 +35,7 @@
   --accent:#6FD3A0; --accent-hover:#8FE0B6; --accent-soft:#13281E; --on-accent:#08160F;
   --hl:#E9C93A; --hl-ink:#0E1218; --red:#FF8A80; --blue:#8AB4FF; --green:#6FD3A0; --violet:#C6A8F0; --amber:#F2C46D; --teal:#5EEAD4;
   --grid:rgba(232,236,242,.04); --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --shadow-sm:none; --knob:#F4F6FA;
-  --app-qq:#8B87FF; --app-ib:#6FD3A0; --app-cc:#FB923C;
+  --app-qq:#8B87FF; --app-ib:#6FD3A0; --app-cc:#FB923C; --app-rd:#2DD4BF;
 }
 /* Settings > Font (Atkinson Hyperlegible is inlined from web/vendor/atkinson.css) */
 /*__ATKINSON__*/
@@ -72,7 +72,7 @@ a{color:var(--accent)}
 .appsw-item:hover,.appsw-item:focus-visible{background:var(--soft)}
 .appsw-item svg{width:30px;height:30px;flex:none;border-radius:8px}
 .appsw-item b{font-weight:inherit}
-.appsw-item.qq b{color:var(--app-qq)} .appsw-item.ib b{color:var(--app-ib)} .appsw-item.cc b{color:var(--app-cc)}
+.appsw-item.qq b{color:var(--app-qq)} .appsw-item.ib b{color:var(--app-ib)} .appsw-item.cc b{color:var(--app-cc)} .appsw-item.rd b{color:var(--app-rd)}
 .appsw-item[aria-current="page"]::after{content:"";margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--muted)}
 .appsw-home{display:flex;align-items:center;gap:12px;margin-top:6px;padding:9px 10px;border:1px solid var(--rule);border-radius:var(--radius-sm);background:var(--soft);color:var(--ink);text-decoration:none;font:650 calc(15px * var(--fs))/calc(1.5 * var(--lh)) var(--sans)}
 .appsw-home:hover,.appsw-home:focus-visible{border-color:var(--accent)}
@@ -367,7 +367,8 @@ window.CBSET=(function(){
      <a class="appsw-item qq" role="menuitem" href="../Quiz_Qrusher/"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swqq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5145E6"/><stop offset="1" stop-color="#3A31B8"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swqq)"/><g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"><circle cx="246" cy="240" r="153" stroke-width="50"/><path d="M368 336L430 378" stroke-width="54"/><path d="M190 244L232 288L304 200" stroke-width="34"/></g></svg><span>Quiz<b>Qrusher</b></span></a>
      <a class="appsw-item ib" role="menuitem" href="../Class_Base/" aria-current="page"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#24935C"/><stop offset="1" stop-color="#16603B"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swib)"/><rect x="132" y="92" width="268" height="190" rx="24" fill="#FFFFFF" fill-opacity=".42"/><rect x="92" y="130" width="282" height="206" rx="26" fill="#FFFFFF"/><path d="M136 186H290M136 230H252M136 274H214" fill="none" stroke="#1B7047" stroke-width="22" stroke-linecap="round"/><circle cx="338" cy="326" r="70" fill="#1B7047" stroke="#FFFFFF" stroke-width="30"/><path d="M392 380L432 420" fill="none" stroke="#FFFFFF" stroke-width="42" stroke-linecap="round"/></svg><span>Info<b>Base</b></span></a>
      <a class="appsw-item cc" role="menuitem" href="../CwikCard/"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swcc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset="1" stop-color="#B83A0A"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swcc)"/><rect x="168" y="92" width="232" height="300" rx="30" fill="#FFFFFF" fill-opacity=".42" transform="rotate(12 284 242)"/><g transform="rotate(-6 236 268)"><rect x="120" y="118" width="232" height="300" rx="30" fill="#FFFFFF"/><path d="M262 166L192 290H240L218 372L290 244H242Z" fill="#C2410C"/></g></svg><span>Cwik<b>Card</b></span></a>
-     <a class="appsw-home" role="menuitem" href="../"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#131A24"/><rect x="14" y="14" width="16" height="16" rx="4" fill="#5145E6"/><rect x="34" y="14" width="16" height="16" rx="4" fill="#24935C"/><rect x="14" y="34" width="36" height="16" rx="4" fill="#E8611A"/></svg><span>Home<small>All study apps</small></span></a>
+     <a class="appsw-item rd" role="menuitem" href="../RunDown/"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="swrd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14A394"/><stop offset="1" stop-color="#0B5F59"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#swrd)"/><rect x="104" y="84" width="256" height="328" rx="30" fill="#FFFFFF"/><path d="M152 156H272" stroke="#0F766E" stroke-width="32" stroke-linecap="round"/><path d="M152 222H312M152 276H286M152 330H230" stroke="#0F766E" stroke-opacity=".5" stroke-width="22" stroke-linecap="round"/><circle cx="356" cy="360" r="82" fill="#0F766E" stroke="#FFFFFF" stroke-width="28"/><path d="M356 314V398M322 366L356 400L390 366" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Run<b>Down</b></span></a>
+     <a class="appsw-home" role="menuitem" href="../"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#131A24"/><rect x="14" y="14" width="16" height="16" rx="4" fill="#5145E6"/><rect x="34" y="14" width="16" height="16" rx="4" fill="#24935C"/><rect x="14" y="34" width="16" height="16" rx="4" fill="#E8611A"/><rect x="34" y="34" width="16" height="16" rx="4" fill="#14A394"/></svg><span>Home<small>All study apps</small></span></a>
     </div>
    </div>
    <h1 id="ttl"></h1>
@@ -489,7 +490,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const COURSE_KEY=(D.meta.title||'course').replace(/[^A-Za-z0-9]+/g,'_');
 const HOSTED=!!D.meta.hosted;   /* the GitHub Pages app (build.py --site): classes, offline download, service worker */
-const APP_VERSION='1.1.2';      /* shown in Settings; log each release in VERSIONS there */
+const APP_VERSION='1.1.3';      /* shown in Settings; log each release in VERSIONS there */
 /* The hosted app is called InfoBase (it was Class Base). Its data still says 'Class Base': that title is COURSE_KEY, which names
    the IndexedDB database holding people's added files, so changing it would lose them. Only the name on screen changed. */
 if(HOSTED&&D.meta.title==='Class Base'){ $('#ttl').innerHTML='Info<span>Base</span>'; $('#beta').hidden=false; } else $('#ttl').textContent=D.meta.title;
@@ -1699,6 +1700,7 @@ const SETTINGS_UI=[
     {key:'showAnswers',label:'Show answers right away',desc:'Off hides each answer until you click Show answer.',type:'switch'}]}
 ];
 const VERSIONS=[
+  ['1.1.3','RunDown, a new Markdown word processor, joins the study apps menu.'],
   ['1.1.2','On phones the browser’s top bar is InfoBase green in light mode, as it’s QuizQrusher indigo and CwikCard orange, instead of white.'],
   ['1.1.1','The title bar now lines up with QuizQrusher’s and CwikCard’s: it spans the window at the same height, with the name, the app menu and Settings in the same places, so switching apps doesn’t make the header jump.'],
   ['1.1.0','Class Base is now InfoBase (in beta): same app, same classes and files. The down arrow next to the name opens a menu of the study apps (QuizQrusher, InfoBase and the new CwikCard flashcards) with Home at the bottom.'],
